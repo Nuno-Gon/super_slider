@@ -1,6 +1,6 @@
-# Slide Puzzle
+# Super Slider - Quack Edition
 
-![Photo Booth Header][logo]
+![sliding-ducks-slide](https://user-images.githubusercontent.com/10478475/149675649-73e0e736-cf5b-4361-908d-45302beb8a22.gif)
 
 ![coverage][coverage_badge]
 [![style: very good analysis][very_good_analysis_badge]][very_good_analysis_link]
