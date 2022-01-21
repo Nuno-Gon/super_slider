@@ -355,8 +355,8 @@ class SimplePuzzleMegaTile extends StatelessWidget {
     /// Shuffle only if the current theme is Simple.
     final shufflePuzzle = theme is SimpleTheme;
 
-    final areAllMiniTilesDisabled = state.activeTile == null ||
-        state.activeTile?.value == 100; //TODO JR fix this shit
+    /// Check if the player isn't using a Mini Puzzle
+    final allTilesDeactivated = state.activeTile == null;
 
     return Stack(
       children: [
@@ -374,7 +374,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
         if (state.activeTile != tile)
           GestureDetector(
             onTap: state.puzzleStatus == PuzzleStatus.incomplete &&
-                    areAllMiniTilesDisabled
+                    allTilesDeactivated
                 ? () => context.read<PuzzleBloc>().add(TileTapped(tile))
                 : null,
             onDoubleTap: () {

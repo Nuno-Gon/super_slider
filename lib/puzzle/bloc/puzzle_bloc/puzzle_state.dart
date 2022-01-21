@@ -70,6 +70,24 @@ class PuzzleState extends Equatable {
     );
   }
 
+  PuzzleState resetActiveTile({
+    Puzzle? puzzle,
+    PuzzleStatus? puzzleStatus,
+    TileMovementStatus? tileMovementStatus,
+    int? numberOfCorrectTiles,
+    int? numberOfMoves,
+    Tile? lastTappedTile,
+  }) {
+    return PuzzleState(
+      puzzle: puzzle ?? this.puzzle,
+      puzzleStatus: puzzleStatus ?? this.puzzleStatus,
+      tileMovementStatus: tileMovementStatus ?? this.tileMovementStatus,
+      numberOfCorrectTiles: numberOfCorrectTiles ?? this.numberOfCorrectTiles,
+      numberOfMoves: numberOfMoves ?? this.numberOfMoves,
+      lastTappedTile: lastTappedTile ?? this.lastTappedTile,
+    );
+  }
+
   @override
   List<Object?> get props => [
         puzzle,

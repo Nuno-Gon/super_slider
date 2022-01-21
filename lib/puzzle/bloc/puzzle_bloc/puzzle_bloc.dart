@@ -90,14 +90,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   void _onActiveTileReset(ActiveTileReset event, Emitter<PuzzleState> emit) {
     if (state.puzzleStatus == PuzzleStatus.incomplete) {
       emit(
-        state.copyWith(
-          //TODO JR
-          activeTile: const Tile(
-            value: 100,
-            correctPosition: Position(x: 200, y: 200),
-            currentPosition: Position(x: 200, y: 201),
-          ),
-        ),
+        state.resetActiveTile(),
       );
     }
   }
