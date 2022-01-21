@@ -7,12 +7,15 @@ import 'package:equatable/equatable.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 
 part 'puzzle_event.dart';
+
 part 'puzzle_state.dart';
 
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   PuzzleBloc(this._size, {this.random}) : super(const PuzzleState()) {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
+    on<TileDoubleTapped>(_onTileDoubleTapped);
+    on<ActiveTileReset>(_onActiveTileReset);
     on<PuzzleReset>(_onPuzzleReset);
   }
 
@@ -73,6 +76,32 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     }
   }
 
+  void _onTileDoubleTapped(TileDoubleTapped event, Emitter<PuzzleState> emit) {
+    final doubleTappedTile = event.tile;
+    if (state.puzzleStatus == PuzzleStatus.incomplete) {
+      emit(
+        state.copyWith(
+          activeTile: doubleTappedTile,
+        ),
+      );
+    }
+  }
+
+  void _onActiveTileReset(ActiveTileReset event, Emitter<PuzzleState> emit) {
+    if (state.puzzleStatus == PuzzleStatus.incomplete) {
+      emit(
+        state.copyWith(
+          //TODO JR
+          activeTile: const Tile(
+            value: 100,
+            correctPosition: Position(x: 200, y: 200),
+            currentPosition: Position(x: 200, y: 201),
+          ),
+        ),
+      );
+    }
+  }
+
   void _onPuzzleReset(PuzzleReset event, Emitter<PuzzleState> emit) {
     final puzzle = _generatePuzzle(_size);
     emit(
@@ -104,7 +133,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     }
 
     if (shuffle) {
-      // Randomize only the current tile posistions.
+      // Randomize only the current tile positions.
       currentPositions.shuffle(random);
     }
 
