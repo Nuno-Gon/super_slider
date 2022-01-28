@@ -6,8 +6,8 @@ import 'package:very_good_slide_puzzle/l10n/l10n.dart';
 import 'package:very_good_slide_puzzle/layout/layout.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
+import 'package:very_good_slide_puzzle/settings/settings.dart';
 import 'package:very_good_slide_puzzle/theme/theme.dart';
-import 'package:very_good_slide_puzzle/typography/typography.dart';
 
 /// {@template simple_puzzle_layout_delegate}
 /// A delegate for computing the layout of the puzzle UI
@@ -89,7 +89,12 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
   }
 
   @override
-  Widget boardBuilder(int size, List<Widget> tiles, PuzzleType puzzleType) {
+  Widget boardBuilder(
+    int size,
+    List<Widget> tiles,
+    PuzzleType puzzleType,
+    SettingsState settings,
+  ) {
     final isMegaPuzzle = puzzleType == PuzzleType.mega;
 
     return Column(
@@ -101,17 +106,30 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
             large: 96,
           ),
         ResponsiveLayoutBuilder(
+          // TODO(JR): simplify
           small: (_, __) => SizedBox.square(
-            dimension: isMegaPuzzle ? _BoardSize.small : _MiniBoardSize.small,
+            dimension: isMegaPuzzle
+                ? _BoardSize.small
+                : _miniBoardSize(
+                    boardSize: _BoardSize.small,
+                    gapSize: 4,
+                    size: settings.megaPuzzleSize,
+                  ),
             child: SimplePuzzleBoard(
               key: const Key('simple_puzzle_board_small'),
               size: size,
               tiles: tiles,
-              spacing: 5,
+              spacing: 4,
             ),
           ),
           medium: (_, __) => SizedBox.square(
-            dimension: isMegaPuzzle ? _BoardSize.medium : _MiniBoardSize.medium,
+            dimension: isMegaPuzzle
+                ? _BoardSize.medium
+                : _miniBoardSize(
+                    boardSize: _BoardSize.medium,
+                    gapSize: 2,
+                    size: settings.megaPuzzleSize,
+                  ),
             child: SimplePuzzleBoard(
               key: const Key('simple_puzzle_board_medium'),
               size: size,
@@ -119,7 +137,13 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
             ),
           ),
           large: (_, __) => SizedBox.square(
-            dimension: isMegaPuzzle ? _BoardSize.large : _MiniBoardSize.large,
+            dimension: isMegaPuzzle
+                ? _BoardSize.large
+                : _miniBoardSize(
+                    boardSize: _BoardSize.large,
+                    gapSize: 2,
+                    size: settings.megaPuzzleSize,
+                  ),
             child: SimplePuzzleBoard(
               key: const Key('simple_puzzle_board_large'),
               size: size,
@@ -136,7 +160,7 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
   }
 
   @override
-  Widget megaTileBuilder(Tile tile, PuzzleState state) {
+  Widget megaTileBuilder(MegaTile tile, PuzzleState state) {
     return ResponsiveLayoutBuilder(
       small: (_, __) => SimplePuzzleMegaTile(
         key: Key('simple_puzzle_tile_${tile.value}_small'),
@@ -162,19 +186,16 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
       small: (_, __) => SimplePuzzleMiniTile(
         key: Key('simple_puzzle_mini_tile_${tile.value}_small'),
         tile: tile,
-        tileFontSize: _TileFontSize.small,
         state: state,
       ),
       medium: (_, __) => SimplePuzzleMiniTile(
         key: Key('simple_puzzle_mini_tile_${tile.value}_medium'),
         tile: tile,
-        tileFontSize: _TileFontSize.medium,
         state: state,
       ),
       large: (_, __) => SimplePuzzleMiniTile(
         key: Key('simple_puzzle_mini_tile_${tile.value}_large'),
         tile: tile,
-        tileFontSize: _TileFontSize.large,
         state: state,
       ),
     );
@@ -187,6 +208,15 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
 
   @override
   List<Object?> get props => [];
+
+  double _miniBoardSize({
+    required double boardSize,
+    required int gapSize,
+    required int size,
+  }) {
+    final numberOfGaps = size - 1;
+    return (boardSize - (numberOfGaps * gapSize)) / size;
+  }
 }
 
 /// {@template simple_start_section}
@@ -271,12 +301,6 @@ abstract class _BoardSize {
   static double large = 472;
 }
 
-abstract class _MiniBoardSize {
-  static double small = 100; // TODO(JR): make it dynamic
-  static double medium = 134;
-  static double large = 150;
-}
-
 /// {@template simple_puzzle_board}
 /// Display the board of the puzzle in a [size]x[size] layout
 /// filled with [tiles]. Each tile is spaced with [spacing].
@@ -288,7 +312,7 @@ class SimplePuzzleBoard extends StatelessWidget {
     Key? key,
     required this.size,
     required this.tiles,
-    this.spacing = 8,
+    this.spacing = 2,
   }) : super(key: key);
 
   /// The size of the board.
@@ -307,7 +331,7 @@ class SimplePuzzleBoard extends StatelessWidget {
             const ActiveTileReset(),
           ),
       child: Container(
-        color: Colors.green.withOpacity(size == 3 ? 0 : 1), // TODO(JR): temp
+        color: Colors.green.withOpacity(size == 3 ? 0 : 0.3), // TODO(JR): temp
         child: GridView.count(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
@@ -320,13 +344,6 @@ class SimplePuzzleBoard extends StatelessWidget {
       ),
     );
   }
-}
-
-abstract class _TileFontSize {
-  // TODO(JR): to be deleted
-  static double small = 6;
-  static double medium = 8;
-  static double large = 10;
 }
 
 /// {@template simple_puzzle_mega_tile}
@@ -343,7 +360,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
   }) : super(key: key);
 
   /// The tile to be displayed.
-  final Tile tile;
+  final MegaTile tile;
 
   /// The state of the puzzle.
   final PuzzleState state;
@@ -351,6 +368,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
+    final settings = context.select((SettingsBloc bloc) => bloc.state);
 
     /// Shuffle only if the current theme is Simple.
     final shufflePuzzle = theme is SimpleTheme;
@@ -361,8 +379,12 @@ class SimplePuzzleMegaTile extends StatelessWidget {
     return Stack(
       children: [
         BlocProvider(
-          create: (context) => MiniPuzzleBloc(4)
-            ..add(
+          key: ValueKey(tile),
+          create: (context) => MiniPuzzleBloc(
+            settings.miniPuzzleSize,
+            image: tile.image,
+            megaTile: tile,
+          )..add(
               MiniPuzzleInitialized(
                 shufflePuzzle: shufflePuzzle,
               ),
@@ -372,19 +394,37 @@ class SimplePuzzleMegaTile extends StatelessWidget {
           ),
         ),
         if (state.activeTile != tile)
-          GestureDetector(
-            onTap: state.puzzleStatus == PuzzleStatus.incomplete &&
-                    allTilesDeactivated
-                ? () => context.read<PuzzleBloc>().add(TileTapped(tile))
-                : null,
-            onDoubleTap: () {
-              context.read<PuzzleBloc>().add(TileDoubleTapped(tile));
-            },
-            child: Container(
-              // TODO(JR): temp, for aux visual aid
-              color: Colors.red.shade50.withOpacity(0.5),
-              child: Center(
-                child: Text(tile.value.toString()),
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: state.puzzleStatus == PuzzleStatus.incomplete &&
+                      allTilesDeactivated
+                  ? () => context.read<PuzzleBloc>().add(TileTapped(tile))
+                  : null,
+              onDoubleTap: () =>
+                  context.read<PuzzleBloc>().add(TileDoubleTapped(tile)),
+              onLongPress: () {
+                // TODO(JR): Here just for the purpose of testability; remove
+                context.read<SettingsBloc>().add(
+                      const SettingsUpdated(
+                        5,
+                        4,
+                        'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Anas_platyrhynchos_male_female_quadrat.jpg/1200px-Anas_platyrhynchos_male_female_quadrat.jpg',
+                      ),
+                    );
+              },
+              child: Container(
+                // TODO(JR): temp, for aux visual aid
+                color: Colors.red.shade50.withOpacity(0.5),
+                // child: Center(
+                //   child: Text(tile.value.toString()),
+                // ),
+                child: Opacity(
+                  opacity: 0.6,
+                  child: FittedBox(
+                    fit: BoxFit.fill,
+                    child: tile.displayImage,
+                  ),
+                ),
               ),
             ),
           ),
@@ -394,8 +434,8 @@ class SimplePuzzleMegaTile extends StatelessWidget {
 }
 
 /// {@template simple_puzzle_mini_tile}
-/// Displays the puzzle mini tile associated with [tile] and
-/// the font size of [tileFontSize] based on the puzzle [state].
+/// Displays the puzzle mini tile associated with [tile]
+/// based on the puzzle [state].
 /// {@endtemplate}
 @visibleForTesting
 class SimplePuzzleMiniTile extends StatelessWidget {
@@ -403,52 +443,32 @@ class SimplePuzzleMiniTile extends StatelessWidget {
   const SimplePuzzleMiniTile({
     Key? key,
     required this.tile,
-    required this.tileFontSize,
     required this.state,
   }) : super(key: key);
 
   /// The tile to be displayed.
   final Tile tile;
 
-  /// The font size of the tile to be displayed.
-  final double tileFontSize;
-
   /// The state of the puzzle.
   final MiniPuzzleState state;
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
-
-    return TextButton(
-      style: TextButton.styleFrom(
-        primary: PuzzleColors.white,
-        textStyle: PuzzleTextStyle.headline2.copyWith(
-          fontSize: tileFontSize,
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(12),
-          ),
-        ),
-      ).copyWith(
-        foregroundColor: MaterialStateProperty.all(PuzzleColors.white),
-        backgroundColor: MaterialStateProperty.resolveWith<Color?>(
-          (states) {
-            if (tile.value == state.lastTappedTile?.value) {
-              return theme.pressedColor;
-            } else if (states.contains(MaterialState.hovered)) {
-              return theme.hoverColor;
-            } else {
-              return theme.defaultColor;
-            }
-          },
-        ),
-      ),
-      onPressed: state.puzzleStatus == PuzzleStatus.incomplete
+    return GestureDetector(
+      onTap: state.puzzleStatus == PuzzleStatus.incomplete
           ? () => context.read<MiniPuzzleBloc>().add(MiniTileTapped(tile))
           : null,
-      child: Text(tile.value.toString()),
+      child: Container(
+        // TODO(JR): temp, for aux visual aid
+        color: Colors.red,
+        // child: Center(
+        //   child: Text(tile.value.toString()),
+        // ),
+        child: FittedBox(
+          fit: BoxFit.fill,
+          child: tile.displayImage,
+        ),
+      ),
     );
   }
 }

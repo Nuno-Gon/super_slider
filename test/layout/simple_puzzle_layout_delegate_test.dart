@@ -8,6 +8,7 @@ import 'package:very_good_slide_puzzle/colors/colors.dart';
 import 'package:very_good_slide_puzzle/layout/simple_puzzle_layout_delegate.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
+import 'package:very_good_slide_puzzle/settings/settings.dart';
 import 'package:very_good_slide_puzzle/theme/theme.dart';
 
 import '../helpers/helpers.dart';
@@ -18,6 +19,7 @@ void main() {
     late ThemeBloc themeBloc;
     late PuzzleTheme theme;
     late PuzzleState state;
+    late SettingsState settings;
 
     const themeName = 'Name';
 
@@ -35,10 +37,15 @@ void main() {
       theme = MockPuzzleTheme();
       state = MockPuzzleState();
       final themeState = MockThemeState();
+      settings = MockSettingsState();
 
       when(() => state.puzzleStatus).thenReturn(PuzzleStatus.incomplete);
       when(() => state.numberOfMoves).thenReturn(5);
       when(() => state.numberOfTilesLeft).thenReturn(15);
+
+      when(() => settings.megaPuzzleSize).thenReturn(3);
+      when(() => settings.miniPuzzleSize).thenReturn(3);
+      when(() => settings.userImageUrl).thenReturn('');
 
       when(() => theme.name).thenReturn(themeName);
       when(() => theme.defaultColor).thenReturn(Colors.black);
@@ -230,6 +237,7 @@ void main() {
               4,
               [const SizedBox()],
               PuzzleType.mega,
+              settings,
             ),
           ),
           themeBloc: themeBloc,
@@ -250,10 +258,9 @@ void main() {
           SingleChildScrollView(
             child: layoutDelegate.boardBuilder(
               4,
-              [
-                const SizedBox(),
-              ],
+              [const SizedBox()],
               PuzzleType.mega,
+              settings,
             ),
           ),
           themeBloc: themeBloc,
@@ -274,10 +281,9 @@ void main() {
           SingleChildScrollView(
             child: layoutDelegate.boardBuilder(
               4,
-              [
-                const SizedBox(),
-              ],
+              [const SizedBox()],
               PuzzleType.mega,
+              settings,
             ),
           ),
           themeBloc: themeBloc,
@@ -291,11 +297,11 @@ void main() {
     });
 
     group('tileBuilder', () {
-      late Tile tile;
+      late MegaTile tile;
       const tileValue = 10;
 
       setUp(() {
-        tile = MockTile();
+        tile = MockMegaTile();
         when(() => tile.value).thenReturn(tileValue);
       });
 
@@ -433,11 +439,11 @@ void main() {
     });
 
     group('SimplePuzzleTile', () {
-      late Tile tile;
+      late MegaTile tile;
       const tileValue = 10;
 
       setUp(() {
-        tile = MockTile();
+        tile = MockMegaTile();
         when(() => tile.value).thenReturn(tileValue);
       });
 

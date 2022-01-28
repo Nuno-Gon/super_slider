@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
+import 'package:very_good_slide_puzzle/settings/settings.dart';
 
 /// {@template puzzle_layout_delegate}
 /// A delegate for computing the layout of the puzzle UI.
@@ -41,15 +42,20 @@ abstract class PuzzleLayoutDelegate extends Equatable {
   ///
   /// The board should display the list of [tiles],
   /// each built with either [miniTileBuilder]
-  /// or [megaTileBuilder] according to [puzzleType].
-  Widget boardBuilder(int size, List<Widget> tiles, PuzzleType puzzleType);
+  /// or [megaTileBuilder] according to [puzzleType] and [settings].
+  Widget boardBuilder(
+    int size,
+    List<Widget> tiles,
+    PuzzleType puzzleType,
+    SettingsState settings,
+  );
 
   /// A widget builder for the puzzle tile associated
   /// with [tile] and based on the puzzle [state].
   ///
   /// To complete the puzzle, all tiles must be arranged
   /// in order by their [Tile.value].
-  Widget megaTileBuilder(Tile tile, PuzzleState state);
+  Widget megaTileBuilder(MegaTile tile, PuzzleState state);
 
   /// A widget builder for the mini puzzle tile associated
   /// with [tile] and based on the mini puzzle [state].

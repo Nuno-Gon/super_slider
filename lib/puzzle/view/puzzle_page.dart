@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:very_good_slide_puzzle/layout/layout.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
+import 'package:very_good_slide_puzzle/settings/settings.dart';
 import 'package:very_good_slide_puzzle/theme/theme.dart';
 import 'package:very_good_slide_puzzle/timer/timer.dart';
 
@@ -27,7 +28,10 @@ class PuzzlePage extends StatelessWidget {
           SimpleTheme(),
         ],
       ),
-      child: const PuzzleView(),
+      child: BlocProvider(
+        create: (context) => SettingsBloc(),
+        child: const PuzzleView(),
+      ),
     );
   }
 }
@@ -42,6 +46,7 @@ class PuzzleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
+    final settings = context.select((SettingsBloc bloc) => bloc.state);
 
     /// Shuffle only if the current theme is Simple.
     final shufflePuzzle = theme is SimpleTheme;
@@ -53,8 +58,11 @@ class PuzzleView extends StatelessWidget {
           ticker: const Ticker(),
         ),
         child: BlocProvider(
-          create: (context) => PuzzleBloc(3)
-            ..add(
+          key: ValueKey(settings),
+          create: (context) => PuzzleBloc(
+            settings.megaPuzzleSize,
+            imageUrl: settings.userImageUrl,
+          )..add(
               PuzzleInitialized(
                 shufflePuzzle: shufflePuzzle,
               ),
@@ -273,12 +281,16 @@ class PuzzleBoard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
+    final settings = context.select((SettingsBloc bloc) => bloc.state);
     final puzzle = puzzleType == PuzzleType.mega
         ? context.select((PuzzleBloc bloc) => bloc.state.puzzle)
         : context.select((MiniPuzzleBloc bloc) => bloc.state.puzzle);
 
     final size = puzzle.getDimension();
-    if (size == 0) return const CircularProgressIndicator();
+    if (size == 0) {
+      // TODO(JR): improve loading state/layout
+      return const CircularProgressIndicator();
+    }
 
     return BlocListener<PuzzleBloc, PuzzleState>(
       listener: (context, state) {
@@ -298,6 +310,7 @@ class PuzzleBoard extends StatelessWidget {
             )
             .toList(),
         puzzleType,
+        settings,
       ),
     );
   }
@@ -321,7 +334,7 @@ class _PuzzleTile extends StatelessWidget {
 
     final tileLayout = isMegaTile
         ? theme.layoutDelegate.megaTileBuilder(
-            tile,
+            tile as MegaTile,
             context.select((PuzzleBloc bloc) => bloc.state),
           )
         : theme.layoutDelegate.miniTileBuilder(

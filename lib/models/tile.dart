@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:image/image.dart' as imglib;
 import 'package:very_good_slide_puzzle/models/models.dart';
 
 /// {@template tile}
@@ -10,6 +12,8 @@ class Tile extends Equatable {
     required this.value,
     required this.correctPosition,
     required this.currentPosition,
+    this.image,
+    this.displayImage,
     this.isWhitespace = false,
   });
 
@@ -23,6 +27,12 @@ class Tile extends Equatable {
   /// The current 2D [Position] of the [Tile].
   final Position currentPosition;
 
+  /// The image data used to create the Image widget for the [Tile].
+  final imglib.Image? image;
+
+  /// The [Image] displayed in the [Tile].
+  final Image? displayImage;
+
   /// Denotes if the [Tile] is the whitespace tile or not.
   final bool isWhitespace;
 
@@ -32,6 +42,8 @@ class Tile extends Equatable {
       value: value,
       correctPosition: correctPosition,
       currentPosition: currentPosition,
+      image: image,
+      displayImage: displayImage,
       isWhitespace: isWhitespace,
     );
   }

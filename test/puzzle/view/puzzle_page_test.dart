@@ -40,7 +40,7 @@ void main() {
       when(() => layoutDelegate.backgroundBuilder(any()))
           .thenReturn(SizedBox());
 
-      when(() => layoutDelegate.boardBuilder(any(), any(), any()))
+      when(() => layoutDelegate.boardBuilder(any(), any(), any(), any()))
           .thenReturn(SizedBox());
 
       when(() => layoutDelegate.megaTileBuilder(any(), any()))
@@ -180,13 +180,14 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      verify(() => layoutDelegate.boardBuilder(any(), any(), any())).called(1);
+      verify(() => layoutDelegate.boardBuilder(any(), any(), any(), any()))
+          .called(1);
     });
 
     testWidgets(
         'builds 15 tiles '
         'with layoutDelegate.tileBuilder', (tester) async {
-      when(() => layoutDelegate.boardBuilder(any(), any(), any()))
+      when(() => layoutDelegate.boardBuilder(any(), any(), any(), any()))
           .thenAnswer((invocation) {
         final tiles = invocation.positionalArguments[1] as List<Widget>;
         return Row(children: tiles);
@@ -205,7 +206,7 @@ void main() {
     testWidgets(
         'builds 1 whitespace tile '
         'with layoutDelegate.whitespaceTileBuilder', (tester) async {
-      when(() => layoutDelegate.boardBuilder(any(), any(), any()))
+      when(() => layoutDelegate.boardBuilder(any(), any(), any(), any()))
           .thenAnswer((invocation) {
         final tiles = invocation.positionalArguments[1] as List<Widget>;
         return Row(children: tiles);
