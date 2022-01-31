@@ -230,8 +230,11 @@ class _PuzzleSections extends StatelessWidget {
       small: (context, child) => Column(
         children: [
           if (isMegaLayout) theme.layoutDelegate.startSectionBuilder(state),
-          PuzzleBoard(
-            puzzleType: puzzleType,
+          Container(
+            color: isMegaLayout ? Colors.brown : null, // TODO(JR): for test
+            child: PuzzleBoard(
+              puzzleType: puzzleType,
+            ),
           ),
           if (isMegaLayout) theme.layoutDelegate.endSectionBuilder(state),
         ],
@@ -239,8 +242,11 @@ class _PuzzleSections extends StatelessWidget {
       medium: (context, child) => Column(
         children: [
           if (isMegaLayout) theme.layoutDelegate.startSectionBuilder(state),
-          PuzzleBoard(
-            puzzleType: puzzleType,
+          Container(
+            color: isMegaLayout ? Colors.brown : null, // TODO(JR): for test
+            child: PuzzleBoard(
+              puzzleType: puzzleType,
+            ),
           ),
           if (isMegaLayout) theme.layoutDelegate.endSectionBuilder(state),
         ],
@@ -252,8 +258,11 @@ class _PuzzleSections extends StatelessWidget {
             Expanded(
               child: theme.layoutDelegate.startSectionBuilder(state),
             ),
-          PuzzleBoard(
-            puzzleType: puzzleType,
+          Container(
+            color: isMegaLayout ? Colors.brown : null, // TODO(JR): for test
+            child: PuzzleBoard(
+              puzzleType: puzzleType,
+            ),
           ),
           if (isMegaLayout)
             Expanded(
