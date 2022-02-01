@@ -96,62 +96,76 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
     SettingsState settings,
   ) {
     final isMegaPuzzle = puzzleType == PuzzleType.mega;
+    final transformationController = TransformationController();
 
-    return Column(
-      children: [
-        if (isMegaPuzzle)
-          const ResponsiveGap(
-            small: 32,
-            medium: 48,
-            large: 96,
-          ),
-        ResponsiveLayoutBuilder(
-          // TODO(JR): simplify
-          small: (_, __) => SizedBox.square(
-            dimension: isMegaPuzzle
-                ? _BoardSize.small
-                : _miniBoardSize(
-                    boardSize: _BoardSize.small,
-                    size: settings.megaPuzzleSize,
-                  ),
-            child: SimplePuzzleBoard(
-              key: const Key('simple_puzzle_board_small'),
-              size: size,
-              tiles: tiles,
+    if (isMegaPuzzle) {
+      // TODO(JR): wip for zooming
+      // transformationController.toScene(Offset(20, 10));
+      // transformationController.value = Matrix4.identity()
+      // //..translate(-position.dx * 2, -position.dy * 2)
+      //   ..scale(1.4);
+    }
+
+    return InteractiveViewer(
+      transformationController: transformationController,
+      panEnabled: false,
+      scaleEnabled: false,
+      child: Column(
+        children: [
+          if (isMegaPuzzle)
+            const ResponsiveGap(
+              small: 32,
+              medium: 48,
+              large: 96,
+            ),
+          ResponsiveLayoutBuilder(
+            // TODO(JR): simplify
+            small: (_, __) => SizedBox.square(
+              dimension: isMegaPuzzle
+                  ? _BoardSize.small
+                  : _miniBoardSize(
+                      boardSize: _BoardSize.small,
+                      size: settings.megaPuzzleSize,
+                    ),
+              child: SimplePuzzleBoard(
+                key: const Key('simple_puzzle_board_small'),
+                size: size,
+                tiles: tiles,
+              ),
+            ),
+            medium: (_, __) => SizedBox.square(
+              dimension: isMegaPuzzle
+                  ? _BoardSize.medium
+                  : _miniBoardSize(
+                      boardSize: _BoardSize.medium,
+                      size: settings.megaPuzzleSize,
+                    ),
+              child: SimplePuzzleBoard(
+                key: const Key('simple_puzzle_board_medium'),
+                size: size,
+                tiles: tiles,
+              ),
+            ),
+            large: (_, __) => SizedBox.square(
+              dimension: isMegaPuzzle
+                  ? _BoardSize.large
+                  : _miniBoardSize(
+                      boardSize: _BoardSize.large,
+                      size: settings.megaPuzzleSize,
+                    ),
+              child: SimplePuzzleBoard(
+                key: const Key('simple_puzzle_board_large'),
+                size: size,
+                tiles: tiles,
+              ),
             ),
           ),
-          medium: (_, __) => SizedBox.square(
-            dimension: isMegaPuzzle
-                ? _BoardSize.medium
-                : _miniBoardSize(
-                    boardSize: _BoardSize.medium,
-                    size: settings.megaPuzzleSize,
-                  ),
-            child: SimplePuzzleBoard(
-              key: const Key('simple_puzzle_board_medium'),
-              size: size,
-              tiles: tiles,
+          if (isMegaPuzzle)
+            const ResponsiveGap(
+              large: 96,
             ),
-          ),
-          large: (_, __) => SizedBox.square(
-            dimension: isMegaPuzzle
-                ? _BoardSize.large
-                : _miniBoardSize(
-                    boardSize: _BoardSize.large,
-                    size: settings.megaPuzzleSize,
-                  ),
-            child: SimplePuzzleBoard(
-              key: const Key('simple_puzzle_board_large'),
-              size: size,
-              tiles: tiles,
-            ),
-          ),
-        ),
-        if (isMegaPuzzle)
-          const ResponsiveGap(
-            large: 96,
-          ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -520,9 +534,9 @@ class SimplePuzzleMiniTile extends StatelessWidget {
               ),
             ),
           ),
+          // TODO(JR): show piece number?
           // Center(
           //   child: Text(tile.value.toString()),
-          // TODO(JR): show piece number?
           // ),
         ],
       ),
