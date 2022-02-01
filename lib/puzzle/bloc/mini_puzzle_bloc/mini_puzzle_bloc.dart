@@ -5,15 +5,16 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
+import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
-part 'puzzle_event.dart';
-part 'puzzle_state.dart';
+part 'mini_puzzle_event.dart';
 
-class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
-  PuzzleBloc(this._size, {this.random}) : super(const PuzzleState()) {
-    on<PuzzleInitialized>(_onPuzzleInitialized);
-    on<TileTapped>(_onTileTapped);
-    on<PuzzleReset>(_onPuzzleReset);
+part 'mini_puzzle_state.dart';
+
+class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
+  MiniPuzzleBloc(this._size, {this.random}) : super(const MiniPuzzleState()) {
+    on<MiniPuzzleInitialized>(_onPuzzleInitialized);
+    on<MiniTileTapped>(_onTileTapped);
   }
 
   final int _size;
@@ -21,19 +22,19 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   final Random? random;
 
   void _onPuzzleInitialized(
-    PuzzleInitialized event,
-    Emitter<PuzzleState> emit,
+    MiniPuzzleInitialized event,
+    Emitter<MiniPuzzleState> emit,
   ) {
     final puzzle = _generatePuzzle(_size, shuffle: event.shufflePuzzle);
     emit(
-      PuzzleState(
+      MiniPuzzleState(
         puzzle: puzzle.sort(),
         numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
       ),
     );
   }
 
-  void _onTileTapped(TileTapped event, Emitter<PuzzleState> emit) {
+  void _onTileTapped(MiniTileTapped event, Emitter<MiniPuzzleState> emit) {
     final tappedTile = event.tile;
     if (state.puzzleStatus == PuzzleStatus.incomplete) {
       if (state.puzzle.isTileMovable(tappedTile)) {
@@ -73,16 +74,6 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     }
   }
 
-  void _onPuzzleReset(PuzzleReset event, Emitter<PuzzleState> emit) {
-    final puzzle = _generatePuzzle(_size);
-    emit(
-      PuzzleState(
-        puzzle: puzzle.sort(),
-        numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-      ),
-    );
-  }
-
   /// Build a randomized, solvable puzzle of the given size.
   Puzzle _generatePuzzle(int size, {bool shuffle = true}) {
     final correctPositions = <Position>[];
@@ -104,7 +95,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     }
 
     if (shuffle) {
-      // Randomize only the current tile posistions.
+      // Randomize only the current tile positions.
       currentPositions.shuffle(random);
     }
 

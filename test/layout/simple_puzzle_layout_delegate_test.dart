@@ -226,9 +226,11 @@ void main() {
 
         await tester.pumpApp(
           SingleChildScrollView(
-            child: layoutDelegate.boardBuilder(4, [
-              const SizedBox(),
-            ]),
+            child: layoutDelegate.boardBuilder(
+              4,
+              [const SizedBox()],
+              PuzzleType.mega,
+            ),
           ),
           themeBloc: themeBloc,
         );
@@ -246,9 +248,13 @@ void main() {
 
         await tester.pumpApp(
           SingleChildScrollView(
-            child: layoutDelegate.boardBuilder(4, [
-              const SizedBox(),
-            ]),
+            child: layoutDelegate.boardBuilder(
+              4,
+              [
+                const SizedBox(),
+              ],
+              PuzzleType.mega,
+            ),
           ),
           themeBloc: themeBloc,
         );
@@ -266,9 +272,13 @@ void main() {
 
         await tester.pumpApp(
           SingleChildScrollView(
-            child: layoutDelegate.boardBuilder(4, [
-              const SizedBox(),
-            ]),
+            child: layoutDelegate.boardBuilder(
+              4,
+              [
+                const SizedBox(),
+              ],
+              PuzzleType.mega,
+            ),
           ),
           themeBloc: themeBloc,
         );
@@ -295,7 +305,7 @@ void main() {
         tester.setLargeDisplaySize();
 
         await tester.pumpApp(
-          layoutDelegate.tileBuilder(tile, state),
+          layoutDelegate.megaTileBuilder(tile, state),
           themeBloc: themeBloc,
         );
 
@@ -311,7 +321,7 @@ void main() {
         tester.setMediumDisplaySize();
 
         await tester.pumpApp(
-          layoutDelegate.tileBuilder(tile, state),
+          layoutDelegate.megaTileBuilder(tile, state),
           themeBloc: themeBloc,
         );
 
@@ -327,7 +337,7 @@ void main() {
         tester.setSmallDisplaySize();
 
         await tester.pumpApp(
-          layoutDelegate.tileBuilder(tile, state),
+          layoutDelegate.megaTileBuilder(tile, state),
           themeBloc: themeBloc,
         );
 
@@ -425,7 +435,6 @@ void main() {
     group('SimplePuzzleTile', () {
       late Tile tile;
       const tileValue = 10;
-      const tileFontSize = 12.0;
 
       setUp(() {
         tile = MockTile();
@@ -441,16 +450,15 @@ void main() {
         when(() => puzzleBloc.state).thenReturn(state);
 
         await tester.pumpApp(
-          SimplePuzzleTile(
+          SimplePuzzleMegaTile(
             tile: tile,
-            tileFontSize: tileFontSize,
             state: state,
           ),
           themeBloc: themeBloc,
           puzzleBloc: puzzleBloc,
         );
 
-        await tester.tap(find.byType(SimplePuzzleTile));
+        await tester.tap(find.byType(SimplePuzzleMegaTile));
 
         verify(() => puzzleBloc.add(TileTapped(tile))).called(1);
       });
@@ -464,16 +472,15 @@ void main() {
         when(() => puzzleBloc.state).thenReturn(state);
 
         await tester.pumpApp(
-          SimplePuzzleTile(
+          SimplePuzzleMegaTile(
             tile: tile,
-            tileFontSize: tileFontSize,
             state: state,
           ),
           themeBloc: themeBloc,
           puzzleBloc: puzzleBloc,
         );
 
-        await tester.tap(find.byType(SimplePuzzleTile));
+        await tester.tap(find.byType(SimplePuzzleMegaTile));
 
         verifyNever(() => puzzleBloc.add(TileTapped(tile)));
       });
@@ -487,16 +494,15 @@ void main() {
 
         testWidgets('given default state', (tester) async {
           await tester.pumpApp(
-            SimplePuzzleTile(
+            SimplePuzzleMegaTile(
               tile: tile,
-              tileFontSize: tileFontSize,
               state: state,
             ),
             themeBloc: themeBloc,
           );
 
           await expectLater(
-            find.byType(SimplePuzzleTile),
+            find.byType(SimplePuzzleMegaTile),
             matchesGoldenFile('goldens/simple_puzzle_tile_default.png'),
           );
         });
@@ -505,25 +511,23 @@ void main() {
           when(() => state.lastTappedTile).thenReturn(tile);
 
           await tester.pumpApp(
-            SimplePuzzleTile(
+            SimplePuzzleMegaTile(
               tile: tile,
-              tileFontSize: tileFontSize,
               state: state,
             ),
             themeBloc: themeBloc,
           );
 
           await expectLater(
-            find.byType(SimplePuzzleTile),
+            find.byType(SimplePuzzleMegaTile),
             matchesGoldenFile('goldens/simple_puzzle_tile_tapped.png'),
           );
         });
 
         testWidgets('given hover state', (tester) async {
           await tester.pumpApp(
-            SimplePuzzleTile(
+            SimplePuzzleMegaTile(
               tile: tile,
-              tileFontSize: tileFontSize,
               state: state,
             ),
             themeBloc: themeBloc,
@@ -533,11 +537,12 @@ void main() {
               await tester.createGesture(kind: PointerDeviceKind.mouse);
           await gesture.addPointer(location: Offset.zero);
           addTearDown(gesture.removePointer);
-          await gesture.moveTo(tester.getCenter(find.byType(SimplePuzzleTile)));
+          await gesture
+              .moveTo(tester.getCenter(find.byType(SimplePuzzleMegaTile)));
           await tester.pumpAndSettle();
 
           await expectLater(
-            find.byType(SimplePuzzleTile),
+            find.byType(SimplePuzzleMegaTile),
             matchesGoldenFile('goldens/simple_puzzle_tile_hover.png'),
           );
         });

@@ -40,10 +40,10 @@ void main() {
       when(() => layoutDelegate.backgroundBuilder(any()))
           .thenReturn(SizedBox());
 
-      when(() => layoutDelegate.boardBuilder(any(), any()))
+      when(() => layoutDelegate.boardBuilder(any(), any(), any()))
           .thenReturn(SizedBox());
 
-      when(() => layoutDelegate.tileBuilder(any(), any()))
+      when(() => layoutDelegate.megaTileBuilder(any(), any()))
           .thenReturn(SizedBox());
 
       when(layoutDelegate.whitespaceTileBuilder).thenReturn(SizedBox());
@@ -180,13 +180,13 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      verify(() => layoutDelegate.boardBuilder(any(), any())).called(1);
+      verify(() => layoutDelegate.boardBuilder(any(), any(), any())).called(1);
     });
 
     testWidgets(
         'builds 15 tiles '
         'with layoutDelegate.tileBuilder', (tester) async {
-      when(() => layoutDelegate.boardBuilder(any(), any()))
+      when(() => layoutDelegate.boardBuilder(any(), any(), any()))
           .thenAnswer((invocation) {
         final tiles = invocation.positionalArguments[1] as List<Widget>;
         return Row(children: tiles);
@@ -199,13 +199,13 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      verify(() => layoutDelegate.tileBuilder(any(), any())).called(15);
+      verify(() => layoutDelegate.megaTileBuilder(any(), any())).called(15);
     });
 
     testWidgets(
         'builds 1 whitespace tile '
         'with layoutDelegate.whitespaceTileBuilder', (tester) async {
-      when(() => layoutDelegate.boardBuilder(any(), any()))
+      when(() => layoutDelegate.boardBuilder(any(), any(), any()))
           .thenAnswer((invocation) {
         final tiles = invocation.positionalArguments[1] as List<Widget>;
         return Row(children: tiles);
@@ -271,7 +271,7 @@ void main() {
         when(() => timerBloc.state).thenReturn(timerState);
 
         await tester.pumpApp(
-          PuzzleBoard(),
+          PuzzleBoard(puzzleType: PuzzleType.mega),
           themeBloc: themeBloc,
           timerBloc: timerBloc,
           puzzleBloc: puzzleBloc,

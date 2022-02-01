@@ -40,15 +40,23 @@ abstract class PuzzleLayoutDelegate extends Equatable {
   /// (e.g. 4x4 puzzle has a dimension of 4).
   ///
   /// The board should display the list of [tiles],
-  /// each built with [tileBuilder].
-  Widget boardBuilder(int size, List<Widget> tiles);
+  /// each built with either [miniTileBuilder]
+  /// or [megaTileBuilder] according to [puzzleType].
+  Widget boardBuilder(int size, List<Widget> tiles, PuzzleType puzzleType);
 
   /// A widget builder for the puzzle tile associated
   /// with [tile] and based on the puzzle [state].
   ///
   /// To complete the puzzle, all tiles must be arranged
   /// in order by their [Tile.value].
-  Widget tileBuilder(Tile tile, PuzzleState state);
+  Widget megaTileBuilder(Tile tile, PuzzleState state);
+
+  /// A widget builder for the mini puzzle tile associated
+  /// with [tile] and based on the mini puzzle [state].
+  ///
+  /// To complete the mini puzzle, all tiles must be arranged
+  /// in order by their [Tile.value].
+  Widget miniTileBuilder(Tile tile, MiniPuzzleState state);
 
   /// A widget builder for the whitespace puzzle tile.
   Widget whitespaceTileBuilder();

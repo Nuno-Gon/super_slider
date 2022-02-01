@@ -6,6 +6,9 @@ import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 import 'package:very_good_slide_puzzle/theme/theme.dart';
 import 'package:very_good_slide_puzzle/timer/timer.dart';
 
+// ignore: public_member_api_docs
+enum PuzzleType { mega, mini }
+
 /// {@template puzzle_page}
 /// The root page of the puzzle UI.
 ///
@@ -50,13 +53,13 @@ class PuzzleView extends StatelessWidget {
           ticker: const Ticker(),
         ),
         child: BlocProvider(
-          create: (context) => PuzzleBloc(4)
+          create: (context) => PuzzleBloc(3)
             ..add(
               PuzzleInitialized(
                 shufflePuzzle: shufflePuzzle,
               ),
             ),
-          child: const _Puzzle(
+          child: const _MegaPuzzle(
             key: Key('puzzle_view_puzzle'),
           ),
         ),
@@ -65,8 +68,8 @@ class PuzzleView extends StatelessWidget {
   }
 }
 
-class _Puzzle extends StatelessWidget {
-  const _Puzzle({Key? key}) : super(key: key);
+class _MegaPuzzle extends StatelessWidget {
+  const _MegaPuzzle({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -83,19 +86,51 @@ class _Puzzle extends StatelessWidget {
                 constraints: BoxConstraints(
                   minHeight: constraints.maxHeight,
                 ),
-                child: Column(
-                  children: const [
-                    _PuzzleHeader(
-                      key: Key('puzzle_header'),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onDoubleTap: () => context.read<PuzzleBloc>().add(
+                              const ActiveTileReset(),
+                            ),
+                      ),
                     ),
-                    _PuzzleSections(
-                      key: Key('puzzle_sections'),
+                    Column(
+                      children: const [
+                        _PuzzleHeader(
+                          key: Key('puzzle_header'),
+                        ),
+                        _PuzzleSections(
+                          key: Key('puzzle_sections'),
+                          puzzleType: PuzzleType.mega,
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+/// {@template mini_puzzle}
+/// Displays the content for the [MiniPuzzle].
+/// {@endtemplate}
+class MiniPuzzle extends StatelessWidget {
+  /// {@macro mini_puzzle}
+  const MiniPuzzle({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return const _PuzzleSections(
+          key: Key('mini_puzzle_sections'),
+          puzzleType: PuzzleType.mini,
         );
       },
     );
@@ -170,38 +205,52 @@ class _PuzzleLogo extends StatelessWidget {
 }
 
 class _PuzzleSections extends StatelessWidget {
-  const _PuzzleSections({Key? key}) : super(key: key);
+  const _PuzzleSections({
+    Key? key,
+    required this.puzzleType,
+  }) : super(key: key);
+
+  final PuzzleType puzzleType;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
     final state = context.select((PuzzleBloc bloc) => bloc.state);
+    final isMegaLayout = puzzleType == PuzzleType.mega; // TODO(JR): refactor
 
     return ResponsiveLayoutBuilder(
       small: (context, child) => Column(
         children: [
-          theme.layoutDelegate.startSectionBuilder(state),
-          const PuzzleBoard(),
-          theme.layoutDelegate.endSectionBuilder(state),
+          if (isMegaLayout) theme.layoutDelegate.startSectionBuilder(state),
+          PuzzleBoard(
+            puzzleType: puzzleType,
+          ),
+          if (isMegaLayout) theme.layoutDelegate.endSectionBuilder(state),
         ],
       ),
       medium: (context, child) => Column(
         children: [
-          theme.layoutDelegate.startSectionBuilder(state),
-          const PuzzleBoard(),
-          theme.layoutDelegate.endSectionBuilder(state),
+          if (isMegaLayout) theme.layoutDelegate.startSectionBuilder(state),
+          PuzzleBoard(
+            puzzleType: puzzleType,
+          ),
+          if (isMegaLayout) theme.layoutDelegate.endSectionBuilder(state),
         ],
       ),
       large: (context, child) => Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: theme.layoutDelegate.startSectionBuilder(state),
+          if (isMegaLayout)
+            Expanded(
+              child: theme.layoutDelegate.startSectionBuilder(state),
+            ),
+          PuzzleBoard(
+            puzzleType: puzzleType,
           ),
-          const PuzzleBoard(),
-          Expanded(
-            child: theme.layoutDelegate.endSectionBuilder(state),
-          ),
+          if (isMegaLayout)
+            Expanded(
+              child: theme.layoutDelegate.endSectionBuilder(state),
+            ),
         ],
       ),
     );
@@ -213,12 +262,20 @@ class _PuzzleSections extends StatelessWidget {
 /// {@endtemplate}
 class PuzzleBoard extends StatelessWidget {
   /// {@macro puzzle_board}
-  const PuzzleBoard({Key? key}) : super(key: key);
+  const PuzzleBoard({
+    Key? key,
+    required this.puzzleType,
+  }) : super(key: key);
+
+  /// The type of the puzzle
+  final PuzzleType puzzleType;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
-    final puzzle = context.select((PuzzleBloc bloc) => bloc.state.puzzle);
+    final puzzle = puzzleType == PuzzleType.mega
+        ? context.select((PuzzleBloc bloc) => bloc.state.puzzle)
+        : context.select((MiniPuzzleBloc bloc) => bloc.state.puzzle);
 
     final size = puzzle.getDimension();
     if (size == 0) return const CircularProgressIndicator();
@@ -235,10 +292,12 @@ class PuzzleBoard extends StatelessWidget {
             .map(
               (tile) => _PuzzleTile(
                 key: Key('puzzle_tile_${tile.value.toString()}'),
+                isMegaTile: puzzleType == PuzzleType.mega,
                 tile: tile,
               ),
             )
             .toList(),
+        puzzleType,
       ),
     );
   }
@@ -248,18 +307,28 @@ class _PuzzleTile extends StatelessWidget {
   const _PuzzleTile({
     Key? key,
     required this.tile,
+    required this.isMegaTile,
   }) : super(key: key);
 
   /// The tile to be displayed.
   final Tile tile;
+  final bool isMegaTile;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
-    final state = context.select((PuzzleBloc bloc) => bloc.state);
+    final whitespaceLayout = theme.layoutDelegate.whitespaceTileBuilder();
 
-    return tile.isWhitespace
-        ? theme.layoutDelegate.whitespaceTileBuilder()
-        : theme.layoutDelegate.tileBuilder(tile, state);
+    final tileLayout = isMegaTile
+        ? theme.layoutDelegate.megaTileBuilder(
+            tile,
+            context.select((PuzzleBloc bloc) => bloc.state),
+          )
+        : theme.layoutDelegate.miniTileBuilder(
+            tile,
+            context.select((MiniPuzzleBloc bloc) => bloc.state),
+          );
+
+    return tile.isWhitespace ? whitespaceLayout : tileLayout;
   }
 }
