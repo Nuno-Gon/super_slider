@@ -1,9 +1,12 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:image/image.dart' as imglib;
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
@@ -12,20 +15,35 @@ part 'mini_puzzle_event.dart';
 part 'mini_puzzle_state.dart';
 
 class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
-  MiniPuzzleBloc(this._size, {this.random}) : super(const MiniPuzzleState()) {
+  MiniPuzzleBloc(this._size, {this.megaTile, this.image, this.random})
+      : super(const MiniPuzzleState()) {
     on<MiniPuzzleInitialized>(_onPuzzleInitialized);
     on<MiniTileTapped>(_onTileTapped);
   }
 
   final int _size;
 
+  final MegaTile? megaTile;
+  final imglib.Image? image;
   final Random? random;
 
   void _onPuzzleInitialized(
     MiniPuzzleInitialized event,
     Emitter<MiniPuzzleState> emit,
   ) {
-    final puzzle = _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+    emit(
+      const MiniPuzzleState(),
+    );
+
+    final hasPuzzleGenerated = megaTile!.puzzle.tiles.isNotEmpty;
+    final puzzle = hasPuzzleGenerated
+        ? megaTile!.puzzle
+        : _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+
+    if (!hasPuzzleGenerated) {
+      megaTile!.puzzle = puzzle;
+    }
+
     emit(
       MiniPuzzleState(
         puzzle: puzzle.sort(),
@@ -40,6 +58,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
       if (state.puzzle.isTileMovable(tappedTile)) {
         final mutablePuzzle = Puzzle(tiles: [...state.puzzle.tiles]);
         final puzzle = mutablePuzzle.moveTiles(tappedTile, []);
+        megaTile!.puzzle = puzzle;
         if (puzzle.isComplete()) {
           emit(
             state.copyWith(
@@ -79,6 +98,17 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     final correctPositions = <Position>[];
     final currentPositions = <Position>[];
     final whitespacePosition = Position(x: size, y: size);
+    final dividedImage = splitImage(
+      image: image,
+      horizontalPieceCount: size,
+      verticalPieceCount: size,
+    );
+
+    // Create List with converted images ready to display
+    final displayReadyImages = <Image>[];
+    for (final img in dividedImage) {
+      displayReadyImages.add(convertImage(img));
+    }
 
     // Create all possible board positions.
     for (var y = 1; y <= size; y++) {
@@ -103,6 +133,8 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
       size,
       correctPositions,
       currentPositions,
+      dividedImage,
+      displayReadyImages,
     );
 
     var puzzle = Puzzle(tiles: tiles);
@@ -116,6 +148,8 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
           size,
           correctPositions,
           currentPositions,
+          dividedImage,
+          displayReadyImages,
         );
         puzzle = Puzzle(tiles: tiles);
       }
@@ -130,6 +164,8 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     int size,
     List<Position> correctPositions,
     List<Position> currentPositions,
+    List<imglib.Image> dividedImage,
+    List<Image> displayReadyImages,
   ) {
     final whitespacePosition = Position(x: size, y: size);
     return [
@@ -137,6 +173,8 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
         if (i == size * size)
           Tile(
             value: i,
+            image: dividedImage[i - 1],
+            displayImage: displayReadyImages[i - 1],
             correctPosition: whitespacePosition,
             currentPosition: currentPositions[i - 1],
             isWhitespace: true,
@@ -144,9 +182,38 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
         else
           Tile(
             value: i,
+            image: dividedImage[i - 1],
+            displayImage: displayReadyImages[i - 1],
             correctPosition: correctPositions[i - 1],
             currentPosition: currentPositions[i - 1],
           )
     ];
+  }
+
+  List<imglib.Image> splitImage({
+    required imglib.Image? image,
+    required int horizontalPieceCount,
+    required int verticalPieceCount,
+  }) {
+    if (image == null) return [];
+
+    final xLength = (image.width / horizontalPieceCount).round();
+    final yLength = (image.height / verticalPieceCount).round();
+    final pieceList = <imglib.Image>[];
+
+    for (var y = 0; y < verticalPieceCount; y++) {
+      for (var x = 0; x < horizontalPieceCount; x++) {
+        pieceList.add(
+          imglib.copyCrop(image, x * xLength, y * yLength, xLength, yLength),
+        );
+      }
+    }
+
+    return pieceList;
+  }
+
+  Image convertImage(imglib.Image image) {
+    final convertedPiece = Uint8List.fromList(imglib.encodeJpg(image));
+    return Image.memory(convertedPiece);
   }
 }

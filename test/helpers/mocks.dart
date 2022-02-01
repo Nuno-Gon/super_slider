@@ -3,6 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:very_good_slide_puzzle/layout/layout.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
+import 'package:very_good_slide_puzzle/settings/settings.dart';
 import 'package:very_good_slide_puzzle/theme/theme.dart';
 import 'package:very_good_slide_puzzle/timer/timer.dart';
 
@@ -18,6 +19,11 @@ class MockPuzzleBloc extends MockBloc<PuzzleEvent, PuzzleState>
 
 class MockPuzzleState extends Mock implements PuzzleState {}
 
+class MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
+    implements SettingsBloc {}
+
+class MockSettingsState extends Mock implements SettingsState {}
+
 class MockTimerBloc extends MockBloc<TimerEvent, TimerState>
     implements TimerBloc {}
 
@@ -26,5 +32,7 @@ class MockTimerState extends Mock implements TimerState {}
 class MockPuzzle extends Mock implements Puzzle {}
 
 class MockTile extends Mock implements Tile {}
+
+class MockMegaTile extends Mock implements MegaTile {}
 
 class MockPuzzleLayoutDelegate extends Mock implements PuzzleLayoutDelegate {}
