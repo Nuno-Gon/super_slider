@@ -96,77 +96,19 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
     SettingsState settings,
   ) {
     final isMegaPuzzle = puzzleType == PuzzleType.mega;
-    final transformationController = TransformationController();
 
     if (isMegaPuzzle) {
-      // TODO(JR): wip for zooming
-      // transformationController.toScene(Offset(20, 10));
-      // transformationController.value = Matrix4.identity()
-      // //..translate(-position.dx * 2, -position.dy * 2)
-      //   ..scale(1.4);
+      return SimplePuzzleMegaBoard(
+        size: size,
+        tiles: tiles,
+      );
+    } else {
+      return SimplePuzzleMiniBoard(
+        size: size,
+        tiles: tiles,
+        settings: settings,
+      );
     }
-
-    return InteractiveViewer(
-      transformationController: transformationController,
-      panEnabled: false,
-      scaleEnabled: false,
-      child: Column(
-        children: [
-          if (isMegaPuzzle)
-            const ResponsiveGap(
-              small: 32,
-              medium: 48,
-              large: 96,
-            ),
-          ResponsiveLayoutBuilder(
-            // TODO(JR): simplify
-            small: (_, __) => SizedBox.square(
-              dimension: isMegaPuzzle
-                  ? _BoardSize.small
-                  : _miniBoardSize(
-                      boardSize: _BoardSize.small,
-                      size: settings.megaPuzzleSize,
-                    ),
-              child: SimplePuzzleBoard(
-                key: const Key('simple_puzzle_board_small'),
-                size: size,
-                tiles: tiles,
-              ),
-            ),
-            medium: (_, __) => SizedBox.square(
-              dimension: isMegaPuzzle
-                  ? _BoardSize.medium
-                  : _miniBoardSize(
-                      boardSize: _BoardSize.medium,
-                      size: settings.megaPuzzleSize,
-                    ),
-              child: SimplePuzzleBoard(
-                key: const Key('simple_puzzle_board_medium'),
-                size: size,
-                tiles: tiles,
-              ),
-            ),
-            large: (_, __) => SizedBox.square(
-              dimension: isMegaPuzzle
-                  ? _BoardSize.large
-                  : _miniBoardSize(
-                      boardSize: _BoardSize.large,
-                      size: settings.megaPuzzleSize,
-                    ),
-              child: SimplePuzzleBoard(
-                key: const Key('simple_puzzle_board_large'),
-                size: size,
-                tiles: tiles,
-              ),
-            ),
-          ),
-          if (isMegaPuzzle)
-            const ResponsiveGap(
-              large: 96,
-            ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -218,13 +160,6 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
 
   @override
   List<Object?> get props => [];
-
-  double _miniBoardSize({
-    required double boardSize,
-    required int size,
-  }) {
-    return (boardSize / size) - 4;
-  }
 }
 
 /// {@template simple_start_section}
@@ -307,6 +242,234 @@ abstract class _BoardSize {
   static double small = 312;
   static double medium = 424;
   static double large = 472;
+  static double bgMarginSize = 60;
+}
+
+double _miniBoardSize({
+  required double boardSize,
+  required int size,
+}) {
+  return (boardSize / size) - 4;
+}
+
+/// {@template simple_puzzle_mega_board}
+/// Display the board of the mega puzzle in a [size]x[size] layout
+/// filled with [tiles] and the board background.
+/// {@endtemplate}
+@visibleForTesting
+class SimplePuzzleMegaBoard extends StatelessWidget {
+  /// {@macro simple_puzzle_mega_board}
+  const SimplePuzzleMegaBoard({
+    Key? key,
+    required this.size,
+    required this.tiles,
+  }) : super(key: key);
+
+  /// The size of the board.
+  final int size;
+
+  /// The tiles to be displayed on the board.
+  final List<Widget> tiles;
+
+  @override
+  Widget build(BuildContext context) {
+    final extraMargin = _BoardSize.bgMarginSize * 2;
+    final transformationController = TransformationController();
+
+    final state = context.select((PuzzleBloc bloc) => bloc.state);
+    final currentPosition = state.activeTile != null
+        ? state.activeTile!.currentPosition
+        : const Position(x: 0, y: 0);
+
+    late double boardSize;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth <= PuzzleBreakpoints.small) {
+      boardSize = _BoardSize.small;
+    } else if (screenWidth <= PuzzleBreakpoints.medium) {
+      boardSize = _BoardSize.medium;
+    } else {
+      boardSize = _BoardSize.large;
+    }
+
+    const zoomLevel = 2.5;
+    final slidingAnchorSize = (boardSize * zoomLevel) / size;
+    final megaTileSize = _miniBoardSize(boardSize: boardSize, size: size);
+    final megaTileSizeWithZoom = megaTileSize * zoomLevel;
+    final viewport = boardSize + (_BoardSize.bgMarginSize * 2);
+    final marginAroundTile = viewport - megaTileSizeWithZoom;
+    final compensation =
+        (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (currentPosition.x != 0) {
+        // TODO(JR): y isn't working as it should. ResponsiveGap responsible!
+        transformationController.value = Matrix4.identity()
+          ..translate(
+            ((currentPosition.x - 1) * -1 * slidingAnchorSize) - compensation,
+            ((currentPosition.y - 1) * -1 * slidingAnchorSize) - compensation,
+          )
+          ..scale(zoomLevel);
+      }
+    });
+
+    return InteractiveViewer(
+      transformationController: transformationController,
+      panEnabled: false,
+      scaleEnabled: false,
+      child: GestureDetector(
+        onDoubleTap: () {
+          context.read<PuzzleBloc>().add(
+                const ActiveTileReset(),
+              );
+        },
+        child: Column(
+          children: [
+            const ResponsiveGap(
+              small: 32,
+              medium: 48,
+              large: 20,
+            ),
+            ResponsiveLayoutBuilder(
+              // TODO(JR): Simplify
+              small: (_, __) => SizedBox.square(
+                dimension: boardSize + extraMargin,
+                child: Stack(
+                  children: [
+                    const _BackgroundBoard(),
+                    Center(
+                      child: SizedBox.square(
+                        dimension: boardSize,
+                        child: SimplePuzzleBoard(
+                          key: const Key('simple_puzzle_mega_board_small'),
+                          size: size,
+                          tiles: tiles,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              medium: (_, __) => SizedBox.square(
+                dimension: boardSize + extraMargin,
+                child: Stack(
+                  children: [
+                    const _BackgroundBoard(),
+                    Center(
+                      child: SizedBox.square(
+                        dimension: boardSize,
+                        child: SimplePuzzleBoard(
+                          key: const Key('simple_puzzle_mega_board_medium'),
+                          size: size,
+                          tiles: tiles,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              large: (_, __) => SizedBox.square(
+                dimension: boardSize + extraMargin,
+                child: Stack(
+                  children: [
+                    const _BackgroundBoard(),
+                    Center(
+                      child: SizedBox.square(
+                        dimension: boardSize,
+                        child: SimplePuzzleBoard(
+                          key: const Key('simple_puzzle_mega_board_large'),
+                          size: size,
+                          tiles: tiles,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const ResponsiveGap(
+              large: 96,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BackgroundBoard extends StatelessWidget {
+  /// {@macro simple_puzzle_mega_board}
+  const _BackgroundBoard({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(color: Colors.brown);
+  }
+}
+
+/// {@template simple_puzzle_mini_board}
+/// Display the board of the mini puzzle in a [size]x[size] layout
+/// filled with [tiles] inside the mega tile.
+/// {@endtemplate}
+@visibleForTesting
+class SimplePuzzleMiniBoard extends StatelessWidget {
+  /// {@macro simple_puzzle_mini_board}
+  const SimplePuzzleMiniBoard({
+    Key? key,
+    required this.size,
+    required this.tiles,
+    required this.settings,
+  }) : super(key: key);
+
+  /// The size of the board.
+  final int size;
+
+  /// The tiles to be displayed on the board.
+  final List<Widget> tiles;
+
+  /// Settings state.
+  final SettingsState settings;
+
+  @override
+  Widget build(BuildContext context) {
+    return ResponsiveLayoutBuilder(
+      small: (_, __) => SizedBox.square(
+        dimension: _miniBoardSize(
+          boardSize: _BoardSize.small,
+          size: settings.megaPuzzleSize,
+        ),
+        child: SimplePuzzleBoard(
+          key: const Key('simple_puzzle_mini_board_small'),
+          size: size,
+          tiles: tiles,
+        ),
+      ),
+      medium: (_, __) => SizedBox.square(
+        dimension: _miniBoardSize(
+          boardSize: _BoardSize.medium,
+          size: settings.megaPuzzleSize,
+        ),
+        child: SimplePuzzleBoard(
+          key: const Key('simple_puzzle_mini_board_medium'),
+          size: size,
+          tiles: tiles,
+        ),
+      ),
+      large: (_, __) => SizedBox.square(
+        dimension: _miniBoardSize(
+          boardSize: _BoardSize.large,
+          size: settings.megaPuzzleSize,
+        ),
+        child: SimplePuzzleBoard(
+          key: const Key('simple_puzzle_mini_board_large'),
+          size: size,
+          tiles: tiles,
+        ),
+      ),
+    );
+  }
 }
 
 /// {@template simple_puzzle_board}
