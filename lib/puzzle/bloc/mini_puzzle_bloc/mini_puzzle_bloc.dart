@@ -31,10 +31,6 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     MiniPuzzleInitialized event,
     Emitter<MiniPuzzleState> emit,
   ) {
-    emit(
-      const MiniPuzzleState(),
-    );
-
     final hasPuzzleGenerated = megaTile!.puzzle.tiles.isNotEmpty;
     final puzzle = hasPuzzleGenerated
         ? megaTile!.puzzle
@@ -60,12 +56,18 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
         final puzzle = mutablePuzzle.moveTiles(tappedTile, []);
         megaTile!.puzzle = puzzle;
         if (puzzle.isComplete()) {
+          final whitespaceTile = puzzle.getWhitespaceTile();
+          final index = puzzle.tiles.indexOf(whitespaceTile);
+          puzzle.tiles[index] = whitespaceTile.removeWhitespace();
+
+          megaTile!.isCompleted = true;
           emit(
             state.copyWith(
               puzzle: puzzle.sort(),
               puzzleStatus: PuzzleStatus.complete,
               tileMovementStatus: TileMovementStatus.moved,
-              numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+              //numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+              // TODO(JR): fix?
               numberOfMoves: state.numberOfMoves + 1,
               lastTappedTile: tappedTile,
             ),

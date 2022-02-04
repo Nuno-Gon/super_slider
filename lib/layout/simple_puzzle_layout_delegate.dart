@@ -178,6 +178,11 @@ class SimpleStartSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO(JR): temp - here for testing
+    final puzzleSize = state.puzzle.getDimension();
+    final total = puzzleSize * puzzleSize;
+    final completed = state.completedPuzzles;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -205,6 +210,9 @@ class SimpleStartSection extends StatelessWidget {
           small: (_, __) => const SizedBox(),
           medium: (_, __) => const SizedBox(),
           large: (_, __) => const SimplePuzzleShuffleButton(),
+        ),
+        Text(
+          'Progress visualizer: $completed/$total',
         ),
       ],
     );
@@ -589,25 +597,47 @@ class SimplePuzzleMegaTile extends StatelessWidget {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(2, 2, 1, 1),
-          child: BlocProvider(
-            //key: ValueKey(tile),
-            // TODO(JR): when added, flickers; without, puzzle change res breaks
-            create: (context) => MiniPuzzleBloc(
-              settings.miniPuzzleSize,
-              image: tile.image,
-              megaTile: tile,
-            )..add(
-                MiniPuzzleInitialized(
-                  shufflePuzzle: shufflePuzzle,
+        if (!tile.isCompleted)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(2.5, 2.5, 1, 1),
+            child: BlocProvider(
+              key: ValueKey(tile),
+              // TODO(JR): when added, flickers; without, puzzle breaks
+              create: (context) => MiniPuzzleBloc(
+                settings.miniPuzzleSize,
+                image: tile.image,
+                megaTile: tile,
+              )..add(
+                  MiniPuzzleInitialized(
+                    shufflePuzzle: shufflePuzzle,
+                  ),
                 ),
+              child: const MiniPuzzle(
+                key: Key('mini_puzzle_view_puzzle'),
               ),
-            child: const MiniPuzzle(
-              key: Key('mini_puzzle_view_puzzle'),
             ),
           ),
-        ),
+        if (tile.isCompleted)
+          Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(3, 3, 1, 1),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: SizedBox.expand(
+                    child: FittedBox(
+                      fit: BoxFit.fill,
+                      child: tile.displayImage,
+                    ),
+                  ),
+                ),
+              ),
+              // TODO(JR): show piece number?
+              // Center(
+              //   child: Text(tile.value.toString()),
+              // ),
+            ],
+          ),
         if (state.activeTile != tile)
           Positioned.fill(
             child: GestureDetector(
@@ -630,23 +660,6 @@ class SimplePuzzleMegaTile extends StatelessWidget {
               },
               child: Container(
                 color: Colors.transparent,
-                // TODO(JR): show piece number?
-                // child: Center(
-                //   child: Text(tile.value.toString()),
-                // ),
-                // TODO(JR): show when finished
-                // child: Padding(
-                //   padding: const EdgeInsets.fromLTRB(3, 3, 2, 2),
-                //   child: ClipRRect(
-                //     borderRadius: BorderRadius.circular(3),
-                //     child: SizedBox.expand(
-                //       child: FittedBox(
-                //         fit: BoxFit.fill,
-                //         child: tile.displayImage,
-                //       ),
-                //     ),
-                //   ),
-                // ),
               ),
             ),
           ),

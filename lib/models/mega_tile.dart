@@ -50,6 +50,7 @@ class MegaTile extends Tile implements Equatable {
   }
 
   /// Create a copy of this [MegaTile] with finished state.
+  @override
   MegaTile removeWhitespace() {
     return MegaTile(
       puzzle: puzzle,

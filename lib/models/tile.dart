@@ -48,6 +48,17 @@ class Tile extends Equatable {
     );
   }
 
+  /// Create a copy of this [Tile] with finished state.
+  Tile removeWhitespace() {
+    return Tile(
+      value: value,
+      correctPosition: correctPosition,
+      currentPosition: currentPosition,
+      image: image,
+      displayImage: displayImage,
+    );
+  }
+
   @override
   List<Object> get props => [
         value,
