@@ -52,10 +52,9 @@ class Puzzle extends Equatable {
 
   /// Gets the number of tiles that are currently in their correct position.
   int getNumberOfCorrectTiles() {
-    final whitespaceTile = getWhitespaceTile();
     var numberOfCorrectTiles = 0;
     for (final tile in tiles) {
-      if (tile != whitespaceTile) {
+      if (!tile.isWhitespace) {
         if (tile.currentPosition == tile.correctPosition) {
           numberOfCorrectTiles++;
         }

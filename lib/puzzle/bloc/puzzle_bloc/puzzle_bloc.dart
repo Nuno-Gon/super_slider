@@ -52,12 +52,17 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         final mutablePuzzle = Puzzle(tiles: [...state.puzzle.tiles]);
         final puzzle = mutablePuzzle.moveTiles(tappedTile, []);
         if (puzzle.isComplete()) {
+          final whitespaceTile = puzzle.getWhitespaceTile() as MegaTile;
+          final index = puzzle.tiles.indexOf(whitespaceTile);
+          puzzle.tiles[index] = whitespaceTile.removeWhitespace();
+
           emit(
             state.copyWith(
               puzzle: puzzle.sort(),
               puzzleStatus: PuzzleStatus.complete,
               tileMovementStatus: TileMovementStatus.moved,
-              numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+              //numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+              // TODO(JR): fix?
               numberOfMoves: state.numberOfMoves + 1,
               lastTappedTile: tappedTile,
             ),

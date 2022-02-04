@@ -40,6 +40,15 @@ class PuzzleState extends Equatable {
   /// Number of tiles currently in their correct position.
   final int numberOfCorrectTiles;
 
+  /// Total number of mini puzzles, plus the main puzzle itself, completed.
+  int get completedPuzzles {
+    final completedMiniPuzzles = puzzle.tiles
+        .where((element) => (element as MegaTile).isCompleted)
+        .length;
+    final incrementCompletionValue = puzzle.isComplete() ? 1 : 0;
+    return completedMiniPuzzles + incrementCompletionValue;
+  }
+
   /// Number of tiles currently not in their correct position.
   int get numberOfTilesLeft => puzzle.tiles.length - numberOfCorrectTiles - 1;
 

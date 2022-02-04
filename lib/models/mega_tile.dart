@@ -18,6 +18,7 @@ class MegaTile extends Tile implements Equatable {
     imglib.Image? image,
     Image? displayImage,
     bool isWhitespace = false,
+    this.isCompleted = false,
   }) : super(
           value: value,
           correctPosition: correctPosition,
@@ -30,6 +31,9 @@ class MegaTile extends Tile implements Equatable {
   /// [Puzzle] containing the current tile arrangement.
   Puzzle puzzle;
 
+  /// Indicates if a Mega Tile puzzle is completed.
+  bool isCompleted;
+
   /// Create a copy of this [MegaTile] with updated current position.
   @override
   MegaTile copyWith({required Position currentPosition}) {
@@ -41,6 +45,21 @@ class MegaTile extends Tile implements Equatable {
       image: image,
       displayImage: displayImage,
       isWhitespace: isWhitespace,
+      isCompleted: isCompleted,
+    );
+  }
+
+  /// Create a copy of this [MegaTile] with finished state.
+  @override
+  MegaTile removeWhitespace() {
+    return MegaTile(
+      puzzle: puzzle,
+      value: value,
+      correctPosition: correctPosition,
+      currentPosition: currentPosition,
+      image: image,
+      displayImage: displayImage,
+      isCompleted: true,
     );
   }
 
@@ -50,5 +69,6 @@ class MegaTile extends Tile implements Equatable {
         correctPosition,
         currentPosition,
         isWhitespace,
+        isCompleted,
       ];
 }
