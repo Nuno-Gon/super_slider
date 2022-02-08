@@ -110,7 +110,6 @@ class _MegaPuzzle extends StatelessWidget {
                         ),
                         _PuzzleSections(
                           key: Key('puzzle_sections'),
-                          puzzleType: PuzzleType.mega,
                         ),
                       ],
                     ),
@@ -136,7 +135,7 @@ class MiniPuzzle extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return const _PuzzleSections(
+        return const PuzzleBoard(
           key: Key('mini_puzzle_sections'),
           puzzleType: PuzzleType.mini,
         );
@@ -215,50 +214,44 @@ class _PuzzleLogo extends StatelessWidget {
 class _PuzzleSections extends StatelessWidget {
   const _PuzzleSections({
     Key? key,
-    required this.puzzleType,
   }) : super(key: key);
-
-  final PuzzleType puzzleType;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
     final state = context.select((PuzzleBloc bloc) => bloc.state);
-    final isMegaLayout = puzzleType == PuzzleType.mega; // TODO(JR): refactor
 
     return ResponsiveLayoutBuilder(
       small: (context, child) => Column(
         children: [
-          if (isMegaLayout) theme.layoutDelegate.startSectionBuilder(state),
-          PuzzleBoard(
-            puzzleType: puzzleType,
+          theme.layoutDelegate.startSectionBuilder(state),
+          const PuzzleBoard(
+            puzzleType: PuzzleType.mega,
           ),
-          if (isMegaLayout) theme.layoutDelegate.endSectionBuilder(state),
+          theme.layoutDelegate.endSectionBuilder(state),
         ],
       ),
       medium: (context, child) => Column(
         children: [
-          if (isMegaLayout) theme.layoutDelegate.startSectionBuilder(state),
-          PuzzleBoard(
-            puzzleType: puzzleType,
+          theme.layoutDelegate.startSectionBuilder(state),
+          const PuzzleBoard(
+            puzzleType: PuzzleType.mega,
           ),
-          if (isMegaLayout) theme.layoutDelegate.endSectionBuilder(state),
+          theme.layoutDelegate.endSectionBuilder(state),
         ],
       ),
       large: (context, child) => Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isMegaLayout)
-            Expanded(
-              child: theme.layoutDelegate.startSectionBuilder(state),
-            ),
-          PuzzleBoard(
-            puzzleType: puzzleType,
+          Expanded(
+            child: theme.layoutDelegate.startSectionBuilder(state),
           ),
-          if (isMegaLayout)
-            Expanded(
-              child: theme.layoutDelegate.endSectionBuilder(state),
-            ),
+          const PuzzleBoard(
+            puzzleType: PuzzleType.mega,
+          ),
+          Expanded(
+            child: theme.layoutDelegate.endSectionBuilder(state),
+          ),
         ],
       ),
     );

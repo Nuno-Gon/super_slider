@@ -338,61 +338,22 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
               medium: 48,
               large: 20,
             ),
-            ResponsiveLayoutBuilder(
-              // TODO(JR): Simplify
-              small: (_, __) => SizedBox.square(
-                dimension: boardSize + extraMargin,
-                child: Stack(
-                  children: [
-                    const _BackgroundBoard(),
-                    Center(
-                      child: SizedBox.square(
-                        dimension: boardSize,
-                        child: SimplePuzzleBoard(
-                          key: const Key('simple_puzzle_mega_board_small'),
-                          size: size,
-                          tiles: tiles,
-                        ),
+            SizedBox.square(
+              dimension: boardSize + extraMargin,
+              child: Stack(
+                children: [
+                  const _BackgroundBoard(),
+                  Center(
+                    child: SizedBox.square(
+                      dimension: boardSize,
+                      child: SimplePuzzleBoard(
+                        key: const Key('simple_puzzle_mega_board'),
+                        size: size,
+                        tiles: tiles,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              medium: (_, __) => SizedBox.square(
-                dimension: boardSize + extraMargin,
-                child: Stack(
-                  children: [
-                    const _BackgroundBoard(),
-                    Center(
-                      child: SizedBox.square(
-                        dimension: boardSize,
-                        child: SimplePuzzleBoard(
-                          key: const Key('simple_puzzle_mega_board_medium'),
-                          size: size,
-                          tiles: tiles,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              large: (_, __) => SizedBox.square(
-                dimension: boardSize + extraMargin,
-                child: Stack(
-                  children: [
-                    const _BackgroundBoard(),
-                    Center(
-                      child: SizedBox.square(
-                        dimension: boardSize,
-                        child: SimplePuzzleBoard(
-                          key: const Key('simple_puzzle_mega_board_large'),
-                          size: size,
-                          tiles: tiles,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const ResponsiveGap(
