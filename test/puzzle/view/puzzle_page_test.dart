@@ -34,7 +34,7 @@ void main() {
       when(() => layoutDelegate.startSectionBuilder(any()))
           .thenReturn(SizedBox());
 
-      when(() => layoutDelegate.endSectionBuilder(any()))
+      when(() => layoutDelegate.endSectionBuilder(any(), any()))
           .thenReturn(SizedBox());
 
       when(() => layoutDelegate.backgroundBuilder(any()))
@@ -156,7 +156,7 @@ void main() {
         themeBloc: themeBloc,
       );
 
-      verify(() => layoutDelegate.endSectionBuilder(any())).called(1);
+      verify(() => layoutDelegate.endSectionBuilder(any(), any())).called(1);
     });
 
     testWidgets(

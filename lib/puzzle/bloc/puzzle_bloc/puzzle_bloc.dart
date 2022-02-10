@@ -258,6 +258,15 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       final response = await http.get(
         Uri.parse(imageUrl),
+        // TODO(JR): error with some images/urls
+        // headers: {
+        //   'Access-Control-Allow-Origin': '*',
+        //   'Access-Control-Allow-Credentials': 'true',
+        //   'Access-Control-Allow-Headers':
+        //       'Origin,Content-Type,X-Amz-Date,Authorization,
+        //       X-Api-Key,X-Amz-Security-Token,locale',
+        //   'Access-Control-Allow-Methods': 'POST, OPTIONS'
+        // },
       );
       byteData = response.bodyBytes;
     } else {

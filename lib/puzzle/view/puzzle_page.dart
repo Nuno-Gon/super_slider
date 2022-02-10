@@ -149,30 +149,34 @@ class _PuzzleHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 96,
-      child: ResponsiveLayoutBuilder(
-        small: (context, child) => const Center(
-          child: _PuzzleLogo(),
-        ),
-        medium: (context, child) => Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 50,
+    return Container(
+      //TODO header
+      color: Colors.blueGrey,
+      child: SizedBox(
+        height: 96,
+        child: ResponsiveLayoutBuilder(
+          small: (context, child) => const Center(
+            child: _PuzzleLogo(),
           ),
-          child: Row(
-            children: const [
-              _PuzzleLogo(),
-            ],
+          medium: (context, child) => Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 50,
+            ),
+            child: Row(
+              children: const [
+                _PuzzleLogo(),
+              ],
+            ),
           ),
-        ),
-        large: (context, child) => Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 50,
-          ),
-          child: Row(
-            children: const [
-              _PuzzleLogo(),
-            ],
+          large: (context, child) => Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 50,
+            ),
+            child: Row(
+              children: const [
+                _PuzzleLogo(),
+              ],
+            ),
           ),
         ),
       ),
@@ -220,39 +224,45 @@ class _PuzzleSections extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
     final state = context.select((PuzzleBloc bloc) => bloc.state);
+    final settings = context.select((SettingsBloc bloc) => bloc.state);
 
-    return ResponsiveLayoutBuilder(
-      small: (context, child) => Column(
-        children: [
-          theme.layoutDelegate.startSectionBuilder(state),
-          const PuzzleBoard(
-            puzzleType: PuzzleType.mega,
+    return GestureDetector(
+      onDoubleTap: () => context.read<PuzzleBloc>().add(
+            const ActiveTileReset(),
           ),
-          theme.layoutDelegate.endSectionBuilder(state),
-        ],
-      ),
-      medium: (context, child) => Column(
-        children: [
-          theme.layoutDelegate.startSectionBuilder(state),
-          const PuzzleBoard(
-            puzzleType: PuzzleType.mega,
-          ),
-          theme.layoutDelegate.endSectionBuilder(state),
-        ],
-      ),
-      large: (context, child) => Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: theme.layoutDelegate.startSectionBuilder(state),
-          ),
-          const PuzzleBoard(
-            puzzleType: PuzzleType.mega,
-          ),
-          Expanded(
-            child: theme.layoutDelegate.endSectionBuilder(state),
-          ),
-        ],
+      child: ResponsiveLayoutBuilder(
+        small: (context, child) => Column(
+          children: [
+            theme.layoutDelegate.startSectionBuilder(state),
+            const PuzzleBoard(
+              puzzleType: PuzzleType.mega,
+            ),
+            theme.layoutDelegate.endSectionBuilder(state, settings),
+          ],
+        ),
+        medium: (context, child) => Column(
+          children: [
+            theme.layoutDelegate.startSectionBuilder(state),
+            const PuzzleBoard(
+              puzzleType: PuzzleType.mega,
+            ),
+            theme.layoutDelegate.endSectionBuilder(state, settings),
+          ],
+        ),
+        large: (context, child) => Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: theme.layoutDelegate.startSectionBuilder(state),
+            ),
+            const PuzzleBoard(
+              puzzleType: PuzzleType.mega,
+            ),
+            Expanded(
+              child: theme.layoutDelegate.endSectionBuilder(state, settings),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -282,7 +292,7 @@ class PuzzleBoard extends StatelessWidget {
     final size = puzzle.getDimension();
     if (size == 0) {
       // TODO(JR): improve loading state/layout
-      return const CircularProgressIndicator();
+      return const SizedBox(width: 592, child: CircularProgressIndicator());
     }
 
     return BlocListener<PuzzleBloc, PuzzleState>(
