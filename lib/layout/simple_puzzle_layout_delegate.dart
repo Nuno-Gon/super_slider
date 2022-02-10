@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -72,28 +74,59 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
       child: ResponsiveLayoutBuilder(
         small: (_, __) => SizedBox(
           width: 184,
-          height: 118,
-          child: Image.asset(
-            'assets/images/simple_dash_small.png',
-            key: const Key('simple_puzzle_dash_small'),
+          height: 178,
+          child: Stack(
+            children: [
+              Image.asset( // TODO(JR): make into a class
+                'images/duck_full.png',
+                key: const Key('simple_puzzle_duck_small'),
+              ),
+              ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Image.asset('images/duck_full.png'),
+                ),
+              ),
+            ],
           ),
         ),
         medium: (_, __) => SizedBox(
           width: 380.44,
-          height: 214,
-          child: Image.asset(
-            'assets/images/simple_dash_medium.png',
-            key: const Key('simple_puzzle_dash_medium'),
+          height: 284,
+          child: Stack(
+            children: [
+              Image.asset(
+                'images/duck_full.png',
+                key: const Key('simple_puzzle_duck_medium'),
+              ),
+              ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Image.asset('images/duck_full.png'),
+                ),
+              ),
+            ],
           ),
         ),
         large: (_, __) => Padding(
-          padding: const EdgeInsets.only(bottom: 53),
+          padding: const EdgeInsets.only(
+            right: 75,
+          ),
           child: SizedBox(
-            width: 568.99,
-            height: 320,
-            child: Image.asset(
-              'assets/images/simple_dash_large.png',
-              key: const Key('simple_puzzle_dash_large'),
+            height: 480,
+            child: Stack(
+              children: [
+                Image.asset(
+                  'images/duck_full.png',
+                  key: const Key('simple_puzzle_duck_large'),
+                ),
+                ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Image.asset('images/duck_full.png'),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -204,15 +237,9 @@ class SimpleStartSection extends StatelessWidget {
           medium: 83,
           large: 151,
         ),
-        const PuzzleName(),
-        const ResponsiveGap(large: 16),
-        SimplePuzzleTitle(
-          status: state.puzzleStatus,
-        ),
-        const ResponsiveGap(
-          small: 12,
-          medium: 16,
-          large: 32,
+        Image.asset(
+          'images/super_logo.png',
+          key: const Key('super_puzzle_logo'),
         ),
         NumberOfMovesAndTilesLeft(
           numberOfMoves: state.numberOfMoves,
@@ -242,6 +269,7 @@ class SimpleStartSection extends StatelessWidget {
 class SimplePuzzleTitle extends StatelessWidget {
   /// {@macro simple_puzzle_title}
   const SimplePuzzleTitle({
+    //TODO Kill
     Key? key,
     required this.status,
   }) : super(key: key);
@@ -314,17 +342,19 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     }
 
     const zoomLevel = 2.5;
+    const outsidePadding = 8.0;
     final slidingAnchorSize = (boardSize * zoomLevel) / size;
     final megaTileSize = _miniBoardSize(boardSize: boardSize, size: size);
     final megaTileSizeWithZoom = megaTileSize * zoomLevel;
     final viewport = boardSize + (_BoardSize.bgMarginSize * 2);
     final marginAroundTile = viewport - megaTileSizeWithZoom;
-    final compensation =
+    const paddingCompensation = outsidePadding * zoomLevel;
+    final boardCompensation =
         (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
+    final compensation = boardCompensation + paddingCompensation;
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       if (currentPosition.x != 0) {
-        // TODO(JR): y isn't working as it should. ResponsiveGap responsible!
         transformationController.value = Matrix4.identity()
           ..translate(
             ((currentPosition.x - 1) * -1 * slidingAnchorSize) - compensation,
@@ -334,40 +364,43 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
       }
     });
 
-    return InteractiveViewer(
-      transformationController: transformationController,
-      panEnabled: false,
-      scaleEnabled: false,
-      child: Column(
-        children: [
-          const ResponsiveGap(
-            small: 32,
-            medium: 48,
-            large: 20,
-          ),
-          SizedBox.square(
-            dimension: boardSize + extraMargin,
-            child: Stack(
-              children: [
-                const _BackgroundBoard(),
-                Center(
-                  child: SizedBox.square(
-                    dimension: boardSize,
-                    child: SimplePuzzleBoard(
-                      key: const Key('simple_puzzle_mega_board'),
-                      size: size,
-                      tiles: tiles,
+    return Column(
+      children: [
+        const ResponsiveGap(
+          small: 8,
+          medium: 8,
+          large: 16,
+        ),
+        InteractiveViewer(
+          transformationController: transformationController,
+          panEnabled: false,
+          scaleEnabled: false,
+          child: Padding(
+            padding: const EdgeInsets.all(outsidePadding),
+            child: SizedBox.square(
+              dimension: boardSize + extraMargin,
+              child: Stack(
+                children: [
+                  const _BackgroundBoard(),
+                  Center(
+                    child: SizedBox.square(
+                      dimension: boardSize,
+                      child: SimplePuzzleBoard(
+                        key: const Key('simple_puzzle_mega_board'),
+                        size: size,
+                        tiles: tiles,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-          const ResponsiveGap(
-            large: 96,
-          ),
-        ],
-      ),
+        ),
+        const ResponsiveGap(
+          large: 96,
+        ),
+      ],
     );
   }
 }
@@ -386,6 +419,12 @@ class _BackgroundBoard extends StatelessWidget {
         borderRadius: BorderRadius.all(
           Radius.circular(3),
         ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            blurRadius: 4,
+            offset: Offset(2, 2),
+          ),
+        ],
       ),
     );
   }

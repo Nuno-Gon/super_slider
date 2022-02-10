@@ -86,38 +86,44 @@ class _MegaPuzzle extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Stack(
-          children: [
-            theme.layoutDelegate.backgroundBuilder(state),
-            SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: GestureDetector(
-                        onDoubleTap: () => context.read<PuzzleBloc>().add(
-                              const ActiveTileReset(),
-                            ),
+        return Container(
+          color: Colors.yellow,
+          child: Stack(
+            children: [
+              theme.layoutDelegate.backgroundBuilder(state),
+              SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: GestureDetector(
+                          onDoubleTap: () => context.read<PuzzleBloc>().add(
+                                const ActiveTileReset(),
+                              ),
+                        ),
                       ),
-                    ),
-                    Column(
-                      children: const [
-                        _PuzzleHeader(
-                          key: Key('puzzle_header'),
-                        ),
-                        _PuzzleSections(
-                          key: Key('puzzle_sections'),
-                        ),
-                      ],
-                    ),
-                  ],
+                      Column(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            child: const _PuzzleHeader(
+                              key: Key('puzzle_header'),
+                            ),
+                          ),
+                          const _PuzzleSections(
+                            key: Key('puzzle_sections'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
