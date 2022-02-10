@@ -149,37 +149,39 @@ class _PuzzleHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      //TODO header
-      color: Colors.blueGrey,
-      child: SizedBox(
-        height: 96,
-        child: ResponsiveLayoutBuilder(
-          small: (context, child) => const Center(
-            child: _PuzzleLogo(),
-          ),
-          medium: (context, child) => Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 50,
+    return Stack(
+      children: [
+        Column(
+          children: [
+            SizedBox(
+              height: 80,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 50,
+                ),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'images/our_logo.png',
+                      width: 180,
+                    ),
+                    const Spacer(),
+                    const _PuzzleLogo(),
+                  ],
+                ),
+              ),
             ),
-            child: Row(
-              children: const [
-                _PuzzleLogo(),
-              ],
-            ),
-          ),
-          large: (context, child) => Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 50,
-            ),
-            child: Row(
-              children: const [
-                _PuzzleLogo(),
-              ],
+            Container(height: 2, color: Colors.black),
+          ],
+        ),
+        Positioned.fill(
+          child: GestureDetector(
+            onDoubleTap: () => context.read<PuzzleBloc>().add(
+              const ActiveTileReset(),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -190,26 +192,41 @@ class _PuzzleLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayoutBuilder(
-      small: (context, child) => const SizedBox(
-        height: 24,
-        child: FlutterLogo(
-          style: FlutterLogoStyle.horizontal,
-          size: 86,
-        ),
+      small: (context, child) => Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('images/ctw_logo.png', height: 40),
+          const SizedBox(height: 3),
+          Row(
+            children: [
+              Image.asset('images/heart_image.png', height: 15),
+              const SizedBox(
+                height: 20,
+                child: FlutterLogo(
+                  style: FlutterLogoStyle.horizontal,
+                  size: 86,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      medium: (context, child) => const SizedBox(
-        height: 29,
-        child: FlutterLogo(
-          style: FlutterLogoStyle.horizontal,
-          size: 104,
-        ),
-      ),
-      large: (context, child) => const SizedBox(
-        height: 32,
-        child: FlutterLogo(
-          style: FlutterLogoStyle.horizontal,
-          size: 114,
-        ),
+      medium: (_, child) => child!,
+      large: (_, child) => child!,
+      child: (_) => Row(
+        children: [
+          Image.asset('images/ctw_logo.png', height: 40),
+          const SizedBox(width: 2),
+          Image.asset('images/heart_image.png', height: 15),
+          const SizedBox(
+            height: 20,
+            child: FlutterLogo(
+              style: FlutterLogoStyle.horizontal,
+              size: 86,
+            ),
+          ),
+        ],
       ),
     );
   }
