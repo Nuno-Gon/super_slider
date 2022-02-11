@@ -89,64 +89,38 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
       right: 0,
       bottom: 0,
       child: ResponsiveLayoutBuilder(
-        small: (_, __) => SizedBox(
+        small: (_, child) => SizedBox(
           width: 184,
           height: 208,
-          child: Stack(
-            children: [
-              Image.asset(
-                // TODO(JR): make into a class
-                'images/duck_full.png',
-                key: const Key('simple_puzzle_duck_small'),
-              ),
-              ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Image.asset('images/duck_full.png'),
-                ),
-              ),
-            ],
-          ),
+          child: child,
         ),
-        medium: (_, __) => SizedBox(
+        medium: (_, child) => SizedBox(
           width: 280,
           height: 284,
-          child: Stack(
-            children: [
-              Image.asset(
-                'images/duck_full.png',
-                key: const Key('simple_puzzle_duck_medium'),
-              ),
-              ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Image.asset('images/duck_full.png'),
-                ),
-              ),
-            ],
-          ),
+          child: child,
         ),
-        large: (_, __) => Padding(
+        large: (_, child) => Padding(
           padding: const EdgeInsets.only(
             right: 75,
           ),
           child: SizedBox(
             height: 480,
-            child: Stack(
-              children: [
-                Image.asset(
-                  'images/duck_full.png',
-                  key: const Key('simple_puzzle_duck_large'),
-                ),
-                ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child: Image.asset('images/duck_full.png'),
-                  ),
-                ),
-              ],
-            ),
+            child: child,
           ),
+        ),
+        child: (_) => Stack(
+          children: [
+            Image.asset(
+              'images/duck_full.png',
+              key: const Key('simple_puzzle_duck'),
+            ),
+            ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Image.asset('images/duck_full.png'),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -299,10 +273,19 @@ class SimpleStartSectionBottom extends StatelessWidget {
     final puzzleSize = state.puzzle.getDimension();
     final total = puzzleSize * puzzleSize;
     final completed = state.completedPuzzles;
+    final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'A winner is you!\n'
+          'Congraturation This story is happy end. Thank you.',
+          style: PuzzleTextStyle.headline4.copyWith(
+            color: theme.defaultColor,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16,),
         NumberOfMovesAndTilesLeft(
           numberOfMoves: state.numberOfMoves,
           numberOfTilesLeft: state.numberOfTilesLeft,
@@ -326,7 +309,7 @@ class SimpleStartSectionBottom extends StatelessWidget {
 class SimplePuzzleTitle extends StatelessWidget {
   /// {@macro simple_puzzle_title}
   const SimplePuzzleTitle({
-    //TODO Kill
+    // TODO(JR): change/refurbish to our needs
     Key? key,
     required this.status,
   }) : super(key: key);
@@ -424,7 +407,6 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     return Column(
       children: [
         const ResponsiveGap(
-          small: 8,
           medium: 8,
           large: 16,
         ),
