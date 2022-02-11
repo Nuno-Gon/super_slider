@@ -22,18 +22,21 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
 
   @override
   Widget startSectionBuilder(PuzzleState state) {
-    return Container(
-      //TODO start section
-      color: Colors.greenAccent,
-      child: ResponsiveLayoutBuilder(
-        small: (_, child) => child!,
-        medium: (_, child) => child!,
-        large: (_, child) => Padding(
-          padding: const EdgeInsets.only(left: 50, right: 32),
-          child: child,
+    return ResponsiveLayoutBuilder(
+      small: (_, child) => child!,
+      medium: (_, child) => child!,
+      large: (_, child) => Padding(
+        padding: const EdgeInsets.only(left: 16, right: 8),
+        child: Column(
+          children: [
+            child!,
+            SimpleStartSectionBottom(
+              state: state,
+            ),
+          ],
         ),
-        child: (_) => SimpleStartSection(state: state),
       ),
+      child: (_) => SimpleStartSection(state: state),
     );
   }
 
@@ -45,13 +48,27 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
     return Column(
       children: [
         ResponsiveLayoutBuilder(
-          small: (_, child) => SettingsSection(
-            settings: settings,
-            width: _BoardSize.small + _BoardSize.bgMarginSize,
+          small: (_, child) => Column(
+            children: [
+              SimpleStartSectionBottom(
+                state: state,
+              ),
+              SettingsSection(
+                settings: settings,
+                width: _BoardSize.small + _BoardSize.bgMarginSize,
+              ),
+            ],
           ),
-          medium: (_, child) => SettingsSection(
-            settings: settings,
-            width: _BoardSize.medium + _BoardSize.bgMarginSize,
+          medium: (_, child) => Column(
+            children: [
+              SimpleStartSectionBottom(
+                state: state,
+              ),
+              SettingsSection(
+                settings: settings,
+                width: _BoardSize.medium + _BoardSize.bgMarginSize,
+              ),
+            ],
           ),
           large: (_, __) => SettingsSection(
             settings: settings,
@@ -74,7 +91,7 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
       child: ResponsiveLayoutBuilder(
         small: (_, __) => SizedBox(
           width: 184,
-          height: 178,
+          height: 208,
           child: Stack(
             children: [
               Image.asset(
@@ -92,7 +109,7 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
           ),
         ),
         medium: (_, __) => SizedBox(
-          width: 380.44,
+          width: 280,
           height: 284,
           child: Stack(
             children: [
@@ -229,6 +246,55 @@ class SimpleStartSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const ResponsiveGap(
+          small: 8,
+          medium: 16,
+          large: 16,
+        ),
+        ResponsiveLayoutBuilder(
+          small: (_, child) => Center(
+            child: SizedBox(
+              width: 300,
+              child: child,
+            ),
+          ),
+          medium: (_, child) => Center(
+            child: SizedBox(
+              width: 480,
+              child: child,
+            ),
+          ),
+          large: (_, child) => child!,
+          child: (_) => Image.asset(
+            'images/super_logo.png',
+            key: const Key('super_puzzle_logo'),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// {@template simple_start_section_bottom}
+/// Displays the bottom part of the start section of the puzzle
+/// based on [state].
+/// {@endtemplate}
+@visibleForTesting
+class SimpleStartSectionBottom extends StatelessWidget {
+  /// {@macro simple_start_section_bottom}
+  const SimpleStartSectionBottom({
+    Key? key,
+    required this.state,
+  }) : super(key: key);
+
+  /// The state of the puzzle.
+  final PuzzleState state;
+
+  @override
+  Widget build(BuildContext context) {
     // TODO(JR): temp - here for testing
     final puzzleSize = state.puzzle.getDimension();
     final total = puzzleSize * puzzleSize;
@@ -237,25 +303,11 @@ class SimpleStartSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ResponsiveGap(
-          small: 20,
-          medium: 83,
-          large: 151,
-        ),
-        Image.asset(
-          'images/super_logo.png',
-          key: const Key('super_puzzle_logo'),
-        ),
         NumberOfMovesAndTilesLeft(
           numberOfMoves: state.numberOfMoves,
           numberOfTilesLeft: state.numberOfTilesLeft,
         ),
         const ResponsiveGap(large: 32),
-        ResponsiveLayoutBuilder(
-          small: (_, __) => const SizedBox(),
-          medium: (_, __) => const SizedBox(),
-          large: (_, __) => const SizedBox(),
-        ),
         Text(
           'Progress visualizer: $completed/$total',
         ),
