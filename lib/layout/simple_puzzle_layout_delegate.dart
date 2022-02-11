@@ -77,7 +77,8 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
           height: 178,
           child: Stack(
             children: [
-              Image.asset( // TODO(JR): make into a class
+              Image.asset(
+                // TODO(JR): make into a class
                 'images/duck_full.png',
                 key: const Key('simple_puzzle_duck_small'),
               ),
@@ -144,10 +145,14 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
     final isMegaPuzzle = puzzleType == PuzzleType.mega;
 
     if (isMegaPuzzle) {
-      return SimplePuzzleMegaBoard(
-        size: size,
-        tiles: tiles,
-      );
+      if (tiles.isNotEmpty) {
+        return SimplePuzzleMegaBoard(
+          size: size,
+          tiles: tiles,
+        );
+      } else {
+        return const LoadingBoard();
+      }
     } else {
       return SimplePuzzleMiniBoard(
         size: size,
@@ -425,6 +430,55 @@ class _BackgroundBoard extends StatelessWidget {
             offset: Offset(2, 2),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// {@template loading_board}
+/// Display the loading layout before puzzle starts.
+/// {@endtemplate}
+@visibleForTesting
+class LoadingBoard extends StatelessWidget {
+  /// {@macro loading_board}
+  const LoadingBoard({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: ResponsiveLayoutBuilder(
+        small: (_, child) => SizedBox.square(
+          key: const Key('loading_board_small'),
+          dimension: _BoardSize.small + (_BoardSize.bgMarginSize * 2),
+          child: child,
+        ),
+        medium: (_, child) => SizedBox.square(
+          key: const Key('loading_board_medium'),
+          dimension: _BoardSize.medium + (_BoardSize.bgMarginSize * 2),
+          child: child,
+        ),
+        large: (_, child) => SizedBox.square(
+          key: const Key('loading_board_large'),
+          dimension: _BoardSize.large + (_BoardSize.bgMarginSize * 2),
+          child: child,
+        ),
+        child: (_) => Center(
+          child: Text(
+            'Hey! (Bum bum bum) Got any grapes? \n'
+            'Then he waddled away. \n'
+            '(Waddle waddle) \n'
+            "'Til the very next day. \n"
+            '(Bum bum bum bum ba-bada-dum) \n\n'
+            'Waddling........ Please *quack*',
+            style: PuzzleTextStyle.headline4.copyWith(
+              color: PuzzleColors.grey1,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
       ),
     );
   }

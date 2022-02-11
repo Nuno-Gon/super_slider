@@ -183,8 +183,8 @@ class _PuzzleHeader extends StatelessWidget {
         Positioned.fill(
           child: GestureDetector(
             onDoubleTap: () => context.read<PuzzleBloc>().add(
-              const ActiveTileReset(),
-            ),
+                  const ActiveTileReset(),
+                ),
           ),
         ),
       ],
@@ -313,9 +313,8 @@ class PuzzleBoard extends StatelessWidget {
         : context.select((MiniPuzzleBloc bloc) => bloc.state.puzzle);
 
     final size = puzzle.getDimension();
-    if (size == 0) {
-      // TODO(JR): improve loading state/layout
-      return const SizedBox(width: 592, child: CircularProgressIndicator());
+    if (size == 0 && puzzleType != PuzzleType.mega) {
+      return const SizedBox.shrink();
     }
 
     return BlocListener<PuzzleBloc, PuzzleState>(
