@@ -18,13 +18,14 @@ part 'puzzle_event.dart';
 part 'puzzle_state.dart';
 
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
-  PuzzleBloc(this._size, {this.imageUrl, this.random})
-      : super(const PuzzleState()) {
+  PuzzleBloc(this._size, {this.imageUrl, this.random}) : super(const PuzzleState()) {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
     on<TileDoubleTapped>(_onTileDoubleTapped);
     on<ActiveTileReset>(_onActiveTileReset);
     on<PuzzleReset>(_onPuzzleReset);
+    on<PuzzleImport>(_onPuzzleImport);
+    on<PuzzleExport>(_onPuzzleExport);
   }
 
   final int _size;
@@ -109,6 +110,16 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     }
   }
 
+  FutureOr<void> _onPuzzleImport(
+    PuzzleImport event,
+    Emitter<PuzzleState> emit,
+  ) {}
+
+  FutureOr<void> _onPuzzleExport(
+    PuzzleExport event,
+    Emitter<PuzzleState> emit,
+  ) {}
+
   Future<void> _onPuzzleReset(
     PuzzleReset event,
     Emitter<PuzzleState> emit,
@@ -134,9 +145,9 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final dividedImage = await compute(splitImage, imageUrl);
 
     // Create List with converted images ready to display
-    final displayReadyImages = <Image>[];
+    final displayReadyImages = <Uint8List>[];
     for (final img in dividedImage) {
-      displayReadyImages.add(convertImage(img));
+      displayReadyImages.add(Uint8List.fromList(imglib.encodeJpg(img)));
     }
 
     // Create all possible board positions.
@@ -194,7 +205,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     List<Position> correctPositions,
     List<Position> currentPositions,
     List<imglib.Image> dividedImage,
-    List<Image> displayReadyImages,
+    List<Uint8List> displayReadyImages,
   ) {
     final whitespacePosition = Position(x: size, y: size);
     return [
@@ -203,7 +214,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
           MegaTile(
             value: i,
             image: dividedImage[i - 1],
-            displayImage: displayReadyImages[i - 1],
+            displayImageBytes: displayReadyImages[i - 1],
             correctPosition: whitespacePosition,
             currentPosition: currentPositions[i - 1],
             isWhitespace: true,
@@ -212,7 +223,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
           MegaTile(
             value: i,
             image: dividedImage[i - 1],
-            displayImage: displayReadyImages[i - 1],
+            displayImageBytes: displayReadyImages[i - 1],
             correctPosition: correctPositions[i - 1],
             currentPosition: currentPositions[i - 1],
           )
@@ -267,9 +278,8 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);
-      byteData = (await rootBundle.load(curatedImages[randomPick]))
-          .buffer
-          .asUint8List();
+      //TODO The line below makes the app crash in mobile devices
+      byteData = (await rootBundle.load(curatedImages[randomPick])).buffer.asUint8List();
     }
 
     return byteData;

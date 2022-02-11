@@ -1,7 +1,10 @@
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
+
+part 'puzzle.g.dart';
 
 // A 3x3 puzzle board visualization:
 //
@@ -31,9 +34,21 @@ import 'package:very_good_slide_puzzle/models/models.dart';
 /// {@template puzzle}
 /// Model for a puzzle.
 /// {@endtemplate}
+
+@JsonSerializable()
 class Puzzle extends Equatable {
   /// {@macro puzzle}
-  const Puzzle({required this.tiles});
+  const Puzzle({
+    this.tiles = const [],
+  });
+
+  ///Convert Json into Puzzle
+  factory Puzzle.fromJson(Map<String, dynamic> json) {
+    return _$PuzzleFromJson(json);
+  }
+
+  ///Convert Puzzle into Json
+  Map<String, dynamic> toJson() => _$PuzzleToJson(this);
 
   /// List of [Tile]s representing the puzzle's current arrangement.
   final List<Tile> tiles;

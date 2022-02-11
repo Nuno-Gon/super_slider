@@ -43,3 +43,11 @@ class ActiveTileReset extends PuzzleEvent {
 class PuzzleReset extends PuzzleEvent {
   const PuzzleReset();
 }
+
+class PuzzleImport extends PuzzleEvent {
+  const PuzzleImport();
+}
+
+class PuzzleExport extends PuzzleEvent {
+  const PuzzleExport();
+}

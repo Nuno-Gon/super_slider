@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -39,8 +41,18 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
           medium: 48,
         ),
         ResponsiveLayoutBuilder(
-          small: (_, child) => const SimplePuzzleShuffleButton(),
-          medium: (_, child) => const SimplePuzzleShuffleButton(),
+          small: (_, __) => const SimplePuzzleShuffleButton(),
+          medium: (_, __) {
+            return Column(
+              children: [
+                const SimplePuzzleShuffleButton(),
+                const SizedBox(height: 32, width: 32),
+                const SimplePuzzleImportButton(),
+                const SizedBox(height: 32, width: 32),
+                const SimplePuzzleExportButton(),
+              ],
+            );
+          },
           large: (_, __) => const SizedBox(),
         ),
         const ResponsiveGap(
@@ -239,9 +251,7 @@ class SimplePuzzleTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PuzzleTitle(
-      title: status == PuzzleStatus.complete
-          ? context.l10n.puzzleCompleted
-          : context.l10n.puzzleChallengeTitle,
+      title: status == PuzzleStatus.complete ? context.l10n.puzzleCompleted : context.l10n.puzzleChallengeTitle,
     );
   }
 }
@@ -285,9 +295,7 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     final transformationController = TransformationController();
 
     final state = context.select((PuzzleBloc bloc) => bloc.state);
-    final currentPosition = state.activeTile != null
-        ? state.activeTile!.currentPosition
-        : const Position(x: 0, y: 0);
+    final currentPosition = state.activeTile != null ? state.activeTile!.currentPosition : const Position(x: 0, y: 0);
 
     late double boardSize;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -306,8 +314,7 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     final megaTileSizeWithZoom = megaTileSize * zoomLevel;
     final viewport = boardSize + (_BoardSize.bgMarginSize * 2);
     final marginAroundTile = viewport - megaTileSizeWithZoom;
-    final compensation =
-        (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
+    final compensation = (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       if (currentPosition.x != 0) {
@@ -627,7 +634,9 @@ class SimplePuzzleMegaTile extends StatelessWidget {
                   child: SizedBox.expand(
                     child: FittedBox(
                       fit: BoxFit.fill,
-                      child: tile.displayImage,
+                      child: Image.memory(
+                        tile.displayImageBytes ?? Uint8List.fromList([]),
+                      ),
                     ),
                   ),
                 ),
@@ -641,12 +650,10 @@ class SimplePuzzleMegaTile extends StatelessWidget {
         if (state.activeTile != tile)
           Positioned.fill(
             child: GestureDetector(
-              onTap: state.puzzleStatus == PuzzleStatus.incomplete &&
-                      allTilesDeactivated
+              onTap: state.puzzleStatus == PuzzleStatus.incomplete && allTilesDeactivated
                   ? () => context.read<PuzzleBloc>().add(TileTapped(tile))
                   : null,
-              onDoubleTap: () =>
-                  context.read<PuzzleBloc>().add(TileDoubleTapped(tile)),
+              onDoubleTap: () => context.read<PuzzleBloc>().add(TileDoubleTapped(tile)),
               onLongPress: () {
                 // TODO(JR): Here just for the purpose of testability; remove
                 context.read<SettingsBloc>().add(
@@ -705,7 +712,9 @@ class SimplePuzzleMiniTile extends StatelessWidget {
               child: SizedBox.expand(
                 child: FittedBox(
                   fit: BoxFit.fill,
-                  child: tile.displayImage,
+                  child: Image.memory(
+                    tile.displayImageBytes ?? Uint8List.fromList([]),
+                  ),
                 ),
               ),
             ),
@@ -744,6 +753,66 @@ class SimplePuzzleShuffleButton extends StatelessWidget {
           ),
           const Gap(10),
           Text(context.l10n.puzzleShuffle),
+        ],
+      ),
+    );
+  }
+}
+
+/// {@template puzzle_shuffle_button}
+/// Displays the button to shuffle the puzzle.
+/// {@endtemplate}
+@visibleForTesting
+class SimplePuzzleImportButton extends StatelessWidget {
+  /// {@macro puzzle_shuffle_button}
+  const SimplePuzzleImportButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PuzzleButton(
+      textColor: PuzzleColors.primary0,
+      backgroundColor: PuzzleColors.primary6,
+      onPressed: () => context.read<PuzzleBloc>().add(const PuzzleImport()),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/shuffle_icon.png',
+            width: 17,
+            height: 17,
+          ),
+          const Gap(10),
+          const Text('Import'),
+        ],
+      ),
+    );
+  }
+}
+
+/// {@template puzzle_shuffle_button}
+/// Displays the button to shuffle the puzzle.
+/// {@endtemplate}
+@visibleForTesting
+class SimplePuzzleExportButton extends StatelessWidget {
+  /// {@macro puzzle_shuffle_button}
+  const SimplePuzzleExportButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PuzzleButton(
+      textColor: PuzzleColors.primary0,
+      backgroundColor: PuzzleColors.primary6,
+      onPressed: () => context.read<PuzzleBloc>().add(const PuzzleExport()),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/shuffle_icon.png',
+            width: 17,
+            height: 17,
+          ),
+          const Gap(10),
+          const Text('Export'),
         ],
       ),
     );

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1029485859684-3lou8s9au1gd15ret0qnc67qmrtlpn2d.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1029485859684-3lou8s9au1gd15ret0qnc67qmrtlpn2d</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAm9QCF0irRwmxpzanxMKsY0lihb2ziI88</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1029485859684</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.veryquack.supersliderquackedition</string>
+	<key>PROJECT_ID</key>
+	<string>super-slider-quack-edition</string>
+	<key>STORAGE_BUCKET</key>
+	<string>super-slider-quack-edition.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1029485859684:ios:68486bbc74a1dbf87a2071</string>
+</dict>
+</plist>

@@ -107,9 +107,9 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     );
 
     // Create List with converted images ready to display
-    final displayReadyImages = <Image>[];
+    final displayReadyImages = <Uint8List>[];
     for (final img in dividedImage) {
-      displayReadyImages.add(convertImage(img));
+      displayReadyImages.add(Uint8List.fromList(imglib.encodeJpg(img)));
     }
 
     // Create all possible board positions.
@@ -167,7 +167,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     List<Position> correctPositions,
     List<Position> currentPositions,
     List<imglib.Image> dividedImage,
-    List<Image> displayReadyImages,
+    List<Uint8List> displayReadyImages,
   ) {
     final whitespacePosition = Position(x: size, y: size);
     return [
@@ -176,7 +176,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
           Tile(
             value: i,
             image: dividedImage[i - 1],
-            displayImage: displayReadyImages[i - 1],
+            displayImageBytes: displayReadyImages[i - 1],
             correctPosition: whitespacePosition,
             currentPosition: currentPositions[i - 1],
             isWhitespace: true,
@@ -185,7 +185,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
           Tile(
             value: i,
             image: dividedImage[i - 1],
-            displayImage: displayReadyImages[i - 1],
+            displayImageBytes: displayReadyImages[i - 1],
             correctPosition: correctPositions[i - 1],
             currentPosition: currentPositions[i - 1],
           )

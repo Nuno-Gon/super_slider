@@ -1,8 +1,15 @@
 import UIKit
+import Firebase
 import Flutter
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
+
+    override init(){
+      // Firebase Init
+      FirebaseApp.configure()
+    }
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
