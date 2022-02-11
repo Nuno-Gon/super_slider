@@ -92,21 +92,17 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
 
   void _onTileDoubleTapped(TileDoubleTapped event, Emitter<PuzzleState> emit) {
     final doubleTappedTile = event.tile;
-    if (state.puzzleStatus == PuzzleStatus.incomplete) {
-      emit(
-        state.copyWith(
-          activeTile: doubleTappedTile,
-        ),
-      );
-    }
+    emit(
+      state.copyWith(
+        activeTile: doubleTappedTile,
+      ),
+    );
   }
 
   void _onActiveTileReset(ActiveTileReset event, Emitter<PuzzleState> emit) {
-    if (state.puzzleStatus == PuzzleStatus.incomplete) {
-      emit(
-        state.resetActiveTile(),
-      );
-    }
+    emit(
+      state.resetActiveTile(),
+    );
   }
 
   Future<void> _onPuzzleReset(

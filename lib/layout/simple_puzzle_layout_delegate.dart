@@ -21,7 +21,10 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
   const SimplePuzzleLayoutDelegate();
 
   @override
-  Widget startSectionBuilder(PuzzleState state) {
+  Widget startSectionBuilder(
+    PuzzleState state,
+    SettingsState settings,
+  ) {
     return ResponsiveLayoutBuilder(
       small: (_, child) => child!,
       medium: (_, child) => child!,
@@ -32,6 +35,7 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
             child!,
             SimpleStartSectionBottom(
               state: state,
+              settings: settings,
             ),
           ],
         ),
@@ -52,6 +56,7 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
             children: [
               SimpleStartSectionBottom(
                 state: state,
+                settings: settings,
               ),
               SettingsSection(
                 settings: settings,
@@ -63,6 +68,7 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
             children: [
               SimpleStartSectionBottom(
                 state: state,
+                settings: settings,
               ),
               SettingsSection(
                 settings: settings,
@@ -262,30 +268,36 @@ class SimpleStartSectionBottom extends StatelessWidget {
   const SimpleStartSectionBottom({
     Key? key,
     required this.state,
+    required this.settings,
   }) : super(key: key);
 
   /// The state of the puzzle.
   final PuzzleState state;
 
+  /// Current settings state
+  final SettingsState settings;
+
   @override
   Widget build(BuildContext context) {
-    // TODO(JR): temp - here for testing
-    final puzzleSize = state.puzzle.getDimension();
-    final total = puzzleSize * puzzleSize;
-    final completed = state.completedPuzzles;
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
+
+    final puzzleSize = state.puzzle.getDimension();
+    final total = settings.isSuperPuzzle ? puzzleSize * puzzleSize : 1;
+    final completed = state.completedPuzzles;
 
     return Column(
       children: [
-        Text(
-          'A winner is you!\n'
-          'Congraturation This story is happy end. Thank you.',
-          style: PuzzleTextStyle.headline4.copyWith(
-            color: theme.defaultColor,
+        if (completed > 0 && completed == total)
+          Text(
+            context.l10n.puzzleCompleted,
+            style: PuzzleTextStyle.headline4.copyWith(
+              color: theme.defaultColor,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
+        const SizedBox(
+          height: 16,
         ),
-        const SizedBox(height: 16,),
         NumberOfMovesAndTilesLeft(
           numberOfMoves: state.numberOfMoves,
           numberOfTilesLeft: state.numberOfTilesLeft,

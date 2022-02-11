@@ -12,17 +12,20 @@ abstract class PuzzleLayoutDelegate extends Equatable {
   const PuzzleLayoutDelegate();
 
   /// A widget builder for the start section of the puzzle based on
-  /// the puzzle [state].
+  /// the puzzle [state] and [settings].
   ///
   /// This section corresponds to:
   /// - the left side of the puzzle UI (to the left of the puzzle board)
   /// on a desktop.
   /// - the top side of the puzzle UI (above the puzzle board)
   /// on a tablet/mobile.
-  Widget startSectionBuilder(PuzzleState state);
+  Widget startSectionBuilder(
+    PuzzleState state,
+    SettingsState settings,
+  );
 
   /// A widget builder for the end section of the puzzle based on
-  /// the puzzle [state].
+  /// the puzzle [state] and [settings].
   ///
   /// This section corresponds to:
   /// - the right side of the puzzle UI (to the right of the puzzle board)

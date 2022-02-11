@@ -16,7 +16,7 @@
     "@puzzleShuffle": {
         "description": "Shown on the button that shuffle the puzzle"
     },
-    "puzzleCompleted": "Well done. Congrats!",
+    "puzzleCompleted": "A winner is you!\nCongraturation This story is happy end. Thank you.",
     "@puzzleCompleted": {
         "description": "Shown as the success state when the puzzle is completed"
     },

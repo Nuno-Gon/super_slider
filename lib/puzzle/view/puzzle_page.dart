@@ -256,7 +256,7 @@ class _PuzzleSections extends StatelessWidget {
       child: ResponsiveLayoutBuilder(
         small: (context, child) => Column(
           children: [
-            theme.layoutDelegate.startSectionBuilder(state),
+            theme.layoutDelegate.startSectionBuilder(state, settings),
             const PuzzleBoard(
               puzzleType: PuzzleType.mega,
             ),
@@ -265,7 +265,7 @@ class _PuzzleSections extends StatelessWidget {
         ),
         medium: (context, child) => Column(
           children: [
-            theme.layoutDelegate.startSectionBuilder(state),
+            theme.layoutDelegate.startSectionBuilder(state, settings),
             const PuzzleBoard(
               puzzleType: PuzzleType.mega,
             ),
@@ -276,7 +276,7 @@ class _PuzzleSections extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: theme.layoutDelegate.startSectionBuilder(state),
+              child: theme.layoutDelegate.startSectionBuilder(state, settings),
             ),
             const PuzzleBoard(
               puzzleType: PuzzleType.mega,

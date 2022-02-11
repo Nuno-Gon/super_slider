@@ -61,7 +61,7 @@ void main() {
 
         await tester.pumpApp(
           SingleChildScrollView(
-            child: layoutDelegate.startSectionBuilder(state),
+            child: layoutDelegate.startSectionBuilder(state, settings),
           ),
           themeBloc: themeBloc,
         );
@@ -81,7 +81,7 @@ void main() {
 
         await tester.pumpApp(
           SingleChildScrollView(
-            child: layoutDelegate.startSectionBuilder(state),
+            child: layoutDelegate.startSectionBuilder(state, settings),
           ),
           themeBloc: themeBloc,
         );
@@ -101,7 +101,7 @@ void main() {
 
         await tester.pumpApp(
           SingleChildScrollView(
-            child: layoutDelegate.startSectionBuilder(state),
+            child: layoutDelegate.startSectionBuilder(state, settings),
           ),
           themeBloc: themeBloc,
         );
