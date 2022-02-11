@@ -759,12 +759,12 @@ class SimplePuzzleShuffleButton extends StatelessWidget {
   }
 }
 
-/// {@template puzzle_shuffle_button}
-/// Displays the button to shuffle the puzzle.
+/// {@template puzzle_import_button}
+/// Displays the button to import the puzzle.
 /// {@endtemplate}
 @visibleForTesting
 class SimplePuzzleImportButton extends StatelessWidget {
-  /// {@macro puzzle_shuffle_button}
+  /// {@macro puzzle_import_button}
   const SimplePuzzleImportButton({Key? key}) : super(key: key);
 
   @override
@@ -789,12 +789,12 @@ class SimplePuzzleImportButton extends StatelessWidget {
   }
 }
 
-/// {@template puzzle_shuffle_button}
-/// Displays the button to shuffle the puzzle.
+/// {@template puzzle_export_button}
+/// Displays the button to export the puzzle.
 /// {@endtemplate}
 @visibleForTesting
 class SimplePuzzleExportButton extends StatelessWidget {
-  /// {@macro puzzle_shuffle_button}
+  /// {@macro puzzle_export_button}
   const SimplePuzzleExportButton({Key? key}) : super(key: key);
 
   @override
