@@ -31,10 +31,10 @@ void main() {
       theme = MockPuzzleTheme();
       layoutDelegate = MockPuzzleLayoutDelegate();
 
-      when(() => layoutDelegate.startSectionBuilder(any()))
+      when(() => layoutDelegate.startSectionBuilder(any(), any()))
           .thenReturn(SizedBox());
 
-      when(() => layoutDelegate.endSectionBuilder(any()))
+      when(() => layoutDelegate.endSectionBuilder(any(), any()))
           .thenReturn(SizedBox());
 
       when(() => layoutDelegate.backgroundBuilder(any()))
@@ -145,7 +145,7 @@ void main() {
         themeBloc: themeBloc,
       );
 
-      verify(() => layoutDelegate.startSectionBuilder(any())).called(1);
+      verify(() => layoutDelegate.startSectionBuilder(any(), any())).called(1);
     });
 
     testWidgets(
@@ -156,7 +156,7 @@ void main() {
         themeBloc: themeBloc,
       );
 
-      verify(() => layoutDelegate.endSectionBuilder(any())).called(1);
+      verify(() => layoutDelegate.endSectionBuilder(any(), any())).called(1);
     });
 
     testWidgets(
@@ -225,7 +225,7 @@ void main() {
     testWidgets(
         'may start a timer '
         'in layoutDelegate', (tester) async {
-      when(() => layoutDelegate.startSectionBuilder(any()))
+      when(() => layoutDelegate.startSectionBuilder(any(), any()))
           .thenAnswer((invocation) {
         return Builder(
           builder: (context) {

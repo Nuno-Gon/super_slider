@@ -16,8 +16,40 @@
     "@puzzleShuffle": {
         "description": "Shown on the button that shuffle the puzzle"
     },
-    "puzzleCompleted": "Well done. Congrats!",
+    "puzzleCompleted": "A winner is you!\nCongraturation This story is happy end. Thank you.",
     "@puzzleCompleted": {
         "description": "Shown as the success state when the puzzle is completed"
+    },
+    "puzzleCustomize": "Customize your experience",
+    "@puzzleCustomize": {
+        "description": "Title for the settings page"
+    },
+    "puzzleMakeSuper": "Make it Super!",
+    "@puzzleMakeSuper": {
+        "description": "Option title for Super Mode"
+    },
+    "puzzleNeedHelp": "I need help!",
+    "@puzzleNeedHelp": {
+        "description": "Option title for helping numbers activation"
+    },
+    "puzzleLetsGo": "Let's Go!",
+    "@puzzleLetsGo": {
+        "description": "Shown on the button that generates the puzzle"
+    },
+    "puzzleTryUrl": "Try with an image url",
+    "@puzzleTryUrl": {
+        "description": "Label atop the Image input for user"
+    },
+    "puzzleFeedImage": "Feed me image!",
+    "@puzzleFeedImage": {
+        "description": "Label on the Image input for user"
+    },
+    "puzzleSuperBeLike": "Super puzzle be like - ",
+    "@puzzleSuperBeLike": {
+        "description": "Label for super puzzle size selector"
+    },
+    "puzzleMiniBeLike": "Mini puzzles be like - ",
+    "@puzzleMiniBeLike": {
+        "description": "Label for mini puzzles size selector"
     }
 }
