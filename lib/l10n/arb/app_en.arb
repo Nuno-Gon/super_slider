@@ -51,5 +51,9 @@
     "puzzleMiniBeLike": "Mini puzzles be like - ",
     "@puzzleMiniBeLike": {
         "description": "Label for mini puzzles size selector"
+    },
+    "puzzleWaddleWaddle": "Waddle, waddle...",
+    "@puzzleWaddleWaddle": {
+        "description": "Label for progress indicator"
     }
 }

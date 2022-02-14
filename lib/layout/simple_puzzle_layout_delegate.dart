@@ -54,9 +54,12 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
         ResponsiveLayoutBuilder(
           small: (_, child) => Column(
             children: [
-              SimpleStartSectionBottom(
-                state: state,
-                settings: settings,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: SimpleStartSectionBottom(
+                  state: state,
+                  settings: settings,
+                ),
               ),
               SettingsSection(
                 settings: settings,
@@ -66,9 +69,12 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
           ),
           medium: (_, child) => Column(
             children: [
-              SimpleStartSectionBottom(
-                state: state,
-                settings: settings,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: SimpleStartSectionBottom(
+                  state: state,
+                  settings: settings,
+                ),
               ),
               SettingsSection(
                 settings: settings,
@@ -284,27 +290,64 @@ class SimpleStartSectionBottom extends StatelessWidget {
     final puzzleSize = state.puzzle.getDimension();
     final total = settings.isSuperPuzzle ? puzzleSize * puzzleSize : 1;
     final completed = state.completedPuzzles;
+    final progress = total > 0 ? completed / total : 0.0;
+
+    final progressRowElements = List<Widget>.generate(total, (i) {
+      if (i + 1 == completed || (completed == 0 && i == 0)) {
+        return Image.asset(
+          'images/walking_duck.gif',
+          key: const Key('duck_walking'),
+          width: 42,
+        );
+      }
+      return const Expanded(
+        child: SizedBox.shrink(),
+      );
+    });
 
     return Column(
       children: [
         if (completed > 0 && completed == total)
-          Text(
-            context.l10n.puzzleCompleted,
-            style: PuzzleTextStyle.headline4.copyWith(
-              color: theme.defaultColor,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              context.l10n.puzzleCompleted,
+              style: PuzzleTextStyle.headline4.copyWith(
+                color: theme.defaultColor,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         const SizedBox(
           height: 16,
         ),
-        NumberOfMovesAndTilesLeft(
-          numberOfMoves: state.numberOfMoves,
-          numberOfTilesLeft: state.numberOfTilesLeft,
-        ),
-        const ResponsiveGap(large: 32),
-        Text(
-          'Progress visualizer: $completed/$total',
+        Column(
+          children: [
+            SizedBox(
+              height: 42,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: progressRowElements,
+              ),
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: SizedBox(
+                height: 16,
+                child: LinearProgressIndicator(
+                  value: progress,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              context.l10n.puzzleWaddleWaddle,
+              style: PuzzleTextStyle.headline5.copyWith(
+                color: theme.defaultColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ],
     );
