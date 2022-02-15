@@ -55,5 +55,13 @@
     "puzzleWaddleWaddle": "Waddle, waddle...",
     "@puzzleWaddleWaddle": {
         "description": "Label for progress indicator"
+    },
+    "puzzleHasHelp": "Can I has help?",
+    "@puzzleHasHelp": {
+        "description": "Label for tutorial button"
+    },
+    "puzzleHasPicture": "Can I has picture?",
+    "@puzzleHasPicture": {
+        "description": "Label for picture display button"
     }
 }

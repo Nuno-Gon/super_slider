@@ -380,25 +380,25 @@ void main() {
         expect(find.byType(PuzzleName), findsOneWidget);
       });
 
-      testWidgets('renders SimplePuzzleTitle', (tester) async {
-        when(() => state.puzzleStatus).thenReturn(PuzzleStatus.complete);
-
-        await tester.pumpApp(
-          SingleChildScrollView(
-            child: SimpleStartSection(state: state),
-          ),
-          themeBloc: themeBloc,
-        );
-
-        expect(
-          find.byWidgetPredicate(
-            (widget) =>
-                widget is SimplePuzzleTitle &&
-                widget.status == state.puzzleStatus,
-          ),
-          findsOneWidget,
-        );
-      });
+      // testWidgets('renders SimplePuzzleTitle', (tester) async {
+      //   when(() => state.puzzleStatus).thenReturn(PuzzleStatus.complete);
+      //
+      //   await tester.pumpApp(
+      //     SingleChildScrollView(
+      //       child: SimpleStartSection(state: state),
+      //     ),
+      //     themeBloc: themeBloc,
+      //   );
+      //
+      //   expect(
+      //     find.byWidgetPredicate(
+      //       (widget) =>
+      //           widget is SimplePuzzleTitle &&
+      //           widget.status == state.puzzleStatus,
+      //     ),
+      //     findsOneWidget,
+      //   );
+      // });
 
       testWidgets('renders NumberOfMovesAndTilesLeft', (tester) async {
         await tester.pumpApp(

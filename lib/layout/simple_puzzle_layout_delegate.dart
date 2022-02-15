@@ -349,35 +349,66 @@ class SimpleStartSectionBottom extends StatelessWidget {
             ),
           ],
         ),
+        const ResponsiveGap(
+          small: 16,
+          medium: 16,
+          large: 32,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              label: Text(context.l10n.puzzleHasHelp),
+              icon: const Icon(
+                Icons.info,
+                size: 16,
+              ),
+              onPressed: () {
+                _showDismissibleDialog(
+                  context: context,
+                  child: Material(
+                    child: Text(
+                      'The tutorial goes here eventually',
+                      // TODO(JR): Finish tutorial
+                      style: PuzzleTextStyle.headline5.copyWith(
+                        color: theme.defaultColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: Text(context.l10n.puzzleHasPicture),
+              onPressed: () {
+                _showDismissibleDialog(
+                  context: context,
+                  child: GridView.count(
+                    crossAxisCount: state.puzzle.getDimension(),
+                    children: (state.puzzle.tiles
+                          ..sort(
+                            (a, b) => a.correctPosition.compareTo(
+                              b.correctPosition,
+                            ),
+                          ))
+                        .map(
+                          (e) => Opacity(
+                            opacity: (e as MegaTile).isCompleted ||
+                                    !settings.isSuperPuzzle
+                                ? 1
+                                : 0.7,
+                            child: e.displayImage,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ],
-    );
-  }
-}
-
-/// {@template simple_puzzle_title}
-/// Displays the title of the puzzle based on [status].
-///
-/// Shows the success state when the puzzle is completed,
-/// otherwise defaults to the Puzzle Challenge title.
-/// {@endtemplate}
-@visibleForTesting
-class SimplePuzzleTitle extends StatelessWidget {
-  /// {@macro simple_puzzle_title}
-  const SimplePuzzleTitle({
-    // TODO(JR): change/refurbish to our needs
-    Key? key,
-    required this.status,
-  }) : super(key: key);
-
-  /// The state of the puzzle.
-  final PuzzleStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    return PuzzleTitle(
-      title: status == PuzzleStatus.complete
-          ? context.l10n.puzzleCompleted
-          : context.l10n.puzzleChallengeTitle,
     );
   }
 }
@@ -1127,4 +1158,46 @@ class SettingsSectionState extends State<SettingsSection> {
       ),
     );
   }
+}
+
+void _showDismissibleDialog({
+  required BuildContext context,
+  required Widget child,
+}) {
+  showGeneralDialog(
+    context: context,
+    barrierColor: Colors.black12.withOpacity(0.6),
+    transitionDuration: const Duration(milliseconds: 400),
+    pageBuilder: (_, __, ___) {
+      return Stack(
+        children: [
+          Center(
+            child: Container(
+              color: Colors.black,
+              child: ResponsiveLayoutBuilder(
+                small: (_, _child) => SizedBox.square(
+                  dimension: _BoardSize.small + 40,
+                  child: _child,
+                ),
+                medium: (_, _child) => SizedBox.square(
+                  dimension: _BoardSize.medium + 40,
+                  child: _child,
+                ),
+                large: (_, _child) => SizedBox.square(
+                  dimension: _BoardSize.large + 40,
+                  child: _child,
+                ),
+                child: (_) => child,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }
