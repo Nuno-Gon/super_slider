@@ -6,7 +6,6 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -127,7 +126,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final correctPositions = <Position>[];
     final currentPositions = <Position>[];
     final whitespacePosition = Position(x: size, y: size);
-    final dividedImage = await compute(splitImage, imageUrl);
+    final dividedImage = await splitImage(imageUrl);
 
     // Create List with converted images ready to display
     final displayReadyImages = <Image>[];
@@ -221,10 +220,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final byteData = await getByteDataOfImage(imageUrl);
     final convertedData = List<int>.from(byteData);
 
-    var image = await compute(
-      imglib.decodeImage,
-      convertedData,
-    );
+    var image = imglib.decodeImage(convertedData);
     image = image!; // TODO(JR): validate null-case/error exceptions
 
     // Cut the image into a square

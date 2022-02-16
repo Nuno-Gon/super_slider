@@ -123,13 +123,13 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
         child: (_) => Stack(
           children: [
             Image.asset(
-              'images/duck_full.png',
+              'assets/images/duck_full.png',
               key: const Key('simple_puzzle_duck'),
             ),
             ClipRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Image.asset('images/duck_full.png'),
+                child: Image.asset('assets/images/duck_full.png'),
               ),
             ),
           ],
@@ -255,7 +255,7 @@ class SimpleStartSection extends StatelessWidget {
           ),
           large: (_, child) => child!,
           child: (_) => Image.asset(
-            'images/super_logo.png',
+            'assets/images/super_logo.png',
             key: const Key('super_puzzle_logo'),
           ),
         ),
@@ -295,7 +295,7 @@ class SimpleStartSectionBottom extends StatelessWidget {
     final progressRowElements = List<Widget>.generate(total, (i) {
       if (i + 1 == completed || (completed == 0 && i == 0)) {
         return Image.asset(
-          'images/walking_duck.gif',
+          'assets/images/walking_duck.gif',
           key: const Key('duck_walking'),
           width: 42,
         );

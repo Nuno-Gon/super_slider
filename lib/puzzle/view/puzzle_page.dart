@@ -109,8 +109,10 @@ class _MegaPuzzle extends StatelessWidget {
                         children: [
                           Container(
                             color: Colors.white,
-                            child: const _PuzzleHeader(
-                              key: Key('puzzle_header'),
+                            child: const SafeArea(
+                              child: _PuzzleHeader(
+                                key: Key('puzzle_header'),
+                              ),
                             ),
                           ),
                           const _PuzzleSections(
@@ -168,7 +170,7 @@ class _PuzzleHeader extends StatelessWidget {
                 child: Row(
                   children: [
                     Image.asset(
-                      'images/our_logo.png',
+                      'assets/images/our_logo.png',
                       width: 180,
                     ),
                     const Spacer(),
@@ -202,11 +204,11 @@ class _PuzzleLogo extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset('images/ctw_logo.png', height: 40),
+          Image.asset('assets/images/ctw_logo.png', height: 40),
           const SizedBox(height: 3),
           Row(
             children: [
-              Image.asset('images/heart_image.png', height: 15),
+              Image.asset('assets/images/heart_image.png', height: 15),
               const SizedBox(
                 height: 20,
                 child: FlutterLogo(
@@ -222,9 +224,9 @@ class _PuzzleLogo extends StatelessWidget {
       large: (_, child) => child!,
       child: (_) => Row(
         children: [
-          Image.asset('images/ctw_logo.png', height: 40),
+          Image.asset('assets/images/ctw_logo.png', height: 40),
           const SizedBox(width: 2),
-          Image.asset('images/heart_image.png', height: 15),
+          Image.asset('assets/images/heart_image.png', height: 15),
           const SizedBox(
             height: 20,
             child: FlutterLogo(
