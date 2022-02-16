@@ -1,4 +1,4 @@
-package com.example.verygoodcore
+package com.example.veryquackquack
 
 import io.flutter.embedding.android.FlutterActivity
 
