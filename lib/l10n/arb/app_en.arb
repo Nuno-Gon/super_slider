@@ -63,5 +63,9 @@
     "puzzleHasPicture": "Can I has picture?",
     "@puzzleHasPicture": {
         "description": "Label for picture display button"
+    },
+    "puzzleLoading": "Hey! (Bum bum bum) Got any grapes?\nThen he waddled away.\n(Waddle waddle)\n'Til the very next day.\n(Bum bum bum bum ba-bada-dum)\n\nWaddling........ Please *quack*",
+    "@puzzleLoading": {
+        "description": "Loading message"
     }
 }

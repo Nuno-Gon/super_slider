@@ -60,8 +60,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
               puzzle: puzzle.sort(),
               puzzleStatus: PuzzleStatus.complete,
               tileMovementStatus: TileMovementStatus.moved,
-              //numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-              // TODO(JR): fix?
+              numberOfCorrectTiles: puzzle.tiles.length,
               numberOfMoves: state.numberOfMoves + 1,
               lastTappedTile: tappedTile,
             ),

@@ -585,19 +585,35 @@ class LoadingBoard extends StatelessWidget {
           dimension: _BoardSize.large + (_BoardSize.bgMarginSize * 2),
           child: child,
         ),
-        child: (_) => Center(
-          child: Text(
-            'Hey! (Bum bum bum) Got any grapes? \n'
-            'Then he waddled away. \n'
-            '(Waddle waddle) \n'
-            "'Til the very next day. \n"
-            '(Bum bum bum bum ba-bada-dum) \n\n'
-            'Waddling........ Please *quack*',
-            style: PuzzleTextStyle.headline4.copyWith(
-              color: PuzzleColors.grey1,
+        child: (_) => Stack(
+          children: [
+            Center(
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white54,
+                      blurRadius: 150,
+                      spreadRadius: 150,
+                    ),
+                  ],
+                ),
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
+            Center(
+              child: Text(
+                context.l10n.puzzleLoading,
+                style: PuzzleTextStyle.headline4.copyWith(
+                  color: PuzzleColors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
     );
