@@ -35,7 +35,11 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     PuzzleInitialized event,
     Emitter<PuzzleState> emit,
   ) async {
-    final puzzle = await _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+    late Puzzle puzzle;
+    await Future<void>.delayed(const Duration(seconds: 1), () async {
+      puzzle = await _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+    });
+
     emit(
       PuzzleState(
         puzzle: puzzle.sort(),
@@ -110,8 +114,11 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     emit(
       const PuzzleState(),
     );
+    late Puzzle puzzle;
+    await Future<void>.delayed(const Duration(seconds: 1), () async {
+      puzzle = await _generatePuzzle(_size);
+    });
 
-    final puzzle = await _generatePuzzle(_size);
     emit(
       PuzzleState(
         puzzle: puzzle.sort(),
