@@ -11,12 +11,12 @@ void main() {
   group('Tile', () {
     test('supports value comparisons', () {
       expect(
-        const Tile(
+        Tile(
           value: value,
           correctPosition: position,
           currentPosition: position,
         ),
-        const Tile(
+        Tile(
           value: value,
           correctPosition: position,
           currentPosition: position,

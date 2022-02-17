@@ -800,7 +800,6 @@ class SimplePuzzleMegaTile extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(2.5, 2.5, 1, 1),
             child: BlocProvider(
               key: ValueKey(tile),
-              // TODO(JR): when added, flickers; without, puzzle breaks
               create: (context) => MiniPuzzleBloc(
                 settings.miniPuzzleSize,
                 image: tile.image,

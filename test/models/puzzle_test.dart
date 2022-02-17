@@ -2,53 +2,53 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 
 void main() {
-  const unsolvable3x3Tile0 = Tile(
+  final unsolvable3x3Tile0 = Tile(
     value: 0,
-    correctPosition: Position(x: 3, y: 3),
-    currentPosition: Position(x: 3, y: 3),
+    correctPosition: const Position(x: 3, y: 3),
+    currentPosition: const Position(x: 3, y: 3),
     isWhitespace: true,
   );
-  const unsolvable3x3Tile1 = Tile(
+  final unsolvable3x3Tile1 = Tile(
     value: 1,
-    correctPosition: Position(x: 1, y: 1),
-    currentPosition: Position(x: 2, y: 1),
+    correctPosition: const Position(x: 1, y: 1),
+    currentPosition: const Position(x: 2, y: 1),
   );
-  const unsolvable3x3Tile2 = Tile(
+  final unsolvable3x3Tile2 = Tile(
     value: 2,
-    correctPosition: Position(x: 2, y: 1),
-    currentPosition: Position(x: 1, y: 1),
+    correctPosition: const Position(x: 2, y: 1),
+    currentPosition: const Position(x: 1, y: 1),
   );
-  const unsolvable3x3Tile3 = Tile(
+  final unsolvable3x3Tile3 = Tile(
     value: 3,
-    correctPosition: Position(x: 3, y: 1),
-    currentPosition: Position(x: 3, y: 1),
+    correctPosition: const Position(x: 3, y: 1),
+    currentPosition: const Position(x: 3, y: 1),
   );
-  const unsolvable3x3Tile4 = Tile(
+  final unsolvable3x3Tile4 = Tile(
     value: 4,
-    correctPosition: Position(x: 1, y: 2),
-    currentPosition: Position(x: 1, y: 2),
+    correctPosition: const Position(x: 1, y: 2),
+    currentPosition: const Position(x: 1, y: 2),
   );
-  const unsolvable3x3Tile5 = Tile(
+  final unsolvable3x3Tile5 = Tile(
     value: 5,
-    correctPosition: Position(x: 2, y: 2),
-    currentPosition: Position(x: 2, y: 2),
+    correctPosition: const Position(x: 2, y: 2),
+    currentPosition: const Position(x: 2, y: 2),
   );
-  const unsolvable3x3Tile6 = Tile(
+  final unsolvable3x3Tile6 = Tile(
     value: 6,
-    correctPosition: Position(x: 3, y: 2),
-    currentPosition: Position(x: 3, y: 2),
+    correctPosition: const Position(x: 3, y: 2),
+    currentPosition: const Position(x: 3, y: 2),
   );
-  const unsolvable3x3Tile7 = Tile(
+  final unsolvable3x3Tile7 = Tile(
     value: 7,
-    correctPosition: Position(x: 1, y: 3),
-    currentPosition: Position(x: 1, y: 3),
+    correctPosition: const Position(x: 1, y: 3),
+    currentPosition: const Position(x: 1, y: 3),
   );
-  const unsolvable3x3Tile8 = Tile(
+  final unsolvable3x3Tile8 = Tile(
     value: 8,
-    correctPosition: Position(x: 2, y: 3),
-    currentPosition: Position(x: 2, y: 3),
+    correctPosition: const Position(x: 2, y: 3),
+    currentPosition: const Position(x: 2, y: 3),
   );
-  const unsolvable3x3Puzzle = Puzzle(
+  final unsolvable3x3Puzzle = Puzzle(
     tiles: [
       unsolvable3x3Tile0,
       unsolvable3x3Tile1,
@@ -62,165 +62,165 @@ void main() {
     ],
   );
 
-  const solvable3x3Puzzle = Puzzle(
+  final solvable3x3Puzzle = Puzzle(
     tiles: [
       Tile(
         value: 2,
-        correctPosition: Position(x: 2, y: 1),
-        currentPosition: Position(x: 3, y: 2),
+        correctPosition: const Position(x: 2, y: 1),
+        currentPosition: const Position(x: 3, y: 2),
       ),
       Tile(
         value: 1,
-        correctPosition: Position(x: 1, y: 1),
-        currentPosition: Position(x: 1, y: 1),
+        correctPosition: const Position(x: 1, y: 1),
+        currentPosition: const Position(x: 1, y: 1),
       ),
       Tile(
         value: 3,
-        correctPosition: Position(x: 3, y: 1),
-        currentPosition: Position(x: 2, y: 1),
+        correctPosition: const Position(x: 3, y: 1),
+        currentPosition: const Position(x: 2, y: 1),
       ),
       Tile(
         value: 4,
-        correctPosition: Position(x: 1, y: 2),
-        currentPosition: Position(x: 3, y: 1),
+        correctPosition: const Position(x: 1, y: 2),
+        currentPosition: const Position(x: 3, y: 1),
       ),
       Tile(
         value: 5,
-        correctPosition: Position(x: 2, y: 2),
-        currentPosition: Position(x: 1, y: 3),
+        correctPosition: const Position(x: 2, y: 2),
+        currentPosition: const Position(x: 1, y: 3),
       ),
       Tile(
         value: 6,
-        correctPosition: Position(x: 3, y: 2),
-        currentPosition: Position(x: 3, y: 3),
+        correctPosition: const Position(x: 3, y: 2),
+        currentPosition: const Position(x: 3, y: 3),
       ),
       Tile(
         value: 7,
-        correctPosition: Position(x: 1, y: 3),
-        currentPosition: Position(x: 1, y: 2),
+        correctPosition: const Position(x: 1, y: 3),
+        currentPosition: const Position(x: 1, y: 2),
       ),
       Tile(
         value: 8,
-        correctPosition: Position(x: 2, y: 3),
-        currentPosition: Position(x: 2, y: 3),
+        correctPosition: const Position(x: 2, y: 3),
+        currentPosition: const Position(x: 2, y: 3),
       ),
       Tile(
         value: 0,
-        correctPosition: Position(x: 3, y: 3),
-        currentPosition: Position(x: 2, y: 2),
+        correctPosition: const Position(x: 3, y: 3),
+        currentPosition: const Position(x: 2, y: 2),
         isWhitespace: true,
       ),
     ],
   );
 
-  const unsolvable4x4Puzzle = Puzzle(
+  final unsolvable4x4Puzzle = Puzzle(
     tiles: [
       Tile(
         value: 1,
-        correctPosition: Position(x: 1, y: 1),
-        currentPosition: Position(x: 1, y: 1),
+        correctPosition: const Position(x: 1, y: 1),
+        currentPosition: const Position(x: 1, y: 1),
       ),
       Tile(
         value: 2,
-        correctPosition: Position(x: 2, y: 1),
-        currentPosition: Position(x: 2, y: 1),
+        correctPosition: const Position(x: 2, y: 1),
+        currentPosition: const Position(x: 2, y: 1),
       ),
       Tile(
         value: 3,
-        correctPosition: Position(x: 3, y: 1),
-        currentPosition: Position(x: 3, y: 1),
+        correctPosition: const Position(x: 3, y: 1),
+        currentPosition: const Position(x: 3, y: 1),
       ),
       Tile(
         value: 4,
-        correctPosition: Position(x: 4, y: 1),
-        currentPosition: Position(x: 4, y: 1),
+        correctPosition: const Position(x: 4, y: 1),
+        currentPosition: const Position(x: 4, y: 1),
       ),
       Tile(
         value: 5,
-        correctPosition: Position(x: 1, y: 2),
-        currentPosition: Position(x: 1, y: 2),
+        correctPosition: const Position(x: 1, y: 2),
+        currentPosition: const Position(x: 1, y: 2),
       ),
       Tile(
         value: 6,
-        correctPosition: Position(x: 2, y: 2),
-        currentPosition: Position(x: 2, y: 2),
+        correctPosition: const Position(x: 2, y: 2),
+        currentPosition: const Position(x: 2, y: 2),
       ),
       Tile(
         value: 7,
-        correctPosition: Position(x: 3, y: 2),
-        currentPosition: Position(x: 3, y: 2),
+        correctPosition: const Position(x: 3, y: 2),
+        currentPosition: const Position(x: 3, y: 2),
       ),
       Tile(
         value: 8,
-        correctPosition: Position(x: 4, y: 2),
-        currentPosition: Position(x: 4, y: 2),
+        correctPosition: const Position(x: 4, y: 2),
+        currentPosition: const Position(x: 4, y: 2),
       ),
       Tile(
         value: 9,
-        correctPosition: Position(x: 1, y: 3),
-        currentPosition: Position(x: 1, y: 3),
+        correctPosition: const Position(x: 1, y: 3),
+        currentPosition: const Position(x: 1, y: 3),
       ),
       Tile(
         value: 10,
-        correctPosition: Position(x: 2, y: 3),
-        currentPosition: Position(x: 2, y: 3),
+        correctPosition: const Position(x: 2, y: 3),
+        currentPosition: const Position(x: 2, y: 3),
       ),
       Tile(
         value: 11,
-        correctPosition: Position(x: 3, y: 3),
-        currentPosition: Position(x: 3, y: 3),
+        correctPosition: const Position(x: 3, y: 3),
+        currentPosition: const Position(x: 3, y: 3),
       ),
       Tile(
         value: 12,
-        correctPosition: Position(x: 4, y: 3),
-        currentPosition: Position(x: 4, y: 3),
+        correctPosition: const Position(x: 4, y: 3),
+        currentPosition: const Position(x: 4, y: 3),
       ),
       Tile(
         value: 13,
-        correctPosition: Position(x: 1, y: 4),
-        currentPosition: Position(x: 1, y: 4),
+        correctPosition: const Position(x: 1, y: 4),
+        currentPosition: const Position(x: 1, y: 4),
       ),
       Tile(
         value: 14,
-        correctPosition: Position(x: 2, y: 4),
-        currentPosition: Position(x: 3, y: 4),
+        correctPosition: const Position(x: 2, y: 4),
+        currentPosition: const Position(x: 3, y: 4),
       ),
       Tile(
         value: 15,
-        correctPosition: Position(x: 3, y: 4),
-        currentPosition: Position(x: 2, y: 4),
+        correctPosition: const Position(x: 3, y: 4),
+        currentPosition: const Position(x: 2, y: 4),
       ),
       Tile(
         value: 0,
-        correctPosition: Position(x: 4, y: 4),
-        currentPosition: Position(x: 4, y: 4),
+        correctPosition: const Position(x: 4, y: 4),
+        currentPosition: const Position(x: 4, y: 4),
         isWhitespace: true,
       ),
     ],
   );
 
-  const solvable2x2Tile0 = Tile(
+  final solvable2x2Tile0 = Tile(
     value: 0,
-    correctPosition: Position(x: 2, y: 2),
-    currentPosition: Position(x: 1, y: 1),
+    correctPosition: const Position(x: 2, y: 2),
+    currentPosition: const Position(x: 1, y: 1),
     isWhitespace: true,
   );
-  const solvable2x2Tile1 = Tile(
+  final solvable2x2Tile1 = Tile(
     value: 1,
-    correctPosition: Position(x: 1, y: 1),
-    currentPosition: Position(x: 2, y: 1),
+    correctPosition: const Position(x: 1, y: 1),
+    currentPosition: const Position(x: 2, y: 1),
   );
-  const solvable2x2Tile2 = Tile(
+  final solvable2x2Tile2 = Tile(
     value: 2,
-    correctPosition: Position(x: 2, y: 1),
-    currentPosition: Position(x: 2, y: 2),
+    correctPosition: const Position(x: 2, y: 1),
+    currentPosition: const Position(x: 2, y: 2),
   );
-  const solvable2x2Tile3 = Tile(
+  final solvable2x2Tile3 = Tile(
     value: 3,
-    correctPosition: Position(x: 1, y: 2),
-    currentPosition: Position(x: 1, y: 2),
+    correctPosition: const Position(x: 1, y: 2),
+    currentPosition: const Position(x: 1, y: 2),
   );
-  const solvable2x2Puzzle = Puzzle(
+  final solvable2x2Puzzle = Puzzle(
     tiles: [
       solvable2x2Tile0,
       solvable2x2Tile1,
@@ -231,14 +231,14 @@ void main() {
 
   group('Puzzle', () {
     group('getPuzzleDimension', () {
-      const tile = Tile(
+      final tile = Tile(
         value: 1,
-        correctPosition: Position(x: 1, y: 1),
-        currentPosition: Position(x: 1, y: 1),
+        correctPosition: const Position(x: 1, y: 1),
+        currentPosition: const Position(x: 1, y: 1),
       );
       const puzzleEmpty = Puzzle(tiles: []);
-      const puzzle1x1 = Puzzle(tiles: [tile]);
-      const puzzle2x2 = Puzzle(tiles: [tile, tile, tile, tile]);
+      final puzzle1x1 = Puzzle(tiles: [tile]);
+      final puzzle2x2 = Puzzle(tiles: [tile, tile, tile, tile]);
 
       test('returns 0 when given an empty list', () {
         expect(puzzleEmpty.getDimension(), equals(0));
@@ -261,12 +261,12 @@ void main() {
 
     group('getNumberOfCorrectTiles', () {
       test('returns 0 from 1x1 puzzle with only a whitespace tile', () {
-        const puzzle = Puzzle(
+        final puzzle = Puzzle(
           tiles: [
             Tile(
               value: 0,
-              correctPosition: Position(x: 1, y: 1),
-              currentPosition: Position(x: 1, y: 1),
+              correctPosition: const Position(x: 1, y: 1),
+              currentPosition: const Position(x: 1, y: 1),
               isWhitespace: true,
             ),
           ],
@@ -387,7 +387,7 @@ void main() {
 
     group('sort', () {
       test('returns a puzzle with tiles sorted by their current positions', () {
-        const sortedPuzzle = Puzzle(
+        final sortedPuzzle = Puzzle(
           tiles: [
             solvable2x2Tile0,
             solvable2x2Tile1,

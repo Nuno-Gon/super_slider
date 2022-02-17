@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as imglib;
@@ -8,7 +10,7 @@ import 'package:very_good_slide_puzzle/models/models.dart';
 /// {@endtemplate}
 class Tile extends Equatable {
   /// {@macro tile}
-  const Tile({
+  Tile({
     required this.value,
     required this.correctPosition,
     required this.currentPosition,
@@ -25,7 +27,7 @@ class Tile extends Equatable {
   final Position correctPosition;
 
   /// The current 2D [Position] of the [Tile].
-  final Position currentPosition;
+  Position currentPosition;
 
   /// The image data used to create the Image widget for the [Tile].
   final imglib.Image? image;
