@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -11,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as imglib;
+import 'package:very_good_slide_puzzle/datasource/firebase_service.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
+import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
 part 'puzzle_event.dart';
 
@@ -32,6 +35,8 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
 
   final String? imageUrl;
   final Random? random;
+
+  // Object? get puzzleToJson => jsonEncode(state.puzzle);
 
   Future<void> _onPuzzleInitialized(
     PuzzleInitialized event,
@@ -113,12 +118,38 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   FutureOr<void> _onPuzzleImport(
     PuzzleImport event,
     Emitter<PuzzleState> emit,
-  ) {}
+  ) {
+    emit(
+      PuzzleState(
+        puzzle: event.importedPuzzle,
+        multiplayerStatus: MultiplayerStatus.successImport,
+      ),
+    );
+  }
 
   FutureOr<void> _onPuzzleExport(
     PuzzleExport event,
     Emitter<PuzzleState> emit,
-  ) {}
+  ) async {
+    emit(
+      state.copyWith(multiplayerStatus: MultiplayerStatus.loading),
+    );
+
+    await FirebaseService.instance.addToCollection(
+      collection: 'puzzle',
+      data: <String, dynamic>{
+        'content': base64Encode(
+          utf8.encode(
+            jsonEncode(state.puzzle),
+          ),
+        ),
+      },
+    );
+
+    emit(
+      state.copyWith(multiplayerStatus: MultiplayerStatus.successExport),
+    );
+  }
 
   Future<void> _onPuzzleReset(
     PuzzleReset event,

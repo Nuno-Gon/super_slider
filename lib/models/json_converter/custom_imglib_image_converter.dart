@@ -1,60 +1,55 @@
+import 'dart:convert';
 import 'dart:typed_data' show Uint8List;
 
-import 'package:flutter/material.dart' show Image;
-import 'package:image/image.dart' as imglib;
+import 'package:image/image.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 ///Custom Imglib.Image Json converter
-class CustomImglibImageConverter
-    implements JsonConverter<imglib.Image?, Map<String, dynamic>?> {
+class CustomImglibImageConverter implements JsonConverter<Image?, Map<String, dynamic>?> {
   ///Constructor
   const CustomImglibImageConverter();
 
   @override
-  imglib.Image? fromJson(Map<String, dynamic>? json) {
+  Image? fromJson(Map<String, dynamic>? json) {
     if (json == null) {
       return null;
     }
 
-    return imglib.Image.fromBytes(
-      json['width'] as int,
-      json['height'] as int,
-      json['bytes'] as Uint8List,
-    );
+    return decodeImage(base64Decode(json['content'] as String));
   }
 
   @override
-  Map<String, dynamic>? toJson(imglib.Image? image) {
+  Map<String, dynamic>? toJson(Image? image) {
     if (image == null) {
       return null;
     }
 
     return <String, dynamic>{
-      'bytes': image.getBytes(),
+      'content': base64Encode(image.getBytes().toList()),
       'height': image.height,
       'width': image.width,
     };
   }
 }
 
-class Uint8ListConverter implements JsonConverter<Uint8List?, List<int>?> {
+class Uint8ListConverter implements JsonConverter<Uint8List?, String?> {
   const Uint8ListConverter();
 
   @override
-  Uint8List? fromJson(List<int>? json) {
+  Uint8List? fromJson(String? json) {
     if (json == null) {
       return null;
     }
 
-    return Uint8List.fromList(json);
+    return base64Decode(json);
   }
 
   @override
-  List<int>? toJson(Uint8List? object) {
+  String? toJson(Uint8List? object) {
     if (object == null) {
       return null;
     }
 
-    return object.toList();
+    return base64Encode(object);
   }
 }

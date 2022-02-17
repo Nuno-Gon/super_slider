@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
+import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
 part 'puzzle.g.dart';
 
@@ -39,19 +40,21 @@ part 'puzzle.g.dart';
 class Puzzle extends Equatable {
   /// {@macro puzzle}
   const Puzzle({
+    this.id,
     this.tiles = const [],
   });
 
   ///Convert Json into Puzzle
-  factory Puzzle.fromJson(Map<String, dynamic> json) {
-    return _$PuzzleFromJson(json);
-  }
+  factory Puzzle.fromJson(Map<String, dynamic> json, {bool isMega = false}) => _$PuzzleFromJson(json, isMega: isMega);
 
   ///Convert Puzzle into Json
   Map<String, dynamic> toJson() => _$PuzzleToJson(this);
 
   /// List of [Tile]s representing the puzzle's current arrangement.
   final List<Tile> tiles;
+
+  /// Puzzle Identifier
+  final String? id;
 
   /// Get the dimension of a puzzle given its tile arrangement.
   ///
@@ -171,9 +174,7 @@ class Puzzle extends Equatable {
       final shiftPointX = tile.currentPosition.x + deltaX.sign;
       final shiftPointY = tile.currentPosition.y + deltaY.sign;
       final tileToSwapWith = tiles.singleWhere(
-        (tile) =>
-            tile.currentPosition.x == shiftPointX &&
-            tile.currentPosition.y == shiftPointY,
+        (tile) => tile.currentPosition.x == shiftPointX && tile.currentPosition.y == shiftPointY,
       );
       tilesToSwap.add(tile);
       return moveTiles(tileToSwapWith, tilesToSwap);

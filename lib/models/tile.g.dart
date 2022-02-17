@@ -11,7 +11,7 @@ Tile _$TileFromJson(Map<String, dynamic> json) => Tile(
       correctPosition: Position.fromJson(json['correctPosition'] as Map<String, dynamic>),
       currentPosition: Position.fromJson(json['currentPosition'] as Map<String, dynamic>),
       image: const CustomImglibImageConverter().fromJson(json['image'] as Map<String, dynamic>?),
-      displayImageBytes: const Uint8ListConverter().fromJson(json['displayImageBytes'] as List<int>?),
+      displayImageBytes: const Uint8ListConverter().fromJson(json['displayImageBytes'] as String?),
       isWhitespace: json['isWhitespace'] as bool? ?? false,
     );
 

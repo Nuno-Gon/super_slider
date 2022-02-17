@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:very_good_slide_puzzle/colors/colors.dart';
@@ -41,14 +45,22 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
           medium: 48,
         ),
         ResponsiveLayoutBuilder(
-          small: (_, __) => const SimplePuzzleShuffleButton(),
+          small: (_, __) => Column(
+            children: [
+              const SimplePuzzleShuffleButton(),
+              const SizedBox(height: 32),
+              const SimplePuzzleImportButton(),
+              const SizedBox(height: 32),
+              const SimplePuzzleExportButton(),
+            ],
+          ),
           medium: (_, __) {
             return Column(
               children: [
                 const SimplePuzzleShuffleButton(),
-                const SizedBox(height: 32, width: 32),
+                const SizedBox(height: 32),
                 const SimplePuzzleImportButton(),
-                const SizedBox(height: 32, width: 32),
+                const SizedBox(height: 32),
                 const SimplePuzzleExportButton(),
               ],
             );
@@ -107,6 +119,7 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
     PuzzleType puzzleType,
     SettingsState settings,
   ) {
+    // print('DOGSON: PUZZLE TYPE: $puzzleType');
     final isMegaPuzzle = puzzleType == PuzzleType.mega;
 
     if (isMegaPuzzle) {
@@ -146,6 +159,7 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
 
   @override
   Widget miniTileBuilder(Tile tile, MiniPuzzleState state) {
+    // print(tile.toJson());
     return ResponsiveLayoutBuilder(
       small: (_, __) => SimplePuzzleMiniTile(
         key: Key('simple_puzzle_mini_tile_${tile.value}_small'),
@@ -221,7 +235,15 @@ class SimpleStartSection extends StatelessWidget {
         ResponsiveLayoutBuilder(
           small: (_, __) => const SizedBox(),
           medium: (_, __) => const SizedBox(),
-          large: (_, __) => const SimplePuzzleShuffleButton(),
+          large: (_, __) => Column(
+            children: [
+              const SimplePuzzleShuffleButton(),
+              const SizedBox(height: 32),
+              const SimplePuzzleImportButton(),
+              const SizedBox(height: 32),
+              const SimplePuzzleExportButton(),
+            ],
+          ),
         ),
         Text(
           'Progress visualizer: $completed/$total',
@@ -772,7 +794,28 @@ class SimplePuzzleImportButton extends StatelessWidget {
     return PuzzleButton(
       textColor: PuzzleColors.primary0,
       backgroundColor: PuzzleColors.primary6,
-      onPressed: () => context.read<PuzzleBloc>().add(const PuzzleImport()),
+      onPressed: () async {
+        final bloc = BlocProvider.of<PuzzleBloc>(context);
+        // final miniPuzzleBloc = BlocProvider.of<MiniPuzzleBloc>(context);
+
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+        );
+
+        if (result != null) {
+          final s = String.fromCharCodes(result.files.single.bytes!);
+
+          final puzzle = Puzzle.fromJson(jsonDecode(s) as Map<String, dynamic>, isMega: true);
+          print('${puzzle.tiles.length} LENGHT and NR OF CORRECT TILE: ${puzzle.getNumberOfCorrectTiles()}');
+
+          bloc.add(
+            PuzzleImport(puzzle),
+          );
+        } else {
+          // User canceled the picker
+        }
+      },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -802,15 +845,21 @@ class SimplePuzzleExportButton extends StatelessWidget {
     return PuzzleButton(
       textColor: PuzzleColors.primary0,
       backgroundColor: PuzzleColors.primary6,
-      onPressed: () => context.read<PuzzleBloc>().add(const PuzzleExport()),
+      onPressed: BlocProvider.of<PuzzleBloc>(context).state.multiplayerStatus == MultiplayerStatus.loading
+          ? () {}
+          : () => BlocProvider.of<PuzzleBloc>(context).add(
+                const PuzzleExport(),
+              ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(
-            'assets/images/shuffle_icon.png',
-            width: 17,
-            height: 17,
-          ),
+          BlocProvider.of<PuzzleBloc>(context).state.multiplayerStatus == MultiplayerStatus.loading
+              ? const CircularProgressIndicator()
+              : Image.asset(
+                  'assets/images/shuffle_icon.png',
+                  width: 17,
+                  height: 17,
+                ),
           const Gap(10),
           const Text('Export'),
         ],
