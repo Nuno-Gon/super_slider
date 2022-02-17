@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:very_good_slide_puzzle/l10n/l10n.dart';
 import 'package:very_good_slide_puzzle/layout/layout.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
@@ -323,6 +324,13 @@ class PuzzleBoard extends StatelessWidget {
       listener: (context, state) {
         if (theme.hasTimer && state.puzzleStatus == PuzzleStatus.complete) {
           context.read<TimerBloc>().add(const TimerStopped());
+        }
+
+        if (state.puzzleStatus == PuzzleStatus.imageError) {
+          final snackBar = SnackBar(
+            content: Text(context.l10n.puzzleImageError),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       },
       child: theme.layoutDelegate.boardBuilder(

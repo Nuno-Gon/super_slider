@@ -40,12 +40,20 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       puzzle = await _generatePuzzle(_size, shuffle: event.shufflePuzzle);
     });
 
-    emit(
-      PuzzleState(
-        puzzle: puzzle.sort(),
-        numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-      ),
-    );
+    if (puzzle.tiles.isEmpty) {
+      emit(
+        const PuzzleState(
+          puzzleStatus: PuzzleStatus.imageError,
+        ),
+      );
+    } else {
+      emit(
+        PuzzleState(
+          puzzle: puzzle.sort(),
+          numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+        ),
+      );
+    }
   }
 
   void _onTileTapped(TileTapped event, Emitter<PuzzleState> emit) {
@@ -119,12 +127,20 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       puzzle = await _generatePuzzle(_size);
     });
 
-    emit(
-      PuzzleState(
-        puzzle: puzzle.sort(),
-        numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-      ),
-    );
+    if (puzzle.tiles.isEmpty) {
+      emit(
+        const PuzzleState(
+          puzzleStatus: PuzzleStatus.imageError,
+        ),
+      );
+    } else {
+      emit(
+        PuzzleState(
+          puzzle: puzzle.sort(),
+          numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+        ),
+      );
+    }
   }
 
   /// Build a randomized, solvable puzzle of the given size.
@@ -133,6 +149,10 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final currentPositions = <Position>[];
     final whitespacePosition = Position(x: size, y: size);
     final dividedImage = await splitImage(imageUrl);
+
+    if (dividedImage.isEmpty) {
+      return const Puzzle(tiles: []);
+    }
 
     // Create List with converted images ready to display
     final displayReadyImages = <Image>[];
@@ -227,7 +247,9 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final convertedData = List<int>.from(byteData);
 
     var image = imglib.decodeImage(convertedData);
-    image = image!; // TODO(JR): validate null-case/error exceptions
+    if (image == null) {
+      return <imglib.Image>[];
+    }
 
     // Cut the image into a square
     if (image.width != image.height) {
@@ -254,19 +276,19 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     late Uint8List byteData;
 
     if (imageUrl != null && imageUrl.isNotEmpty) {
-      final response = await http.get(
-        Uri.parse(imageUrl),
-        // TODO(JR): error with some images/urls
-        // headers: {
-        //   'Access-Control-Allow-Origin': '*',
-        //   'Access-Control-Allow-Credentials': 'true',
-        //   'Access-Control-Allow-Headers':
-        //       'Origin,Content-Type,X-Amz-Date,Authorization,
-        //       X-Api-Key,X-Amz-Security-Token,locale',
-        //   'Access-Control-Allow-Methods': 'POST, OPTIONS'
-        // },
-      );
-      byteData = response.bodyBytes;
+      try {
+        final response = await http.get(
+          Uri.parse(imageUrl),
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': 'true',
+          },
+        );
+
+        byteData = response.bodyBytes;
+      } on Exception catch (_) {
+        byteData = Uint8List(6);
+      }
     } else {
       final curatedImages = [
         'assets/images/square_life.jpg',
