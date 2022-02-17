@@ -367,13 +367,29 @@ class SimpleStartSectionBottom extends StatelessWidget {
                 _showDismissibleDialog(
                   context: context,
                   child: Material(
-                    child: Text(
-                      'The tutorial goes here eventually',
-                      // TODO(JR): Finish tutorial
-                      style: PuzzleTextStyle.headline5.copyWith(
-                        color: theme.defaultColor,
+                    color: Colors.black45,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: ResponsiveLayoutBuilder(
+                          small: (_, __) => Text(
+                            context.l10n.puzzleTutorial,
+                            style: PuzzleTextStyle.label.copyWith(
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          medium: (_, child) => child!,
+                          large: (_, child) => child!,
+                          child: (_) => Text(
+                            context.l10n.puzzleTutorial,
+                            style: PuzzleTextStyle.headline5.copyWith(
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 );
