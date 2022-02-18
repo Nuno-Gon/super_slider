@@ -172,18 +172,12 @@ class Puzzle extends Equatable {
   /// tile in tilesToSwap with the whitespace.
   Puzzle _swapTiles(List<Tile> tilesToSwap) {
     for (final tileToSwap in tilesToSwap.reversed) {
-      final tileIndex = tiles.indexOf(tileToSwap);
-      final tile = tiles[tileIndex];
       final whitespaceTile = getWhitespaceTile();
-      final whitespaceTileIndex = tiles.indexOf(whitespaceTile);
+      final tilePosition = tileToSwap.currentPosition;
 
       // Swap current board positions of the moving tile and the whitespace.
-      tiles[tileIndex] = tile.copyWith(
-        currentPosition: whitespaceTile.currentPosition,
-      );
-      tiles[whitespaceTileIndex] = whitespaceTile.copyWith(
-        currentPosition: tile.currentPosition,
-      );
+      tileToSwap.currentPosition = whitespaceTile.currentPosition;
+      whitespaceTile.currentPosition = tilePosition;
     }
 
     return Puzzle(tiles: tiles);

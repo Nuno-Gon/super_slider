@@ -6,7 +6,6 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -36,13 +35,25 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     PuzzleInitialized event,
     Emitter<PuzzleState> emit,
   ) async {
-    final puzzle = await _generatePuzzle(_size, shuffle: event.shufflePuzzle);
-    emit(
-      PuzzleState(
-        puzzle: puzzle.sort(),
-        numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-      ),
-    );
+    late Puzzle puzzle;
+    await Future<void>.delayed(const Duration(seconds: 1), () async {
+      puzzle = await _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+    });
+
+    if (puzzle.tiles.isEmpty) {
+      emit(
+        const PuzzleState(
+          puzzleStatus: PuzzleStatus.imageError,
+        ),
+      );
+    } else {
+      emit(
+        PuzzleState(
+          puzzle: puzzle.sort(),
+          numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+        ),
+      );
+    }
   }
 
   void _onTileTapped(TileTapped event, Emitter<PuzzleState> emit) {
@@ -61,8 +72,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
               puzzle: puzzle.sort(),
               puzzleStatus: PuzzleStatus.complete,
               tileMovementStatus: TileMovementStatus.moved,
-              //numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-              // TODO(JR): fix?
+              numberOfCorrectTiles: puzzle.tiles.length,
               numberOfMoves: state.numberOfMoves + 1,
               lastTappedTile: tappedTile,
             ),
@@ -112,14 +122,25 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     emit(
       const PuzzleState(),
     );
+    late Puzzle puzzle;
+    await Future<void>.delayed(const Duration(seconds: 1), () async {
+      puzzle = await _generatePuzzle(_size);
+    });
 
-    final puzzle = await _generatePuzzle(_size);
-    emit(
-      PuzzleState(
-        puzzle: puzzle.sort(),
-        numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-      ),
-    );
+    if (puzzle.tiles.isEmpty) {
+      emit(
+        const PuzzleState(
+          puzzleStatus: PuzzleStatus.imageError,
+        ),
+      );
+    } else {
+      emit(
+        PuzzleState(
+          puzzle: puzzle.sort(),
+          numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+        ),
+      );
+    }
   }
 
   /// Build a randomized, solvable puzzle of the given size.
@@ -127,7 +148,11 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final correctPositions = <Position>[];
     final currentPositions = <Position>[];
     final whitespacePosition = Position(x: size, y: size);
-    final dividedImage = await compute(splitImage, imageUrl);
+    final dividedImage = await splitImage(imageUrl);
+
+    if (dividedImage.isEmpty) {
+      return const Puzzle(tiles: []);
+    }
 
     // Create List with converted images ready to display
     final displayReadyImages = <Image>[];
@@ -221,11 +246,10 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final byteData = await getByteDataOfImage(imageUrl);
     final convertedData = List<int>.from(byteData);
 
-    var image = await compute(
-      imglib.decodeImage,
-      convertedData,
-    );
-    image = image!; // TODO(JR): validate null-case/error exceptions
+    var image = imglib.decodeImage(convertedData);
+    if (image == null) {
+      return <imglib.Image>[];
+    }
 
     // Cut the image into a square
     if (image.width != image.height) {
@@ -252,19 +276,19 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     late Uint8List byteData;
 
     if (imageUrl != null && imageUrl.isNotEmpty) {
-      final response = await http.get(
-        Uri.parse(imageUrl),
-        // TODO(JR): error with some images/urls
-        // headers: {
-        //   'Access-Control-Allow-Origin': '*',
-        //   'Access-Control-Allow-Credentials': 'true',
-        //   'Access-Control-Allow-Headers':
-        //       'Origin,Content-Type,X-Amz-Date,Authorization,
-        //       X-Api-Key,X-Amz-Security-Token,locale',
-        //   'Access-Control-Allow-Methods': 'POST, OPTIONS'
-        // },
-      );
-      byteData = response.bodyBytes;
+      try {
+        final response = await http.get(
+          Uri.parse(imageUrl),
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': 'true',
+          },
+        );
+
+        byteData = response.bodyBytes;
+      } on Exception catch (_) {
+        byteData = Uint8List(6);
+      }
     } else {
       final curatedImages = [
         'assets/images/square_life.jpg',

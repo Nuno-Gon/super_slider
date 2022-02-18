@@ -54,9 +54,12 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
         ResponsiveLayoutBuilder(
           small: (_, child) => Column(
             children: [
-              SimpleStartSectionBottom(
-                state: state,
-                settings: settings,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: SimpleStartSectionBottom(
+                  state: state,
+                  settings: settings,
+                ),
               ),
               SettingsSection(
                 settings: settings,
@@ -66,9 +69,12 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
           ),
           medium: (_, child) => Column(
             children: [
-              SimpleStartSectionBottom(
-                state: state,
-                settings: settings,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: SimpleStartSectionBottom(
+                  state: state,
+                  settings: settings,
+                ),
               ),
               SettingsSection(
                 settings: settings,
@@ -117,13 +123,13 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
         child: (_) => Stack(
           children: [
             Image.asset(
-              'images/duck_full.png',
+              'assets/images/duck_full.png',
               key: const Key('simple_puzzle_duck'),
             ),
             ClipRect(
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Image.asset('images/duck_full.png'),
+                child: Image.asset('assets/images/duck_full.png'),
               ),
             ),
           ],
@@ -249,7 +255,7 @@ class SimpleStartSection extends StatelessWidget {
           ),
           large: (_, child) => child!,
           child: (_) => Image.asset(
-            'images/super_logo.png',
+            'assets/images/super_logo.png',
             key: const Key('super_puzzle_logo'),
           ),
         ),
@@ -284,57 +290,141 @@ class SimpleStartSectionBottom extends StatelessWidget {
     final puzzleSize = state.puzzle.getDimension();
     final total = settings.isSuperPuzzle ? puzzleSize * puzzleSize : 1;
     final completed = state.completedPuzzles;
+    final progress = total > 0 ? completed / total : 0.0;
+
+    final progressRowElements = List<Widget>.generate(total, (i) {
+      if (i + 1 == completed || (completed == 0 && i == 0)) {
+        return Image.asset(
+          'assets/images/walking_duck.gif',
+          key: const Key('duck_walking'),
+          width: 42,
+        );
+      }
+      return const Expanded(
+        child: SizedBox.shrink(),
+      );
+    });
 
     return Column(
       children: [
         if (completed > 0 && completed == total)
-          Text(
-            context.l10n.puzzleCompleted,
-            style: PuzzleTextStyle.headline4.copyWith(
-              color: theme.defaultColor,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              context.l10n.puzzleCompleted,
+              style: PuzzleTextStyle.headline4.copyWith(
+                color: theme.defaultColor,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         const SizedBox(
           height: 16,
         ),
-        NumberOfMovesAndTilesLeft(
-          numberOfMoves: state.numberOfMoves,
-          numberOfTilesLeft: state.numberOfTilesLeft,
+        Column(
+          children: [
+            SizedBox(
+              height: 42,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: progressRowElements,
+              ),
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: SizedBox(
+                height: 16,
+                child: LinearProgressIndicator(
+                  value: progress,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              context.l10n.puzzleWaddleWaddle,
+              style: PuzzleTextStyle.headline5.copyWith(
+                color: theme.defaultColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
-        const ResponsiveGap(large: 32),
-        Text(
-          'Progress visualizer: $completed/$total',
+        const ResponsiveGap(
+          small: 16,
+          medium: 16,
+          large: 32,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton.icon(
+              label: Text(context.l10n.puzzleHasHelp),
+              icon: const Icon(
+                Icons.info,
+                size: 16,
+              ),
+              onPressed: () {
+                _showDismissibleDialog(
+                  context: context,
+                  child: Material(
+                    color: Colors.black45,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: ResponsiveLayoutBuilder(
+                          small: (_, __) => Text(
+                            context.l10n.puzzleTutorial,
+                            style: PuzzleTextStyle.label.copyWith(
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          medium: (_, child) => child!,
+                          large: (_, child) => child!,
+                          child: (_) => Text(
+                            context.l10n.puzzleTutorial,
+                            style: PuzzleTextStyle.headline5.copyWith(
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: Text(context.l10n.puzzleHasPicture),
+              onPressed: () {
+                _showDismissibleDialog(
+                  context: context,
+                  child: GridView.count(
+                    crossAxisCount: state.puzzle.getDimension(),
+                    children: (state.puzzle.tiles
+                          ..sort(
+                            (a, b) => a.correctPosition.compareTo(
+                              b.correctPosition,
+                            ),
+                          ))
+                        .map(
+                          (e) => Opacity(
+                            opacity: (e as MegaTile).isCompleted ||
+                                    !settings.isSuperPuzzle
+                                ? 1
+                                : 0.7,
+                            child: e.displayImage,
+                          ),
+                        )
+                        .toList(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ],
-    );
-  }
-}
-
-/// {@template simple_puzzle_title}
-/// Displays the title of the puzzle based on [status].
-///
-/// Shows the success state when the puzzle is completed,
-/// otherwise defaults to the Puzzle Challenge title.
-/// {@endtemplate}
-@visibleForTesting
-class SimplePuzzleTitle extends StatelessWidget {
-  /// {@macro simple_puzzle_title}
-  const SimplePuzzleTitle({
-    // TODO(JR): change/refurbish to our needs
-    Key? key,
-    required this.status,
-  }) : super(key: key);
-
-  /// The state of the puzzle.
-  final PuzzleStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    return PuzzleTitle(
-      title: status == PuzzleStatus.complete
-          ? context.l10n.puzzleCompleted
-          : context.l10n.puzzleChallengeTitle,
     );
   }
 }
@@ -511,19 +601,35 @@ class LoadingBoard extends StatelessWidget {
           dimension: _BoardSize.large + (_BoardSize.bgMarginSize * 2),
           child: child,
         ),
-        child: (_) => Center(
-          child: Text(
-            'Hey! (Bum bum bum) Got any grapes? \n'
-            'Then he waddled away. \n'
-            '(Waddle waddle) \n'
-            "'Til the very next day. \n"
-            '(Bum bum bum bum ba-bada-dum) \n\n'
-            'Waddling........ Please *quack*',
-            style: PuzzleTextStyle.headline4.copyWith(
-              color: PuzzleColors.grey1,
+        child: (_) => Stack(
+          children: [
+            Center(
+              child: Container(
+                width: 150,
+                height: 150,
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.white54,
+                      blurRadius: 150,
+                      spreadRadius: 150,
+                    ),
+                  ],
+                ),
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
+            Center(
+              child: Text(
+                context.l10n.puzzleLoading,
+                style: PuzzleTextStyle.headline4.copyWith(
+                  color: PuzzleColors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -710,7 +816,6 @@ class SimplePuzzleMegaTile extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(2.5, 2.5, 1, 1),
             child: BlocProvider(
               key: ValueKey(tile),
-              // TODO(JR): when added, flickers; without, puzzle breaks
               create: (context) => MiniPuzzleBloc(
                 settings.miniPuzzleSize,
                 image: tile.image,
@@ -1084,4 +1189,46 @@ class SettingsSectionState extends State<SettingsSection> {
       ),
     );
   }
+}
+
+void _showDismissibleDialog({
+  required BuildContext context,
+  required Widget child,
+}) {
+  showGeneralDialog(
+    context: context,
+    barrierColor: Colors.black12.withOpacity(0.6),
+    transitionDuration: const Duration(milliseconds: 400),
+    pageBuilder: (_, __, ___) {
+      return Stack(
+        children: [
+          Center(
+            child: Container(
+              color: Colors.black,
+              child: ResponsiveLayoutBuilder(
+                small: (_, _child) => SizedBox.square(
+                  dimension: _BoardSize.small + 40,
+                  child: _child,
+                ),
+                medium: (_, _child) => SizedBox.square(
+                  dimension: _BoardSize.medium + 40,
+                  child: _child,
+                ),
+                large: (_, _child) => SizedBox.square(
+                  dimension: _BoardSize.large + 40,
+                  child: _child,
+                ),
+                child: (_) => child,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }

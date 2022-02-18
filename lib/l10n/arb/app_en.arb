@@ -51,5 +51,29 @@
     "puzzleMiniBeLike": "Mini puzzles be like - ",
     "@puzzleMiniBeLike": {
         "description": "Label for mini puzzles size selector"
+    },
+    "puzzleWaddleWaddle": "Waddle, waddle...",
+    "@puzzleWaddleWaddle": {
+        "description": "Label for progress indicator"
+    },
+    "puzzleHasHelp": "Can I has help?",
+    "@puzzleHasHelp": {
+        "description": "Label for tutorial button"
+    },
+    "puzzleHasPicture": "Can I has picture?",
+    "@puzzleHasPicture": {
+        "description": "Label for picture display button"
+    },
+    "puzzleLoading": "Hey! (Bum bum bum) Got any grapes?\nThen he waddled away.\n(Waddle waddle)\n'Til the very next day.\n(Bum bum bum bum ba-bada-dum)\n\nWaddling........ Please *quack*",
+    "@puzzleLoading": {
+        "description": "Loading message"
+    },
+    "puzzleTutorial": "The objective of the game is to be winner! Be winner *quack* be happy!\n\nBe winner by defeating puzzle. Two puzzle is, one Super *quack* other not so Super!\nSuper be like *quack* one puzzle with Mini puzzles. Finish Mini puzzles to get Super puzzle clues *quack* Then finish all puzzle!\nDo double click on Mini puzzle *quack* for activate Mini puzzle to play Mini puzzle *quack* Back to Super with double click anywhere!\nSuper!\n\nSimple puzzle is simpler!\nNow be winner!\n*quack*",
+    "@puzzleTutorial": {
+        "description": "Tutorial for the puzzle"
+    },
+    "puzzleImageError": "Invalid url *quack* Please try with a different one! Sowwy..",
+    "@puzzleImageError": {
+        "description": "Label for snackbar when error message occurs"
     }
 }

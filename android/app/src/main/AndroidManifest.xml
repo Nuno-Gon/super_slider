@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.verygoodcore">
+    package="com.example.veryquackquack">
    <application
-        android:label="Slide Puzzle"
+        android:label="Super Slider"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
