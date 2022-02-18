@@ -582,10 +582,12 @@ class _BackgroundBoard extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: RepaintBoundary(
-              child: CustomPaint(
-                painter: _WoodGrainPainter(),
-                //child: Container(),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _WoodGrainPainter(),
+                ),
               ),
             ),
           ),
