@@ -554,9 +554,20 @@ class _BackgroundBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    late double boardSize;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth <= PuzzleBreakpoints.small) {
+      boardSize = _BoardSize.small;
+    } else if (screenWidth <= PuzzleBreakpoints.medium) {
+      boardSize = _BoardSize.medium;
+    } else {
+      boardSize = _BoardSize.large;
+    }
+
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.brown,
+        color: Color(0xff5b3c1e),
         borderRadius: BorderRadius.all(
           Radius.circular(3),
         ),
@@ -566,6 +577,47 @@ class _BackgroundBoard extends StatelessWidget {
             offset: Offset(2, 2),
           ),
         ],
+      ),
+      child: Center(
+        child: SizedBox.square(
+          dimension: boardSize + 3,
+          child: Stack(
+            children: [
+              Container(
+                color: const Color(0xff332211),
+              ),
+              Container(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    left: BorderSide(
+                      width: 5,
+                      color: Color(0xff281b0d),
+                    ),
+                    top: BorderSide(
+                      width: 4,
+                      color: Color(0xff1e140a),
+                    ),
+                    right: BorderSide(
+                      width: 3,
+                      color: Color(0xff140d07),
+                    ),
+                    bottom: BorderSide(
+                      width: 2,
+                      color: Color(0xff140d07),
+                    ),
+                  ),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: Color(0x991e140a),
+                      blurRadius: 260,
+                      spreadRadius: -30,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
