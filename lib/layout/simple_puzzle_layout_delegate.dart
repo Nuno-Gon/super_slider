@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -554,9 +555,20 @@ class _BackgroundBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    late double boardSize;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth <= PuzzleBreakpoints.small) {
+      boardSize = _BoardSize.small;
+    } else if (screenWidth <= PuzzleBreakpoints.medium) {
+      boardSize = _BoardSize.medium;
+    } else {
+      boardSize = _BoardSize.large;
+    }
+
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.brown,
+        color: Color(0xff5b3c1e),
         borderRadius: BorderRadius.all(
           Radius.circular(3),
         ),
@@ -567,8 +579,103 @@ class _BackgroundBoard extends StatelessWidget {
           ),
         ],
       ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(3),
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _WoodGrainPainter(),
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: SizedBox.square(
+              dimension: boardSize + 3,
+              child: Stack(
+                children: [
+                  Container(
+                    color: const Color(0xff332211),
+                  ),
+                  Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        left: BorderSide(
+                          width: 5,
+                          color: Color(0xff281b0d),
+                        ),
+                        top: BorderSide(
+                          width: 4,
+                          color: Color(0xff1e140a),
+                        ),
+                        right: BorderSide(
+                          width: 3,
+                          color: Color(0xff140d07),
+                        ),
+                        bottom: BorderSide(
+                          width: 2,
+                          color: Color(0xff140d07),
+                        ),
+                      ),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                          color: Color(0x991e140a),
+                          blurRadius: 260,
+                          spreadRadius: -30,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+class _WoodGrainPainter extends CustomPainter {
+  final linePaint = Paint()..color = Colors.brown.shade900;
+
+  final lineDensity = .012;
+  final angle = const Offset(20, 250);
+  static final random = Random();
+
+  static Offset randomOffset(Size size) {
+    return Offset(
+      random.nextDouble() * size.width,
+      random.nextDouble() * size.height,
+    );
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final fillRect = Rect.fromPoints(
+      Offset.zero,
+      size.bottomRight(Offset.zero),
+    );
+    final lineCount = fillRect.height * fillRect.width * lineDensity;
+
+    canvas
+      ..save()
+      ..clipRect(fillRect);
+
+    for (var i = 0; i < lineCount; i++) {
+      final startPoint = randomOffset(size) - (angle * .5);
+      final endPoint = startPoint + angle;
+
+      canvas.drawLine(startPoint, endPoint, linePaint);
+    }
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 /// {@template loading_board}
