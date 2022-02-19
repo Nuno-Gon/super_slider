@@ -116,7 +116,6 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
     PuzzleType puzzleType,
     SettingsState settings,
   ) {
-    // print('DOGSON: PUZZLE TYPE: $puzzleType');
     final isMegaPuzzle = puzzleType == PuzzleType.mega;
 
     if (isMegaPuzzle) {
@@ -156,7 +155,6 @@ class SimplePuzzleLayoutDelegate extends PuzzleLayoutDelegate {
 
   @override
   Widget miniTileBuilder(Tile tile, MiniPuzzleState state) {
-    // print(tile.toJson());
     return ResponsiveLayoutBuilder(
       small: (_, __) => SimplePuzzleMiniTile(
         key: Key('simple_puzzle_mini_tile_${tile.value}_small'),

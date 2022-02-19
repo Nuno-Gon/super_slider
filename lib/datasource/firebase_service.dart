@@ -36,7 +36,6 @@ class FirebaseService {
         },
       ).catchError(
         (Object obj) {
-          print('DOGSON: $obj');
           onError();
         },
       );
