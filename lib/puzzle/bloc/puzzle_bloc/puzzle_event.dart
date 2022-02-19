@@ -45,8 +45,8 @@ class PuzzleReset extends PuzzleEvent {
 }
 
 class PuzzleImport extends PuzzleEvent {
-  const PuzzleImport(this.importedPuzzle);
-  final Puzzle importedPuzzle;
+  const PuzzleImport(this.puzzleCode);
+  final String puzzleCode;
 }
 
 class PuzzleExport extends PuzzleEvent {

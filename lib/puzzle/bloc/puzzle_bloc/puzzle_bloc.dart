@@ -2,7 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' show Random;
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
@@ -14,7 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as imglib;
 import 'package:very_good_slide_puzzle/datasource/firebase_service.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
-import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
+import 'package:very_good_slide_puzzle/utils/utils.dart';
 
 part 'puzzle_event.dart';
 
@@ -118,11 +118,21 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   FutureOr<void> _onPuzzleImport(
     PuzzleImport event,
     Emitter<PuzzleState> emit,
-  ) {
+  ) async {
     emit(
-      PuzzleState(
-        puzzle: event.importedPuzzle,
-        multiplayerStatus: MultiplayerStatus.successImport,
+      state.copyWith(multiplayerStatus: MultiplayerStatus.loading),
+    );
+
+    await FirebaseService.instance.getPuzzle(
+      id: event.puzzleCode,
+      onSuccess: (puzzle) => emit(
+        PuzzleState(
+          puzzle: puzzle,
+          multiplayerStatus: MultiplayerStatus.successImport,
+        ),
+      ),
+      onError: () => emit(
+        state.copyWith(multiplayerStatus: MultiplayerStatus.errorImport),
       ),
     );
   }
@@ -135,19 +145,27 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       state.copyWith(multiplayerStatus: MultiplayerStatus.loading),
     );
 
+    final id = generateID();
+
     await FirebaseService.instance.addToCollection(
       collection: 'puzzle',
       data: <String, dynamic>{
+        'id': 'QUACK-$id',
         'content': base64Encode(
           utf8.encode(
             jsonEncode(state.puzzle),
           ),
         ),
       },
-    );
-
-    emit(
-      state.copyWith(multiplayerStatus: MultiplayerStatus.successExport),
+      onSuccess: () => emit(
+        state.copyWith(
+          multiplayerStatus: MultiplayerStatus.successExport,
+          data: id,
+        ),
+      ),
+      onError: () => emit(
+        state.copyWith(multiplayerStatus: MultiplayerStatus.errorExport),
+      ),
     );
   }
 
@@ -178,7 +196,14 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     // Create List with converted images ready to display
     final displayReadyImages = <Uint8List>[];
     for (final img in dividedImage) {
-      displayReadyImages.add(Uint8List.fromList(imglib.encodeJpg(img)));
+      displayReadyImages.add(
+        Uint8List.fromList(
+          imglib.encodeJpg(
+            img,
+            quality: 30,
+          ),
+        ),
+      );
     }
 
     // Create all possible board positions.
@@ -267,11 +292,12 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final byteData = await getByteDataOfImage(imageUrl);
     final convertedData = List<int>.from(byteData);
 
-    var image = await compute(
+    var img = await compute(
       imglib.decodeImage,
       convertedData,
     );
-    image = image!; // TODO(JR): validate null-case/error exceptions
+
+    var image = imglib.decodeJpg(imglib.encodeJpg(img!, quality: 30))!;
 
     // Cut the image into a square
     if (image.width != image.height) {
@@ -317,7 +343,11 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   }
 
   Image convertImage(imglib.Image image) {
-    final convertedPiece = Uint8List.fromList(imglib.encodeJpg(image));
+    final convertedPiece = Uint8List.fromList(
+      imglib.encodeJpg(
+        image,
+      ),
+    );
     return Image.memory(convertedPiece);
   }
 }

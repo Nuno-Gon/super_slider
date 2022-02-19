@@ -15,8 +15,14 @@ part 'mini_puzzle_event.dart';
 part 'mini_puzzle_state.dart';
 
 class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
-  MiniPuzzleBloc(this._size, {this.megaTile, this.image, this.random})
-      : super(const MiniPuzzleState()) {
+  MiniPuzzleBloc(
+    this._size, {
+    this.megaTile,
+    this.image,
+    this.random,
+  }) : super(
+          const MiniPuzzleState(),
+        ) {
     on<MiniPuzzleInitialized>(_onPuzzleInitialized);
     on<MiniTileTapped>(_onTileTapped);
   }
@@ -34,7 +40,10 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     final hasPuzzleGenerated = megaTile!.puzzle.tiles.isNotEmpty;
     final puzzle = hasPuzzleGenerated
         ? megaTile!.puzzle
-        : _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+        : _generatePuzzle(
+            _size,
+            shuffle: event.shufflePuzzle,
+          );
 
     if (!hasPuzzleGenerated) {
       megaTile!.puzzle = puzzle;
@@ -109,7 +118,14 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     // Create List with converted images ready to display
     final displayReadyImages = <Uint8List>[];
     for (final img in dividedImage) {
-      displayReadyImages.add(Uint8List.fromList(imglib.encodeJpg(img)));
+      displayReadyImages.add(
+        Uint8List.fromList(
+          imglib.encodeJpg(
+            img,
+            quality: 30,
+          ),
+        ),
+      );
     }
 
     // Create all possible board positions.
@@ -215,7 +231,11 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
   }
 
   Image convertImage(imglib.Image image) {
-    final convertedPiece = Uint8List.fromList(imglib.encodeJpg(image));
+    final convertedPiece = Uint8List.fromList(
+      imglib.encodeJpg(
+        image,
+      ),
+    );
     return Image.memory(convertedPiece);
   }
 }

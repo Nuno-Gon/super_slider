@@ -19,6 +19,8 @@ enum MultiplayerStatus {
   successExport,
   initImport,
   successImport,
+  errorExport,
+  errorImport,
 }
 
 class PuzzleState extends Equatable {
@@ -31,6 +33,7 @@ class PuzzleState extends Equatable {
     this.lastTappedTile,
     this.activeTile,
     this.multiplayerStatus,
+    this.data,
   });
 
   /// [Puzzle] containing the current tile arrangement.
@@ -75,6 +78,9 @@ class PuzzleState extends Equatable {
 
   final MultiplayerStatus? multiplayerStatus;
 
+  /// Used to pass any data that is needed
+  final Object? data;
+
   PuzzleState copyWith({
     Puzzle? puzzle,
     PuzzleStatus? puzzleStatus,
@@ -84,6 +90,7 @@ class PuzzleState extends Equatable {
     Tile? lastTappedTile,
     Tile? activeTile,
     MultiplayerStatus? multiplayerStatus,
+    Object? data,
   }) {
     return PuzzleState(
       puzzle: puzzle ?? this.puzzle,
@@ -94,6 +101,7 @@ class PuzzleState extends Equatable {
       lastTappedTile: lastTappedTile ?? this.lastTappedTile,
       activeTile: activeTile ?? this.activeTile,
       multiplayerStatus: multiplayerStatus,
+      data: data,
     );
   }
 

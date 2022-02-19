@@ -25,7 +25,12 @@ class CustomImglibImageConverter implements JsonConverter<Image?, Map<String, dy
     }
 
     return <String, dynamic>{
-      'content': base64Encode(image.getBytes().toList()),
+      'content': base64Encode(
+        encodeJpg(
+          image,
+          quality: 30,
+        ),
+      ),
       'height': image.height,
       'width': image.width,
     };
