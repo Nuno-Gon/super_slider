@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
-import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
 part 'puzzle.g.dart';
 
@@ -41,13 +40,14 @@ class Puzzle extends Equatable {
   /// {@macro puzzle}
   const Puzzle({
     this.id,
-    this.tiles = const [],
+    required this.tiles,
   });
 
-  ///Convert Json into Puzzle
-  factory Puzzle.fromJson(Map<String, dynamic> json, {bool isMega = false}) => _$PuzzleFromJson(json, isMega: isMega);
+  /// Convert Json into Puzzle
+  factory Puzzle.fromJson(Map<String, dynamic> json, {bool isMega = false}) =>
+      _$PuzzleFromJson(json, isMega: isMega);
 
-  ///Convert Puzzle into Json
+  /// Convert Puzzle into Json
   Map<String, dynamic> toJson() => _$PuzzleToJson(this);
 
   /// List of [Tile]s representing the puzzle's current arrangement.
@@ -174,7 +174,9 @@ class Puzzle extends Equatable {
       final shiftPointX = tile.currentPosition.x + deltaX.sign;
       final shiftPointY = tile.currentPosition.y + deltaY.sign;
       final tileToSwapWith = tiles.singleWhere(
-        (tile) => tile.currentPosition.x == shiftPointX && tile.currentPosition.y == shiftPointY,
+        (tile) =>
+            tile.currentPosition.x == shiftPointX &&
+            tile.currentPosition.y == shiftPointY,
       );
       tilesToSwap.add(tile);
       return moveTiles(tileToSwapWith, tilesToSwap);
@@ -188,18 +190,12 @@ class Puzzle extends Equatable {
   /// tile in tilesToSwap with the whitespace.
   Puzzle _swapTiles(List<Tile> tilesToSwap) {
     for (final tileToSwap in tilesToSwap.reversed) {
-      final tileIndex = tiles.indexOf(tileToSwap);
-      final tile = tiles[tileIndex];
       final whitespaceTile = getWhitespaceTile();
-      final whitespaceTileIndex = tiles.indexOf(whitespaceTile);
+      final tilePosition = tileToSwap.currentPosition;
 
       // Swap current board positions of the moving tile and the whitespace.
-      tiles[tileIndex] = tile.copyWith(
-        currentPosition: whitespaceTile.currentPosition,
-      );
-      tiles[whitespaceTileIndex] = whitespaceTile.copyWith(
-        currentPosition: tile.currentPosition,
-      );
+      tileToSwap.currentPosition = whitespaceTile.currentPosition;
+      whitespaceTile.currentPosition = tilePosition;
     }
 
     return Puzzle(tiles: tiles);

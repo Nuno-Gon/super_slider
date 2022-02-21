@@ -15,14 +15,8 @@ part 'mini_puzzle_event.dart';
 part 'mini_puzzle_state.dart';
 
 class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
-  MiniPuzzleBloc(
-    this._size, {
-    this.megaTile,
-    this.image,
-    this.random,
-  }) : super(
-          const MiniPuzzleState(),
-        ) {
+  MiniPuzzleBloc(this._size, {this.megaTile, this.image, this.random})
+      : super(const MiniPuzzleState()) {
     on<MiniPuzzleInitialized>(_onPuzzleInitialized);
     on<MiniTileTapped>(_onTileTapped);
   }
@@ -40,10 +34,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     final hasPuzzleGenerated = megaTile!.puzzle.tiles.isNotEmpty;
     final puzzle = hasPuzzleGenerated
         ? megaTile!.puzzle
-        : _generatePuzzle(
-            _size,
-            shuffle: event.shufflePuzzle,
-          );
+        : _generatePuzzle(_size, shuffle: event.shufflePuzzle);
 
     if (!hasPuzzleGenerated) {
       megaTile!.puzzle = puzzle;
@@ -64,19 +55,19 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
         final mutablePuzzle = Puzzle(tiles: [...state.puzzle.tiles]);
         final puzzle = mutablePuzzle.moveTiles(tappedTile, []);
         megaTile!.puzzle = puzzle;
+
         if (puzzle.isComplete()) {
           final whitespaceTile = puzzle.getWhitespaceTile();
           final index = puzzle.tiles.indexOf(whitespaceTile);
           puzzle.tiles[index] = whitespaceTile.removeWhitespace();
-
           megaTile!.isCompleted = true;
+
           emit(
             state.copyWith(
               puzzle: puzzle.sort(),
               puzzleStatus: PuzzleStatus.complete,
               tileMovementStatus: TileMovementStatus.moved,
-              //numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-              // TODO(JR): fix?
+              numberOfCorrectTiles: puzzle.tiles.length,
               numberOfMoves: state.numberOfMoves + 1,
               lastTappedTile: tappedTile,
             ),
@@ -116,15 +107,10 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     );
 
     // Create List with converted images ready to display
-    final displayReadyImages = <Uint8List>[];
+    final displayReadyImages = <Image>[];
     for (final img in dividedImage) {
       displayReadyImages.add(
-        Uint8List.fromList(
-          imglib.encodeJpg(
-            img,
-            quality: 30,
-          ),
-        ),
+        convertImage(img),
       );
     }
 
@@ -183,7 +169,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     List<Position> correctPositions,
     List<Position> currentPositions,
     List<imglib.Image> dividedImage,
-    List<Uint8List> displayReadyImages,
+    List<Image> displayReadyImages,
   ) {
     final whitespacePosition = Position(x: size, y: size);
     return [
@@ -192,7 +178,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
           Tile(
             value: i,
             image: dividedImage[i - 1],
-            displayImageBytes: displayReadyImages[i - 1],
+            displayImage: displayReadyImages[i - 1],
             correctPosition: whitespacePosition,
             currentPosition: currentPositions[i - 1],
             isWhitespace: true,
@@ -201,7 +187,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
           Tile(
             value: i,
             image: dividedImage[i - 1],
-            displayImageBytes: displayReadyImages[i - 1],
+            displayImage: displayReadyImages[i - 1],
             correctPosition: correctPositions[i - 1],
             currentPosition: currentPositions[i - 1],
           )

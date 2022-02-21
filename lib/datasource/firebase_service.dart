@@ -10,7 +10,8 @@ class FirebaseService {
   FirebaseService._privateConstructor();
 
   ///Instance of Firebase Service
-  static final FirebaseService _instance = FirebaseService._privateConstructor();
+  static final FirebaseService _instance =
+      FirebaseService._privateConstructor();
 
   ///Getter for instance
   static FirebaseService get instance => _instance;

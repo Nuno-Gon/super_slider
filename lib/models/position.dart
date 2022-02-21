@@ -12,17 +12,14 @@ part 'position.g.dart';
 @JsonSerializable()
 class Position extends Equatable implements Comparable<Position> {
   /// {@macro position}
-  const Position({
-    this.x = 0,
-    this.y = 0,
-  });
+  const Position({required this.x, required this.y});
 
-  ///Convert Json into Position
+  /// Convert Json into Position
   factory Position.fromJson(Map<String, dynamic> json) {
     return _$PositionFromJson(json);
   }
 
-  ///Convert Position into Json
+  /// Convert Position into Json
   Map<String, dynamic> toJson() => _$PositionToJson(this);
 
   /// The x position.

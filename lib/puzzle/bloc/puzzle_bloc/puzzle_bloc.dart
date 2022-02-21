@@ -7,7 +7,6 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -21,7 +20,8 @@ part 'puzzle_event.dart';
 part 'puzzle_state.dart';
 
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
-  PuzzleBloc(this._size, {this.imageUrl, this.random}) : super(const PuzzleState()) {
+  PuzzleBloc(this._size, {this.imageUrl, this.random})
+      : super(const PuzzleState()) {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
     on<TileDoubleTapped>(_onTileDoubleTapped);
@@ -36,19 +36,29 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   final String? imageUrl;
   final Random? random;
 
-  // Object? get puzzleToJson => jsonEncode(state.puzzle);
-
   Future<void> _onPuzzleInitialized(
     PuzzleInitialized event,
     Emitter<PuzzleState> emit,
   ) async {
-    final puzzle = await _generatePuzzle(_size, shuffle: event.shufflePuzzle);
-    emit(
-      PuzzleState(
-        puzzle: puzzle.sort(),
-        numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-      ),
-    );
+    late Puzzle puzzle;
+    await Future<void>.delayed(const Duration(seconds: 1), () async {
+      puzzle = await _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+    });
+
+    if (puzzle.tiles.isEmpty) {
+      emit(
+        const PuzzleState(
+          puzzleStatus: PuzzleStatus.imageError,
+        ),
+      );
+    } else {
+      emit(
+        PuzzleState(
+          puzzle: puzzle.sort(),
+          numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+        ),
+      );
+    }
   }
 
   void _onTileTapped(TileTapped event, Emitter<PuzzleState> emit) {
@@ -67,8 +77,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
               puzzle: puzzle.sort(),
               puzzleStatus: PuzzleStatus.complete,
               tileMovementStatus: TileMovementStatus.moved,
-              //numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-              // TODO(JR): fix?
+              numberOfCorrectTiles: puzzle.tiles.length,
               numberOfMoves: state.numberOfMoves + 1,
               lastTappedTile: tappedTile,
             ),
@@ -98,24 +107,21 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
 
   void _onTileDoubleTapped(TileDoubleTapped event, Emitter<PuzzleState> emit) {
     final doubleTappedTile = event.tile;
-    if (state.puzzleStatus == PuzzleStatus.incomplete) {
-      emit(
-        state.copyWith(
-          activeTile: doubleTappedTile,
-        ),
-      );
-    }
+    emit(
+      state.copyWith(
+        activeTile: doubleTappedTile,
+      ),
+    );
   }
 
   void _onActiveTileReset(ActiveTileReset event, Emitter<PuzzleState> emit) {
-    if (state.puzzleStatus == PuzzleStatus.incomplete) {
-      emit(
-        state.resetActiveTile(),
-      );
-    }
+    emit(
+      state.resetActiveTile(),
+    );
   }
 
   FutureOr<void> _onPuzzleImport(
+    // TODO(JR): validate
     PuzzleImport event,
     Emitter<PuzzleState> emit,
   ) async {
@@ -125,12 +131,18 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
 
     await FirebaseService.instance.getPuzzle(
       id: event.puzzleCode,
-      onSuccess: (puzzle) => emit(
-        PuzzleState(
-          puzzle: puzzle,
-          multiplayerStatus: MultiplayerStatus.successImport,
-        ),
-      ),
+      onSuccess: (puzzle) {
+        for (final megaTile in puzzle.tiles) {
+          megaTile.displayImage = convertImage(megaTile.image!);
+        }
+
+        emit(
+          PuzzleState(
+            puzzle: puzzle,
+            multiplayerStatus: MultiplayerStatus.successImport,
+          ),
+        );
+      },
       onError: () => emit(
         state.copyWith(multiplayerStatus: MultiplayerStatus.errorImport),
       ),
@@ -138,6 +150,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   }
 
   FutureOr<void> _onPuzzleExport(
+    // TODO(JR): validate
     PuzzleExport event,
     Emitter<PuzzleState> emit,
   ) async {
@@ -176,14 +189,25 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     emit(
       const PuzzleState(),
     );
+    late Puzzle puzzle;
+    await Future<void>.delayed(const Duration(seconds: 1), () async {
+      puzzle = await _generatePuzzle(_size);
+    });
 
-    final puzzle = await _generatePuzzle(_size);
-    emit(
-      PuzzleState(
-        puzzle: puzzle.sort(),
-        numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
-      ),
-    );
+    if (puzzle.tiles.isEmpty) {
+      emit(
+        const PuzzleState(
+          puzzleStatus: PuzzleStatus.imageError,
+        ),
+      );
+    } else {
+      emit(
+        PuzzleState(
+          puzzle: puzzle.sort(),
+          numberOfCorrectTiles: puzzle.getNumberOfCorrectTiles(),
+        ),
+      );
+    }
   }
 
   /// Build a randomized, solvable puzzle of the given size.
@@ -191,18 +215,17 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final correctPositions = <Position>[];
     final currentPositions = <Position>[];
     final whitespacePosition = Position(x: size, y: size);
-    final dividedImage = await compute(splitImage, imageUrl);
+    final dividedImage = await splitImage(imageUrl);
+
+    if (dividedImage.isEmpty) {
+      return const Puzzle(tiles: []);
+    }
 
     // Create List with converted images ready to display
-    final displayReadyImages = <Uint8List>[];
+    final displayReadyImages = <Image>[];
     for (final img in dividedImage) {
       displayReadyImages.add(
-        Uint8List.fromList(
-          imglib.encodeJpg(
-            img,
-            quality: 30,
-          ),
-        ),
+        convertImage(img),
       );
     }
 
@@ -261,7 +284,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     List<Position> correctPositions,
     List<Position> currentPositions,
     List<imglib.Image> dividedImage,
-    List<Uint8List> displayReadyImages,
+    List<Image> displayReadyImages,
   ) {
     final whitespacePosition = Position(x: size, y: size);
     return [
@@ -270,7 +293,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
           MegaTile(
             value: i,
             image: dividedImage[i - 1],
-            displayImageBytes: displayReadyImages[i - 1],
+            displayImage: displayReadyImages[i - 1],
             correctPosition: whitespacePosition,
             currentPosition: currentPositions[i - 1],
             isWhitespace: true,
@@ -279,7 +302,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
           MegaTile(
             value: i,
             image: dividedImage[i - 1],
-            displayImageBytes: displayReadyImages[i - 1],
+            displayImage: displayReadyImages[i - 1],
             correctPosition: correctPositions[i - 1],
             currentPosition: currentPositions[i - 1],
           )
@@ -292,12 +315,10 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     final byteData = await getByteDataOfImage(imageUrl);
     final convertedData = List<int>.from(byteData);
 
-    var img = await compute(
-      imglib.decodeImage,
-      convertedData,
-    );
-
-    var image = imglib.decodeJpg(imglib.encodeJpg(img!, quality: 30))!;
+    var image = imglib.decodeImage(convertedData);
+    if (image == null) {
+      return <imglib.Image>[];
+    }
 
     // Cut the image into a square
     if (image.width != image.height) {
@@ -324,10 +345,19 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     late Uint8List byteData;
 
     if (imageUrl != null && imageUrl.isNotEmpty) {
-      final response = await http.get(
-        Uri.parse(imageUrl),
-      );
-      byteData = response.bodyBytes;
+      try {
+        final response = await http.get(
+          Uri.parse(imageUrl),
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': 'true',
+          },
+        );
+
+        byteData = response.bodyBytes;
+      } on Exception catch (_) {
+        byteData = Uint8List(6);
+      }
     } else {
       final curatedImages = [
         'assets/images/square_life.jpg',
@@ -335,8 +365,9 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);
-      //TODO The line below makes the app crash in mobile devices
-      byteData = (await rootBundle.load(curatedImages[randomPick])).buffer.asUint8List();
+      byteData = (await rootBundle.load(curatedImages[randomPick]))
+          .buffer
+          .asUint8List();
     }
 
     return byteData;

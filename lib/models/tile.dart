@@ -1,8 +1,9 @@
-import 'dart:typed_data';
+// ignore_for_file: must_be_immutable
 
 import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
 
-import 'package:image/image.dart';
+import 'package:image/image.dart' as imglib;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:very_good_slide_puzzle/models/json_converter/custom_imglib_image_converter.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
@@ -15,15 +16,14 @@ part 'tile.g.dart';
 
 @JsonSerializable()
 @CustomImglibImageConverter()
-@Uint8ListConverter()
 class Tile extends Equatable {
   /// {@macro tile}
-  const Tile({
+  Tile({
     required this.value,
     required this.correctPosition,
     required this.currentPosition,
     this.image,
-    this.displayImageBytes,
+    this.displayImage,
     this.isWhitespace = false,
   });
 
@@ -32,9 +32,9 @@ class Tile extends Equatable {
   /// The constructor is named after the source class, in this case, Tile.
   factory Tile.fromJson(Map<String, dynamic> json) => _$TileFromJson(json);
 
-  /// `toJson` is the convention for a class to declare support for serialization
-  /// to JSON. The implementation simply calls the private, generated
-  /// helper method `_$TileToJson`.
+  /// `toJson` is the convention for a class to declare support for
+  /// serialization to JSON. The implementation simply calls the private,
+  /// generated helper method `_$TileToJson`.
   Map<String, dynamic> toJson() => _$TileToJson(this);
 
   /// Value representing the correct position of [Tile] in a list.
@@ -48,15 +48,14 @@ class Tile extends Equatable {
 
   /// The current 2D [Position] of the [Tile].
   @JsonValue('current_position')
-  final Position currentPosition;
+  Position currentPosition;
 
   /// The image data used to create the Image widget for the [Tile].
   @JsonValue('image')
-  final Image? image;
+  final imglib.Image? image;
 
   /// The [Image] displayed in the [Tile].
-  @JsonValue('displayImageBytes')
-  final Uint8List? displayImageBytes;
+  Image? displayImage;
 
   /// Denotes if the [Tile] is the whitespace tile or not.
   @JsonValue('is_whitespace')
@@ -69,7 +68,7 @@ class Tile extends Equatable {
       correctPosition: correctPosition,
       currentPosition: currentPosition,
       image: image,
-      displayImageBytes: displayImageBytes,
+      displayImage: displayImage,
       isWhitespace: isWhitespace,
     );
   }
@@ -81,15 +80,13 @@ class Tile extends Equatable {
       correctPosition: correctPosition,
       currentPosition: currentPosition,
       image: image,
-      displayImageBytes: displayImageBytes,
+      displayImage: displayImage,
     );
   }
 
   @override
-  List<Object?> get props => [
+  List<Object> get props => [
         value,
-        image,
-        displayImageBytes,
         correctPosition,
         currentPosition,
         isWhitespace,

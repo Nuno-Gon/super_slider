@@ -19,11 +19,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   void _onSettingsUpdated(SettingsUpdated event, Emitter<SettingsState> emit) {
     emit(
-      state.copyWith(
-        megaPuzzleSize: event.megaPuzzleSize,
-        miniPuzzleSize: event.miniPuzzleSize,
-        userImageUrl: event.userImageUrl,
-      ),
+      event.settingsState,
     );
   }
 }

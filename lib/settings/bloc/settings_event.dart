@@ -14,20 +14,14 @@ class SettingsStarted extends SettingsEvent {
 }
 
 class SettingsUpdated extends SettingsEvent {
-  const SettingsUpdated(
-    this.megaPuzzleSize,
-    this.miniPuzzleSize,
-    this.userImageUrl,
-  );
+  const SettingsUpdated({
+    required this.settingsState,
+  });
 
-  final int megaPuzzleSize;
-  final int miniPuzzleSize;
-  final String userImageUrl;
+  final SettingsState settingsState;
 
   @override
   List<Object> get props => [
-        megaPuzzleSize,
-        miniPuzzleSize,
-        userImageUrl,
+        settingsState,
       ];
 }

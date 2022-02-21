@@ -24,21 +24,45 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
 
-    Future<void>.delayed(const Duration(milliseconds: 20), () {
+    Future<void>.delayed(const Duration(milliseconds: 10), () {
+      precacheImage(
+        Image.asset('assets/images/ctw_logo.png').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/duck_full.png').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/heart_image.png').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/our_logo.png').image,
+        context,
+      );
       precacheImage(
         Image.asset('assets/images/shuffle_icon.png').image,
         context,
       );
       precacheImage(
-        Image.asset('assets/images/simple_dash_large.png').image,
+        Image.asset('assets/images/super_logo.png').image,
         context,
       );
       precacheImage(
-        Image.asset('assets/images/simple_dash_medium.png').image,
+        Image.asset('assets/images/walking_duck.gif').image,
         context,
       );
       precacheImage(
-        Image.asset('assets/images/simple_dash_small.png').image,
+        Image.asset('assets/images/square_flyer.jpeg').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/square_life.jpg').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/square_png.png').image,
         context,
       );
     });

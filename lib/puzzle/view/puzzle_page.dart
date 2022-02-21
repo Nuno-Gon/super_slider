@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:very_good_slide_puzzle/l10n/l10n.dart';
 import 'package:very_good_slide_puzzle/layout/layout.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
@@ -87,39 +88,46 @@ class _MegaPuzzle extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Stack(
-          children: [
-            theme.layoutDelegate.backgroundBuilder(state),
-            SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: GestureDetector(
-                        onDoubleTap: () => context.read<PuzzleBloc>().add(
-                              const ActiveTileReset(),
-                            ),
+        return Container(
+          color: Colors.yellow,
+          child: Stack(
+            children: [
+              theme.layoutDelegate.backgroundBuilder(state),
+              SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight,
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: GestureDetector(
+                          onDoubleTap: () => context.read<PuzzleBloc>().add(
+                                const ActiveTileReset(),
+                              ),
+                        ),
                       ),
-                    ),
-                    Column(
-                      children: const [
-                        _PuzzleHeader(
-                          key: Key('puzzle_header'),
-                        ),
-                        _PuzzleSections(
-                          key: Key('puzzle_sections'),
-                          puzzleType: PuzzleType.mega,
-                        ),
-                      ],
-                    ),
-                  ],
+                      Column(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            child: const SafeArea(
+                              child: _PuzzleHeader(
+                                key: Key('puzzle_header'),
+                              ),
+                            ),
+                          ),
+                          const _PuzzleSections(
+                            key: Key('puzzle_sections'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -137,7 +145,7 @@ class MiniPuzzle extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return const _PuzzleSections(
+        return const PuzzleBoard(
           key: Key('mini_puzzle_sections'),
           puzzleType: PuzzleType.mini,
         );
@@ -151,33 +159,39 @@ class _PuzzleHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 96,
-      child: ResponsiveLayoutBuilder(
-        small: (context, child) => const Center(
-          child: _PuzzleLogo(),
+    return Stack(
+      children: [
+        Column(
+          children: [
+            SizedBox(
+              height: 80,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 50,
+                ),
+                child: Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/our_logo.png',
+                      width: 180,
+                    ),
+                    const Spacer(),
+                    const _PuzzleLogo(),
+                  ],
+                ),
+              ),
+            ),
+            Container(height: 2, color: Colors.black),
+          ],
         ),
-        medium: (context, child) => Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 50,
-          ),
-          child: Row(
-            children: const [
-              _PuzzleLogo(),
-            ],
+        Positioned.fill(
+          child: GestureDetector(
+            onDoubleTap: () => context.read<PuzzleBloc>().add(
+                  const ActiveTileReset(),
+                ),
           ),
         ),
-        large: (context, child) => Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 50,
-          ),
-          child: Row(
-            children: const [
-              _PuzzleLogo(),
-            ],
-          ),
-        ),
-      ),
+      ],
     );
   }
 }
@@ -188,26 +202,41 @@ class _PuzzleLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayoutBuilder(
-      small: (context, child) => const SizedBox(
-        height: 24,
-        child: FlutterLogo(
-          style: FlutterLogoStyle.horizontal,
-          size: 86,
-        ),
+      small: (context, child) => Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/images/ctw_logo.png', height: 40),
+          const SizedBox(height: 3),
+          Row(
+            children: [
+              Image.asset('assets/images/heart_image.png', height: 15),
+              const SizedBox(
+                height: 20,
+                child: FlutterLogo(
+                  style: FlutterLogoStyle.horizontal,
+                  size: 86,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      medium: (context, child) => const SizedBox(
-        height: 29,
-        child: FlutterLogo(
-          style: FlutterLogoStyle.horizontal,
-          size: 104,
-        ),
-      ),
-      large: (context, child) => const SizedBox(
-        height: 32,
-        child: FlutterLogo(
-          style: FlutterLogoStyle.horizontal,
-          size: 114,
-        ),
+      medium: (_, child) => child!,
+      large: (_, child) => child!,
+      child: (_) => Row(
+        children: [
+          Image.asset('assets/images/ctw_logo.png', height: 40),
+          const SizedBox(width: 2),
+          Image.asset('assets/images/heart_image.png', height: 15),
+          const SizedBox(
+            height: 20,
+            child: FlutterLogo(
+              style: FlutterLogoStyle.horizontal,
+              size: 86,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -216,51 +245,51 @@ class _PuzzleLogo extends StatelessWidget {
 class _PuzzleSections extends StatelessWidget {
   const _PuzzleSections({
     Key? key,
-    required this.puzzleType,
   }) : super(key: key);
-
-  final PuzzleType puzzleType;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
     final state = context.select((PuzzleBloc bloc) => bloc.state);
-    final isMegaLayout = puzzleType == PuzzleType.mega; // TODO(JR): refactor
+    final settings = context.select((SettingsBloc bloc) => bloc.state);
 
-    return ResponsiveLayoutBuilder(
-      small: (context, child) => Column(
-        children: [
-          if (isMegaLayout) theme.layoutDelegate.startSectionBuilder(state),
-          PuzzleBoard(
-            puzzleType: puzzleType,
+    return GestureDetector(
+      onDoubleTap: () => context.read<PuzzleBloc>().add(
+            const ActiveTileReset(),
           ),
-          if (isMegaLayout) theme.layoutDelegate.endSectionBuilder(state),
-        ],
-      ),
-      medium: (context, child) => Column(
-        children: [
-          if (isMegaLayout) theme.layoutDelegate.startSectionBuilder(state),
-          PuzzleBoard(
-            puzzleType: puzzleType,
-          ),
-          if (isMegaLayout) theme.layoutDelegate.endSectionBuilder(state),
-        ],
-      ),
-      large: (context, child) => Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (isMegaLayout)
-            Expanded(
-              child: theme.layoutDelegate.startSectionBuilder(state),
+      child: ResponsiveLayoutBuilder(
+        small: (context, child) => Column(
+          children: [
+            theme.layoutDelegate.startSectionBuilder(state, settings),
+            const PuzzleBoard(
+              puzzleType: PuzzleType.mega,
             ),
-          PuzzleBoard(
-            puzzleType: puzzleType,
-          ),
-          if (isMegaLayout)
-            Expanded(
-              child: theme.layoutDelegate.endSectionBuilder(state),
+            theme.layoutDelegate.endSectionBuilder(state, settings),
+          ],
+        ),
+        medium: (context, child) => Column(
+          children: [
+            theme.layoutDelegate.startSectionBuilder(state, settings),
+            const PuzzleBoard(
+              puzzleType: PuzzleType.mega,
             ),
-        ],
+            theme.layoutDelegate.endSectionBuilder(state, settings),
+          ],
+        ),
+        large: (context, child) => Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: theme.layoutDelegate.startSectionBuilder(state, settings),
+            ),
+            const PuzzleBoard(
+              puzzleType: PuzzleType.mega,
+            ),
+            Expanded(
+              child: theme.layoutDelegate.endSectionBuilder(state, settings),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -288,9 +317,8 @@ class PuzzleBoard extends StatelessWidget {
         : context.select((MiniPuzzleBloc bloc) => bloc.state.puzzle);
 
     final size = puzzle.getDimension();
-    if (size == 0) {
-      // TODO(JR): improve loading state/layout
-      return const CircularProgressIndicator();
+    if (size == 0 && puzzleType != PuzzleType.mega) {
+      return const SizedBox.shrink();
     }
 
     return BlocConsumer<PuzzleBloc, PuzzleState>(
@@ -298,14 +326,25 @@ class PuzzleBoard extends StatelessWidget {
         if (theme.hasTimer && state.puzzleStatus == PuzzleStatus.complete) {
           context.read<TimerBloc>().add(const TimerStopped());
         }
+        if (state.puzzleStatus == PuzzleStatus.imageError) {
+          final snackBar = SnackBar(
+            content: Text(context.l10n.puzzleImageError),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
 
         multiplayerListener(state, context);
       },
       builder: (context, state) {
         if (state.multiplayerStatus == MultiplayerStatus.loading) {
+          // TODO(JR): major refactor needed
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Image.network('https://c.tenor.com/fOjhwb3eEqIAAAAi/quack-duck.gif')],
+            children: [
+              Image.network(
+                'https://c.tenor.com/fOjhwb3eEqIAAAAi/quack-duck.gif',
+              )
+            ],
           );
         }
         return theme.layoutDelegate.boardBuilder(

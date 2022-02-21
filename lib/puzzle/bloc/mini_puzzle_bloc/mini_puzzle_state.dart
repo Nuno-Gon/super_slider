@@ -4,7 +4,7 @@ part of 'mini_puzzle_bloc.dart';
 
 class MiniPuzzleState extends Equatable {
   const MiniPuzzleState({
-    this.puzzle = const Puzzle(),
+    this.puzzle = const Puzzle(tiles: []),
     this.puzzleStatus = PuzzleStatus.incomplete,
     this.tileMovementStatus = TileMovementStatus.nothingTapped,
     this.numberOfCorrectTiles = 0,

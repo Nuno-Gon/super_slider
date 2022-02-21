@@ -6,7 +6,8 @@ part of 'puzzle.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Puzzle _$PuzzleFromJson(Map<String, dynamic> json, {required bool isMega}) => Puzzle(
+Puzzle _$PuzzleFromJson(Map<String, dynamic> json, {required bool isMega}) =>
+    Puzzle(
       tiles: (json['tiles'] as List<dynamic>?)?.map((e) {
             if (isMega) {
               return MegaTile.fromJson(e as Map<String, dynamic>);

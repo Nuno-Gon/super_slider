@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
-const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+const _chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 
-/// Game Code Lenght
+/// Game Code Length
 const codeLength = 4;
 
-///Generate unique ID for puzzle export
+/// Generate unique ID for puzzle export
 String generateID({int length = codeLength}) {
   final _rnd = Random();
 
@@ -23,6 +23,7 @@ String generateID({int length = codeLength}) {
   );
 }
 
+// TODO(JR): major refactor needed
 /// Shows snackbar based on Multiplayer Status
 void multiplayerListener(PuzzleState state, BuildContext context) {
   var msg = '';
