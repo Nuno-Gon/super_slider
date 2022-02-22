@@ -332,21 +332,9 @@ class PuzzleBoard extends StatelessWidget {
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
-
-        multiplayerListener(state, context);
+        sharingListener(state, context);
       },
       builder: (context, state) {
-        if (state.multiplayerStatus == MultiplayerStatus.loading) {
-          // TODO(JR): major refactor needed
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.network(
-                'https://c.tenor.com/fOjhwb3eEqIAAAAi/quack-duck.gif',
-              )
-            ],
-          );
-        }
         return theme.layoutDelegate.boardBuilder(
           size,
           puzzle.tiles

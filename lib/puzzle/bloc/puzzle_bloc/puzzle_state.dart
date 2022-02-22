@@ -14,12 +14,11 @@ enum TileMovementStatus {
   moved,
 }
 
-// TODO(JR): fix naming
-enum MultiplayerStatus {
-  initExport,
+enum SharingStatus {
   loading,
-  successExport,
+  initExport,
   initImport,
+  successExport,
   successImport,
   errorExport,
   errorImport,
@@ -34,7 +33,7 @@ class PuzzleState extends Equatable {
     this.numberOfMoves = 0,
     this.lastTappedTile,
     this.activeTile,
-    this.multiplayerStatus,
+    this.sharingStatus,
     this.data,
   });
 
@@ -80,7 +79,7 @@ class PuzzleState extends Equatable {
   /// added.
   final int numberOfMoves;
 
-  final MultiplayerStatus? multiplayerStatus;
+  final SharingStatus? sharingStatus;
 
   /// Used to pass any data that is needed
   final Object? data;
@@ -93,7 +92,7 @@ class PuzzleState extends Equatable {
     int? numberOfMoves,
     Tile? lastTappedTile,
     Tile? activeTile,
-    MultiplayerStatus? multiplayerStatus,
+    SharingStatus? sharingStatus,
     Object? data,
   }) {
     return PuzzleState(
@@ -104,7 +103,7 @@ class PuzzleState extends Equatable {
       numberOfMoves: numberOfMoves ?? this.numberOfMoves,
       lastTappedTile: lastTappedTile ?? this.lastTappedTile,
       activeTile: activeTile ?? this.activeTile,
-      multiplayerStatus: multiplayerStatus,
+      sharingStatus: sharingStatus,
       data: data,
     );
   }
@@ -136,6 +135,6 @@ class PuzzleState extends Equatable {
         numberOfMoves,
         lastTappedTile,
         activeTile,
-        multiplayerStatus,
+        sharingStatus,
       ];
 }

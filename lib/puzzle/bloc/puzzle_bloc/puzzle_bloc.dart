@@ -121,41 +121,43 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   }
 
   FutureOr<void> _onPuzzleImport(
-    // TODO(JR): validate
     PuzzleImport event,
     Emitter<PuzzleState> emit,
   ) async {
     emit(
-      state.copyWith(multiplayerStatus: MultiplayerStatus.loading),
+      state.copyWith(sharingStatus: SharingStatus.loading),
     );
 
     await FirebaseService.instance.getPuzzle(
       id: event.puzzleCode,
       onSuccess: (puzzle) {
+        // Recreate display images
         for (final megaTile in puzzle.tiles) {
           megaTile.displayImage = convertImage(megaTile.image!);
+          for (final miniTile in (megaTile as MegaTile).puzzle.tiles) {
+            miniTile.displayImage = convertImage(miniTile.image!);
+          }
         }
 
         emit(
           PuzzleState(
             puzzle: puzzle,
-            multiplayerStatus: MultiplayerStatus.successImport,
+            sharingStatus: SharingStatus.successImport,
           ),
         );
       },
       onError: () => emit(
-        state.copyWith(multiplayerStatus: MultiplayerStatus.errorImport),
+        state.copyWith(sharingStatus: SharingStatus.errorImport),
       ),
     );
   }
 
   FutureOr<void> _onPuzzleExport(
-    // TODO(JR): validate
     PuzzleExport event,
     Emitter<PuzzleState> emit,
   ) async {
     emit(
-      state.copyWith(multiplayerStatus: MultiplayerStatus.loading),
+      state.copyWith(sharingStatus: SharingStatus.loading),
     );
 
     final id = generateID();
@@ -172,12 +174,12 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       },
       onSuccess: () => emit(
         state.copyWith(
-          multiplayerStatus: MultiplayerStatus.successExport,
+          sharingStatus: SharingStatus.successExport,
           data: id,
         ),
       ),
       onError: () => emit(
-        state.copyWith(multiplayerStatus: MultiplayerStatus.errorExport),
+        state.copyWith(sharingStatus: SharingStatus.errorExport),
       ),
     );
   }

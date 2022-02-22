@@ -1249,7 +1249,7 @@ class SettingsSectionState extends State<SettingsSection> {
                   divisions: 2,
                 ),
                 const SizedBox(
-                  height: 32,
+                  height: 56,
                 ),
                 Text(
                   context.l10n.puzzleTryUrl,
@@ -1337,23 +1337,20 @@ class SharingSection extends StatefulWidget {
 /// State for the sharing section.
 /// {@endtemplate}
 class SharingSectionState extends State<SharingSection> {
-  final _textFieldController = TextEditingController();
-
-  @override
-  void initState() {
-    _textFieldController.text = 'Temp';
-    super.initState();
-  }
+  final _codeController = TextEditingController();
 
   @override
   void dispose() {
-    _textFieldController.dispose();
+    _codeController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO(JR): fix and finish this section
+    final state = context.select((PuzzleBloc bloc) => bloc.state);
+    final sharingCode = state.data != null ? state.data.toString() : '';
+    _codeController.text = sharingCode;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 24),
@@ -1374,7 +1371,7 @@ class SharingSectionState extends State<SharingSection> {
             child: Column(
               children: [
                 Text(
-                  'Sharing & Caring',
+                  context.l10n.puzzleSharingCaring,
                   style: PuzzleTextStyle.headline4.copyWith(
                     color: PuzzleColors.grey1,
                   ),
@@ -1383,102 +1380,60 @@ class SharingSectionState extends State<SharingSection> {
                 const SizedBox(
                   height: 24,
                 ),
-                const SimplePuzzleImportButton(),
-                TextField(
-                  controller: _textFieldController,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    hintText: context.l10n.puzzleFeedImage,
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => _textFieldController.text = '',
+                if (state.sharingStatus == SharingStatus.loading)
+                  Image.asset(
+                    'assets/images/quack_duck.gif',
+                    height: 74,
+                  ),
+                if (state.sharingStatus != SharingStatus.loading)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: TextField(
+                      controller: _codeController,
+                      maxLength: codeLength,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp('[a-zA-Z0-9]'),
+                        ),
+                      ],
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        hintText: context.l10n.puzzleCode,
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () => _codeController.text = '',
+                        ),
+                      ),
                     ),
                   ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const SimplePuzzleExportButton(),
+                    PuzzleButton.small(
+                      textColor: PuzzleColors.primary0,
+                      backgroundColor: PuzzleColors.primary6,
+                      onPressed: () {
+                        context.read<PuzzleBloc>().add(
+                              PuzzleImport(
+                                'QUACK-${_codeController.text.toUpperCase()}',
+                              ),
+                            );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(context.l10n.puzzleCare),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 32),
-                const SimplePuzzleExportButton(),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// {@template puzzle_import_button}
-/// Displays the button to import the puzzle.
-/// {@endtemplate}
-@visibleForTesting
-class SimplePuzzleImportButton extends StatelessWidget {
-  // TODO(JR): refactor
-  /// {@macro puzzle_import_button}
-  const SimplePuzzleImportButton({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return PuzzleButton(
-      textColor: PuzzleColors.primary0,
-      backgroundColor: PuzzleColors.primary6,
-      onPressed: () {
-        final bloc = BlocProvider.of<PuzzleBloc>(context);
-        final controller = TextEditingController();
-        final _formKey = GlobalKey<FormState>();
-
-        showDialog<Object>(
-          context: context,
-          builder: (context) {
-            return Form(
-              key: _formKey,
-              child: AlertDialog(
-                title: const Center(
-                  child: Text('Enter Code'),
-                ),
-                content: TextFormField(
-                  maxLength: codeLength,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp('[a-zA-Z0-9]'),
-                    ),
-                  ],
-                  controller: controller,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please insert a code';
-                    }
-                  },
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        bloc.add(PuzzleImport('QUACK-${controller.text}'));
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: const Text('Find Puzzle'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Close'),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/images/shuffle_icon.png',
-            width: 17,
-            height: 17,
-          ),
-          const Gap(10),
-          const Text('Import'),
-        ],
       ),
     );
   }
@@ -1489,35 +1444,26 @@ class SimplePuzzleImportButton extends StatelessWidget {
 /// {@endtemplate}
 @visibleForTesting
 class SimplePuzzleExportButton extends StatelessWidget {
-  // TODO(JR): refactor
   /// {@macro puzzle_export_button}
   const SimplePuzzleExportButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return PuzzleButton(
+    final state = context.select((PuzzleBloc bloc) => bloc.state);
+
+    return PuzzleButton.small(
       textColor: PuzzleColors.primary0,
       backgroundColor: PuzzleColors.primary6,
-      onPressed: BlocProvider.of<PuzzleBloc>(context).state.multiplayerStatus ==
-              MultiplayerStatus.loading
+      onPressed: state.sharingStatus == SharingStatus.loading ||
+              state.puzzleStatus == PuzzleStatus.imageError
           ? () {}
-          : () => BlocProvider.of<PuzzleBloc>(context).add(
+          : () => context.read<PuzzleBloc>().add(
                 const PuzzleExport(),
               ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (BlocProvider.of<PuzzleBloc>(context).state.multiplayerStatus ==
-              MultiplayerStatus.loading)
-            const CircularProgressIndicator()
-          else
-            Image.asset(
-              'assets/images/shuffle_icon.png',
-              width: 17,
-              height: 17,
-            ),
-          const Gap(10),
-          const Text('Export'),
+          Text(context.l10n.puzzleShare),
         ],
       ),
     );

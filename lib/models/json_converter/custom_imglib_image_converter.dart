@@ -28,7 +28,7 @@ class CustomImglibImageConverter
       'content': base64Encode(
         encodeJpg(
           image,
-          quality: 30, // TODO(JR) hum... test limits
+          quality: 50,
         ),
       ),
       'height': image.height,
