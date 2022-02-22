@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.veryquackquack">
+    package="com.veryquack.supersliderquackedition">
    <application
         android:label="Super Slider"
         android:icon="@mipmap/ic_launcher">

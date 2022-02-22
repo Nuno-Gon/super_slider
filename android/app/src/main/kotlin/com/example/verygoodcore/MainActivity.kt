@@ -1,4 +1,4 @@
-package com.example.veryquackquack
+package com.veryquack.supersliderquackedition
 
 import io.flutter.embedding.android.FlutterActivity
 
