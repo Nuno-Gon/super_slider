@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:very_good_slide_puzzle/colors/colors.dart';
@@ -12,6 +13,7 @@ import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 import 'package:very_good_slide_puzzle/settings/settings.dart';
 import 'package:very_good_slide_puzzle/theme/theme.dart';
 import 'package:very_good_slide_puzzle/typography/typography.dart';
+import 'package:very_good_slide_puzzle/utils/utils.dart';
 
 /// {@template simple_puzzle_layout_delegate}
 /// A delegate for computing the layout of the puzzle UI
@@ -425,6 +427,17 @@ class SimpleStartSectionBottom extends StatelessWidget {
             ),
           ],
         ),
+        ResponsiveLayoutBuilder(
+          small: (_, child) => SharingSection(
+            width: _BoardSize.small + _BoardSize.bgMarginSize,
+          ),
+          medium: (_, child) => SharingSection(
+            width: _BoardSize.medium + _BoardSize.bgMarginSize,
+          ),
+          large: (_, __) => const SharingSection(
+            width: 320,
+          ),
+        ),
       ],
     );
   }
@@ -491,6 +504,7 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     final megaTileSizeWithZoom = megaTileSize * zoomLevel;
     final viewport = boardSize + (_BoardSize.bgMarginSize * 2);
     final marginAroundTile = viewport - megaTileSizeWithZoom;
+
     const paddingCompensation = outsidePadding * zoomLevel;
     final boardCompensation =
         (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
@@ -768,11 +782,14 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.select((PuzzleBloc bloc) => bloc.state);
+    final megaBoardDimension = state.puzzle.getDimension();
+
     return ResponsiveLayoutBuilder(
       small: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.small,
-          size: settings.megaPuzzleSize,
+          size: megaBoardDimension,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_small'),
@@ -783,7 +800,7 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
       medium: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.medium,
-          size: settings.megaPuzzleSize,
+          size: megaBoardDimension,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_medium'),
@@ -794,7 +811,7 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
       large: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.large,
-          size: settings.megaPuzzleSize,
+          size: megaBoardDimension,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_large'),
@@ -1232,7 +1249,7 @@ class SettingsSectionState extends State<SettingsSection> {
                   divisions: 2,
                 ),
                 const SizedBox(
-                  height: 32,
+                  height: 56,
                 ),
                 Text(
                   context.l10n.puzzleTryUrl,
@@ -1293,6 +1310,161 @@ class SettingsSectionState extends State<SettingsSection> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// {@template sharing_section}
+/// Displays the sharing features for the Puzzle.
+/// {@endtemplate}
+@visibleForTesting
+class SharingSection extends StatefulWidget {
+  /// {@macro sharing_section}
+  const SharingSection({
+    Key? key,
+    required this.width,
+  }) : super(key: key);
+
+  /// Width for the sharing pane
+  final double width;
+
+  @override
+  SharingSectionState createState() => SharingSectionState();
+}
+
+/// {@template sharing_section_state}
+/// State for the sharing section.
+/// {@endtemplate}
+class SharingSectionState extends State<SharingSection> {
+  final _codeController = TextEditingController();
+
+  @override
+  void dispose() {
+    _codeController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.select((PuzzleBloc bloc) => bloc.state);
+    final sharingCode = state.data != null ? state.data.toString() : '';
+    _codeController.text = sharingCode;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Container(
+          width: widget.width,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            border: Border.all(
+              color: Colors.black12.withOpacity(0.1),
+              width: 6,
+            ),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(16),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Text(
+                  context.l10n.puzzleSharingCaring,
+                  style: PuzzleTextStyle.headline4.copyWith(
+                    color: PuzzleColors.grey1,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 24,
+                ),
+                if (state.sharingStatus == SharingStatus.loading)
+                  Image.asset(
+                    'assets/images/quack_duck.gif',
+                    height: 74,
+                  ),
+                if (state.sharingStatus != SharingStatus.loading)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: TextField(
+                      controller: _codeController,
+                      maxLength: codeLength,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp('[a-zA-Z0-9]'),
+                        ),
+                      ],
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        hintText: context.l10n.puzzleCode,
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () => _codeController.text = '',
+                        ),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    const SimplePuzzleExportButton(),
+                    PuzzleButton.small(
+                      textColor: PuzzleColors.primary0,
+                      backgroundColor: PuzzleColors.primary6,
+                      onPressed: () {
+                        context.read<PuzzleBloc>().add(
+                              PuzzleImport(
+                                'QUACK-${_codeController.text.toUpperCase()}',
+                              ),
+                            );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(context.l10n.puzzleCare),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// {@template puzzle_export_button}
+/// Displays the button to export the puzzle.
+/// {@endtemplate}
+@visibleForTesting
+class SimplePuzzleExportButton extends StatelessWidget {
+  /// {@macro puzzle_export_button}
+  const SimplePuzzleExportButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.select((PuzzleBloc bloc) => bloc.state);
+
+    return PuzzleButton.small(
+      textColor: PuzzleColors.primary0,
+      backgroundColor: PuzzleColors.primary6,
+      onPressed: state.sharingStatus == SharingStatus.loading ||
+              state.puzzleStatus == PuzzleStatus.imageError
+          ? () {}
+          : () => context.read<PuzzleBloc>().add(
+                const PuzzleExport(),
+              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(context.l10n.puzzleShare),
+        ],
       ),
     );
   }

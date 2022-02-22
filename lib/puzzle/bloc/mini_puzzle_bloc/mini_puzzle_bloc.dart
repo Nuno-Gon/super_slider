@@ -55,12 +55,13 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
         final mutablePuzzle = Puzzle(tiles: [...state.puzzle.tiles]);
         final puzzle = mutablePuzzle.moveTiles(tappedTile, []);
         megaTile!.puzzle = puzzle;
+
         if (puzzle.isComplete()) {
           final whitespaceTile = puzzle.getWhitespaceTile();
           final index = puzzle.tiles.indexOf(whitespaceTile);
           puzzle.tiles[index] = whitespaceTile.removeWhitespace();
-
           megaTile!.isCompleted = true;
+
           emit(
             state.copyWith(
               puzzle: puzzle.sort(),
@@ -108,7 +109,9 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     // Create List with converted images ready to display
     final displayReadyImages = <Image>[];
     for (final img in dividedImage) {
-      displayReadyImages.add(convertImage(img));
+      displayReadyImages.add(
+        convertImage(img),
+      );
     }
 
     // Create all possible board positions.
@@ -214,7 +217,11 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
   }
 
   Image convertImage(imglib.Image image) {
-    final convertedPiece = Uint8List.fromList(imglib.encodeJpg(image));
+    final convertedPiece = Uint8List.fromList(
+      imglib.encodeJpg(
+        image,
+      ),
+    );
     return Image.memory(convertedPiece);
   }
 }

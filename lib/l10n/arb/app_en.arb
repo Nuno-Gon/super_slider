@@ -75,5 +75,29 @@
     "puzzleImageError": "Invalid url *quack* Please try with a different one! Sowwy..",
     "@puzzleImageError": {
         "description": "Label for snackbar when error message occurs"
+    },
+    "puzzleSharingCaring": "Sharing & Caring",
+    "@puzzleSharingCaring": {
+        "description": "Title for sharing section"
+    },
+    "puzzleShare": "Share",
+    "@puzzleShare": {
+        "description": "Label for share button"
+    },
+    "puzzleCare": "Care",
+    "@puzzleCare": {
+        "description": "Label for care button"
+    },
+    "puzzleCode": "Code! Code!",
+    "@puzzleCode": {
+        "description": "Label for code edit text field"
+    },
+    "puzzleExportError": "Oh NOES! Share not gud! Sad..",
+    "@puzzleExportError": {
+        "description": "Message when export fails"
+    },
+    "puzzleImportError": "Oh NOES! Code big failure! Check code again..",
+    "@puzzleImportError": {
+        "description": "Message when import fails"
     }
 }

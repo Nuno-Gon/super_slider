@@ -1,7 +1,8 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:async';
-import 'dart:math';
+import 'dart:convert';
+import 'dart:math' show Random;
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
@@ -10,7 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as imglib;
+import 'package:very_good_slide_puzzle/datasource/firebase_service.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
+import 'package:very_good_slide_puzzle/utils/utils.dart';
 
 part 'puzzle_event.dart';
 
@@ -24,6 +27,8 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     on<TileDoubleTapped>(_onTileDoubleTapped);
     on<ActiveTileReset>(_onActiveTileReset);
     on<PuzzleReset>(_onPuzzleReset);
+    on<PuzzleImport>(_onPuzzleImport);
+    on<PuzzleExport>(_onPuzzleExport);
   }
 
   final int _size;
@@ -115,6 +120,70 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     );
   }
 
+  FutureOr<void> _onPuzzleImport(
+    PuzzleImport event,
+    Emitter<PuzzleState> emit,
+  ) async {
+    emit(
+      state.copyWith(sharingStatus: SharingStatus.loading),
+    );
+
+    await FirebaseService.instance.getPuzzle(
+      id: event.puzzleCode,
+      onSuccess: (puzzle) {
+        // Recreate display images
+        for (final megaTile in puzzle.tiles) {
+          megaTile.displayImage = convertImage(megaTile.image!);
+          for (final miniTile in (megaTile as MegaTile).puzzle.tiles) {
+            miniTile.displayImage = convertImage(miniTile.image!);
+          }
+        }
+
+        emit(
+          PuzzleState(
+            puzzle: puzzle,
+            sharingStatus: SharingStatus.successImport,
+          ),
+        );
+      },
+      onError: () => emit(
+        state.copyWith(sharingStatus: SharingStatus.errorImport),
+      ),
+    );
+  }
+
+  FutureOr<void> _onPuzzleExport(
+    PuzzleExport event,
+    Emitter<PuzzleState> emit,
+  ) async {
+    emit(
+      state.copyWith(sharingStatus: SharingStatus.loading),
+    );
+
+    final id = generateID();
+
+    await FirebaseService.instance.addToCollection(
+      collection: 'puzzle',
+      data: <String, dynamic>{
+        'id': 'QUACK-$id',
+        'content': base64Encode(
+          utf8.encode(
+            jsonEncode(state.puzzle),
+          ),
+        ),
+      },
+      onSuccess: () => emit(
+        state.copyWith(
+          sharingStatus: SharingStatus.successExport,
+          data: id,
+        ),
+      ),
+      onError: () => emit(
+        state.copyWith(sharingStatus: SharingStatus.errorExport),
+      ),
+    );
+  }
+
   Future<void> _onPuzzleReset(
     PuzzleReset event,
     Emitter<PuzzleState> emit,
@@ -157,7 +226,9 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     // Create List with converted images ready to display
     final displayReadyImages = <Image>[];
     for (final img in dividedImage) {
-      displayReadyImages.add(convertImage(img));
+      displayReadyImages.add(
+        convertImage(img),
+      );
     }
 
     // Create all possible board positions.
@@ -305,7 +376,11 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   }
 
   Image convertImage(imglib.Image image) {
-    final convertedPiece = Uint8List.fromList(imglib.encodeJpg(image));
+    final convertedPiece = Uint8List.fromList(
+      imglib.encodeJpg(
+        image,
+      ),
+    );
     return Image.memory(convertedPiece);
   }
 }

@@ -12,13 +12,33 @@ class PuzzleButton extends StatelessWidget {
     required this.onPressed,
     this.backgroundColor,
     this.textColor,
+    this.width = 145,
   }) : super(key: key);
+
+  /// Factory for small buttons
+  factory PuzzleButton.small({
+    required Widget child,
+    required VoidCallback onPressed,
+    Color? backgroundColor,
+    Color? textColor,
+  }) {
+    return PuzzleButton(
+      width: 100,
+      backgroundColor: backgroundColor,
+      textColor: textColor,
+      onPressed: onPressed,
+      child: child,
+    );
+  }
 
   /// The background color of this button.
   final Color? backgroundColor;
 
   /// The text color of this button.
   final Color? textColor;
+
+  /// The width of this button.
+  final double? width;
 
   /// Called when this button is tapped.
   final VoidCallback onPressed;
@@ -29,7 +49,7 @@ class PuzzleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 145,
+      width: width,
       height: 44,
       child: TextButton(
         style: TextButton.styleFrom(

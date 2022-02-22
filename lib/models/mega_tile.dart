@@ -1,14 +1,20 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as imglib;
+import 'package:json_annotation/json_annotation.dart';
+import 'package:very_good_slide_puzzle/models/json_converter/custom_imglib_image_converter.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
+
+part 'mega_tile.g.dart';
 
 /// {@template mega_tile}
 /// Model for a puzzle mega tile.
 /// {@endtemplate}
-class MegaTile extends Tile implements Equatable {
+
+@JsonSerializable()
+@CustomImglibImageConverter()
+class MegaTile extends Tile {
   /// {@macro mega_tile}
   MegaTile({
     this.puzzle = const Puzzle(tiles: []),
@@ -28,10 +34,20 @@ class MegaTile extends Tile implements Equatable {
           isWhitespace: isWhitespace,
         );
 
+  /// Convert Json into MegaTile
+  factory MegaTile.fromJson(Map<String, dynamic> json) =>
+      _$MegaTileFromJson(json);
+
+  /// Convert MegaTile into Json
+  @override
+  Map<String, dynamic> toJson() => _$MegaTileToJson(this);
+
   /// [Puzzle] containing the current tile arrangement.
+  @JsonValue('puzzle')
   Puzzle puzzle;
 
   /// Indicates if a Mega Tile puzzle is completed.
+  @JsonValue('is_completed')
   bool isCompleted;
 
   /// Create a copy of this [MegaTile] with updated current position.
@@ -65,6 +81,7 @@ class MegaTile extends Tile implements Equatable {
 
   @override
   List<Object> get props => [
+        puzzle,
         value,
         correctPosition,
         currentPosition,

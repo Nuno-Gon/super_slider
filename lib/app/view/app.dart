@@ -42,6 +42,10 @@ class _AppState extends State<App> {
         context,
       );
       precacheImage(
+        Image.asset('assets/images/quack_duck.gif').image,
+        context,
+      );
+      precacheImage(
         Image.asset('assets/images/shuffle_icon.png').image,
         context,
       );

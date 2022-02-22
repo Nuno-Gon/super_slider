@@ -2,9 +2,27 @@
 
 part of 'puzzle_bloc.dart';
 
-enum PuzzleStatus { incomplete, complete, imageError }
+enum PuzzleStatus {
+  incomplete,
+  complete,
+  imageError,
+}
 
-enum TileMovementStatus { nothingTapped, cannotBeMoved, moved }
+enum TileMovementStatus {
+  nothingTapped,
+  cannotBeMoved,
+  moved,
+}
+
+enum SharingStatus {
+  loading,
+  initExport,
+  initImport,
+  successExport,
+  successImport,
+  errorExport,
+  errorImport,
+}
 
 class PuzzleState extends Equatable {
   const PuzzleState({
@@ -15,6 +33,8 @@ class PuzzleState extends Equatable {
     this.numberOfMoves = 0,
     this.lastTappedTile,
     this.activeTile,
+    this.sharingStatus,
+    this.data,
   });
 
   /// [Puzzle] containing the current tile arrangement.
@@ -59,6 +79,11 @@ class PuzzleState extends Equatable {
   /// added.
   final int numberOfMoves;
 
+  final SharingStatus? sharingStatus;
+
+  /// Used to pass any data that is needed
+  final Object? data;
+
   PuzzleState copyWith({
     Puzzle? puzzle,
     PuzzleStatus? puzzleStatus,
@@ -67,6 +92,8 @@ class PuzzleState extends Equatable {
     int? numberOfMoves,
     Tile? lastTappedTile,
     Tile? activeTile,
+    SharingStatus? sharingStatus,
+    Object? data,
   }) {
     return PuzzleState(
       puzzle: puzzle ?? this.puzzle,
@@ -76,6 +103,8 @@ class PuzzleState extends Equatable {
       numberOfMoves: numberOfMoves ?? this.numberOfMoves,
       lastTappedTile: lastTappedTile ?? this.lastTappedTile,
       activeTile: activeTile ?? this.activeTile,
+      sharingStatus: sharingStatus,
+      data: data,
     );
   }
 
@@ -106,5 +135,6 @@ class PuzzleState extends Equatable {
         numberOfMoves,
         lastTappedTile,
         activeTile,
+        sharingStatus,
       ];
 }
