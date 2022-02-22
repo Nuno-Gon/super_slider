@@ -782,11 +782,14 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.select((PuzzleBloc bloc) => bloc.state);
+    final megaBoardDimension = state.puzzle.getDimension();
+
     return ResponsiveLayoutBuilder(
       small: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.small,
-          size: size,
+          size: megaBoardDimension,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_small'),
@@ -797,7 +800,7 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
       medium: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.medium,
-          size: size,
+          size: megaBoardDimension,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_medium'),
@@ -808,7 +811,7 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
       large: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.large,
-          size: size,
+          size: megaBoardDimension,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_large'),
