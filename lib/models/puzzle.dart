@@ -35,6 +35,40 @@ class Puzzle extends Equatable {
   /// {@macro puzzle}
   const Puzzle({required this.tiles});
 
+  /// Convert Json into Puzzle
+  /// TODO(Warrior): Check Dynamic Missing paramenter
+  factory Puzzle.fromJson(
+    Map<String, dynamic> json, {
+    bool isMega = false,
+  }) =>
+      Puzzle(
+        tiles: (json['tiles'] as List<dynamic>?)?.map<Tile>(
+              (e) {
+                if (isMega) {
+                  return MegaTile.fromJson(
+                    e as Map<String, dynamic>,
+                  );
+                }
+                return Tile.fromJson(
+                  e as Map<String, dynamic>,
+                );
+              },
+            ).toList() ??
+            const [],
+      );
+
+  /// Convert Puzzle into Json
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'tiles': tiles.map<Map<String, dynamic>>(
+          (e) {
+            if (e is MegaTile) {
+              return e.toJson();
+            }
+            return e.toJson();
+          },
+        ).toList(),
+      };
+
   /// List of [Tile]s representing the puzzle's current arrangement.
   final List<Tile> tiles;
 
@@ -156,9 +190,7 @@ class Puzzle extends Equatable {
       final shiftPointX = tile.currentPosition.x + deltaX.sign;
       final shiftPointY = tile.currentPosition.y + deltaY.sign;
       final tileToSwapWith = tiles.singleWhere(
-        (tile) =>
-            tile.currentPosition.x == shiftPointX &&
-            tile.currentPosition.y == shiftPointY,
+        (tile) => tile.currentPosition.x == shiftPointX && tile.currentPosition.y == shiftPointY,
       );
       tilesToSwap.add(tile);
       return moveTiles(tileToSwapWith, tilesToSwap);

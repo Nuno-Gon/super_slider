@@ -1,8 +1,8 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-import 'package:image/image.dart' as imglib;
+import 'package:image/image.dart';
+import 'package:very_good_slide_puzzle/models/img_converter.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 
 /// {@template tile}
@@ -15,9 +15,34 @@ class Tile extends Equatable {
     required this.correctPosition,
     required this.currentPosition,
     this.image,
-    this.displayImage,
     this.isWhitespace = false,
   });
+
+  /// Convert Json into Tile
+  factory Tile.fromJson(Map<String, dynamic> json) => Tile(
+        value: json['value'] as int,
+        correctPosition: Position.fromJson(
+          json['correctPosition'] as Map<String, dynamic>,
+        ),
+        currentPosition: Position.fromJson(
+          json['currentPosition'] as Map<String, dynamic>,
+        ),
+        image: const CustomImglibImageConverter().fromJson(
+          json['image'] as String?,
+        ),
+        isWhitespace: json['isWhitespace'] as bool? ?? false,
+      );
+
+  /// Convert MegaTile into Json
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'value': value,
+        'correctPosition': correctPosition.toJson(),
+        'currentPosition': currentPosition.toJson(),
+        'image': const CustomImglibImageConverter().toJson(
+          image,
+        ),
+        'isWhitespace': isWhitespace,
+      };
 
   /// Value representing the correct position of [Tile] in a list.
   final int value;
@@ -30,10 +55,10 @@ class Tile extends Equatable {
   Position currentPosition;
 
   /// The image data used to create the Image widget for the [Tile].
-  final imglib.Image? image;
+  final Image? image;
 
-  /// The [Image] displayed in the [Tile].
-  final Image? displayImage;
+  // / The [Image] displayed in the [Tile].
+  // final Image? displayImage;
 
   /// Denotes if the [Tile] is the whitespace tile or not.
   final bool isWhitespace;
@@ -45,7 +70,6 @@ class Tile extends Equatable {
       correctPosition: correctPosition,
       currentPosition: currentPosition,
       image: image,
-      displayImage: displayImage,
       isWhitespace: isWhitespace,
     );
   }
@@ -57,15 +81,16 @@ class Tile extends Equatable {
       correctPosition: correctPosition,
       currentPosition: currentPosition,
       image: image,
-      displayImage: displayImage,
+      // displayImage: displayImage,
     );
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         value,
         correctPosition,
         currentPosition,
         isWhitespace,
+        image,
       ];
 }

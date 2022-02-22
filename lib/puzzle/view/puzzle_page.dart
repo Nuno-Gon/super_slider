@@ -7,6 +7,7 @@ import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 import 'package:very_good_slide_puzzle/settings/settings.dart';
 import 'package:very_good_slide_puzzle/theme/theme.dart';
 import 'package:very_good_slide_puzzle/timer/timer.dart';
+import 'package:very_good_slide_puzzle/utils/utils.dart';
 
 // ignore: public_member_api_docs
 enum PuzzleType { mega, mini }
@@ -320,33 +321,47 @@ class PuzzleBoard extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return BlocListener<PuzzleBloc, PuzzleState>(
+    return BlocConsumer<PuzzleBloc, PuzzleState>(
       listener: (context, state) {
         if (theme.hasTimer && state.puzzleStatus == PuzzleStatus.complete) {
           context.read<TimerBloc>().add(const TimerStopped());
         }
-
         if (state.puzzleStatus == PuzzleStatus.imageError) {
           final snackBar = SnackBar(
             content: Text(context.l10n.puzzleImageError),
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
+
+        multiplayerListener(state, context);
       },
-      child: theme.layoutDelegate.boardBuilder(
-        size,
-        puzzle.tiles
-            .map(
-              (tile) => _PuzzleTile(
-                key: Key('puzzle_tile_${tile.value.toString()}'),
-                isMegaTile: puzzleType == PuzzleType.mega,
-                tile: tile,
-              ),
-            )
-            .toList(),
-        puzzleType,
-        settings,
-      ),
+      builder: (context, state) {
+        if (state.multiplayerStatus == MultiplayerStatus.loading) {
+          // TODO(JR): major refactor needed
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.network(
+                'https://c.tenor.com/fOjhwb3eEqIAAAAi/quack-duck.gif',
+              )
+            ],
+          );
+        }
+        return theme.layoutDelegate.boardBuilder(
+          size,
+          puzzle.tiles
+              .map(
+                (tile) => _PuzzleTile(
+                  key: Key('puzzle_tile_${tile.value.toString()}'),
+                  isMegaTile: puzzleType == PuzzleType.mega,
+                  tile: tile,
+                ),
+              )
+              .toList(),
+          puzzleType,
+          settings,
+        );
+      },
     );
   }
 }

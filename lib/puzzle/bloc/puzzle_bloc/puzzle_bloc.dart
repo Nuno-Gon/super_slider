@@ -1,16 +1,19 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:async';
-import 'dart:math';
+import 'dart:convert';
+import 'dart:math' show Random;
 import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:image/image.dart' as imglib;
+import 'package:image/image.dart';
+import 'package:very_good_slide_puzzle/datasource/firebase_service.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
+import 'package:very_good_slide_puzzle/utils/utils.dart';
 
 part 'puzzle_event.dart';
 
@@ -18,12 +21,16 @@ part 'puzzle_state.dart';
 
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   PuzzleBloc(this._size, {this.imageUrl, this.random})
-      : super(const PuzzleState()) {
+      : super(
+          const PuzzleState(),
+        ) {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
     on<TileDoubleTapped>(_onTileDoubleTapped);
     on<ActiveTileReset>(_onActiveTileReset);
     on<PuzzleReset>(_onPuzzleReset);
+    on<PuzzleImport>(_onPuzzleImport);
+    on<PuzzleExport>(_onPuzzleExport);
   }
 
   final int _size;
@@ -115,6 +122,75 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     );
   }
 
+  FutureOr<void> _onPuzzleImport(
+    // TODO(JR): validate
+    PuzzleImport event,
+    Emitter<PuzzleState> emit,
+  ) async {
+    emit(
+      state.copyWith(multiplayerStatus: MultiplayerStatus.loading),
+    );
+
+    ///TODO(WARRIOR): CHECK WHY IMPORT NOT WORKING.
+    await FirebaseService.instance.getPuzzle(
+      id: event.puzzleCode,
+      onSuccess: (puzzle) {
+        emit(
+          PuzzleState(
+            puzzle: puzzle,
+            multiplayerStatus: MultiplayerStatus.successImport,
+          ),
+        );
+      },
+      onError: () => emit(
+        state.copyWith(multiplayerStatus: MultiplayerStatus.errorImport),
+      ),
+    );
+  }
+
+  FutureOr<void> _onPuzzleExport(
+    PuzzleExport event,
+    Emitter<PuzzleState> emit,
+  ) async {
+    emit(
+      state.copyWith(multiplayerStatus: MultiplayerStatus.loading),
+    );
+
+    final id = generateID();
+    final data = getJsonUint8List(
+      jsonEncode(state.puzzle),
+    );
+
+    final downloadUrl = await FirebaseService.instance.uploadToStorage(
+      puzzleCode: id,
+      data: data,
+    );
+
+    if (downloadUrl == null) {
+      emit(
+        state.copyWith(multiplayerStatus: MultiplayerStatus.errorExport),
+      );
+      return;
+    }
+
+    await FirebaseService.instance.addToCollection(
+      collection: 'puzzle',
+      data: <String, dynamic>{
+        'id': 'QUACK-$id',
+        'content': downloadUrl,
+      },
+      onSuccess: () => emit(
+        state.copyWith(
+          multiplayerStatus: MultiplayerStatus.successExport,
+          data: id,
+        ),
+      ),
+      onError: () => emit(
+        state.copyWith(multiplayerStatus: MultiplayerStatus.errorExport),
+      ),
+    );
+  }
+
   Future<void> _onPuzzleReset(
     PuzzleReset event,
     Emitter<PuzzleState> emit,
@@ -154,12 +230,6 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       return const Puzzle(tiles: []);
     }
 
-    // Create List with converted images ready to display
-    final displayReadyImages = <Image>[];
-    for (final img in dividedImage) {
-      displayReadyImages.add(convertImage(img));
-    }
-
     // Create all possible board positions.
     for (var y = 1; y <= size; y++) {
       for (var x = 1; x <= size; x++) {
@@ -184,7 +254,6 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       correctPositions,
       currentPositions,
       dividedImage,
-      displayReadyImages,
     );
 
     var puzzle = Puzzle(tiles: tiles);
@@ -199,7 +268,6 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
           correctPositions,
           currentPositions,
           dividedImage,
-          displayReadyImages,
         );
         puzzle = Puzzle(tiles: tiles);
       }
@@ -214,8 +282,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     int size,
     List<Position> correctPositions,
     List<Position> currentPositions,
-    List<imglib.Image> dividedImage,
-    List<Image> displayReadyImages,
+    List<Image> dividedImage,
   ) {
     final whitespacePosition = Position(x: size, y: size);
     return [
@@ -224,7 +291,6 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
           MegaTile(
             value: i,
             image: dividedImage[i - 1],
-            displayImage: displayReadyImages[i - 1],
             correctPosition: whitespacePosition,
             currentPosition: currentPositions[i - 1],
             isWhitespace: true,
@@ -233,38 +299,37 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
           MegaTile(
             value: i,
             image: dividedImage[i - 1],
-            displayImage: displayReadyImages[i - 1],
             correctPosition: correctPositions[i - 1],
             currentPosition: currentPositions[i - 1],
           )
     ];
   }
 
-  Future<List<imglib.Image>> splitImage(String? imageUrl) async {
+  Future<List<Image>> splitImage(String? imageUrl) async {
     final horizontalPieceCount = _size;
     final verticalPieceCount = _size;
     final byteData = await getByteDataOfImage(imageUrl);
     final convertedData = List<int>.from(byteData);
 
-    var image = imglib.decodeImage(convertedData);
+    var image = decodeImage(convertedData);
     if (image == null) {
-      return <imglib.Image>[];
+      return <Image>[];
     }
 
     // Cut the image into a square
     if (image.width != image.height) {
       final cutSize = image.width < image.height ? image.width : image.height;
-      image = imglib.copyCrop(image, 0, 0, cutSize, cutSize);
+      image = copyCrop(image, 0, 0, cutSize, cutSize);
     }
 
     final xLength = (image.width / horizontalPieceCount).round();
     final yLength = (image.height / verticalPieceCount).round();
-    final pieceList = <imglib.Image>[];
+    final pieceList = <Image>[];
 
     for (var y = 0; y < verticalPieceCount; y++) {
       for (var x = 0; x < horizontalPieceCount; x++) {
         pieceList.add(
-          imglib.copyCrop(image, x * xLength, y * yLength, xLength, yLength),
+          copyCrop(image, x * xLength, y * yLength, xLength, yLength),
         );
       }
     }
@@ -296,16 +361,13 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);
-      byteData = (await rootBundle.load(curatedImages[randomPick]))
+      byteData = (await rootBundle.load(
+        curatedImages[randomPick],
+      ))
           .buffer
           .asUint8List();
     }
 
     return byteData;
-  }
-
-  Image convertImage(imglib.Image image) {
-    final convertedPiece = Uint8List.fromList(imglib.encodeJpg(image));
-    return Image.memory(convertedPiece);
   }
 }

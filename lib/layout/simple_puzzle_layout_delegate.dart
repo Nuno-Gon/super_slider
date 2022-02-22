@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:very_good_slide_puzzle/colors/colors.dart';
@@ -12,6 +12,7 @@ import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 import 'package:very_good_slide_puzzle/settings/settings.dart';
 import 'package:very_good_slide_puzzle/theme/theme.dart';
 import 'package:very_good_slide_puzzle/typography/typography.dart';
+import 'package:very_good_slide_puzzle/utils/utils.dart';
 
 /// {@template simple_puzzle_layout_delegate}
 /// A delegate for computing the layout of the puzzle UI
@@ -411,11 +412,8 @@ class SimpleStartSectionBottom extends StatelessWidget {
                           ))
                         .map(
                           (e) => Opacity(
-                            opacity: (e as MegaTile).isCompleted ||
-                                    !settings.isSuperPuzzle
-                                ? 1
-                                : 0.7,
-                            child: e.displayImage,
+                            opacity: (e as MegaTile).isCompleted || !settings.isSuperPuzzle ? 1 : 0.7,
+                            child: displayImage(e.image),
                           ),
                         )
                         .toList(),
@@ -424,6 +422,17 @@ class SimpleStartSectionBottom extends StatelessWidget {
               },
             ),
           ],
+        ),
+        ResponsiveLayoutBuilder(
+          small: (_, child) => SharingSection(
+            width: _BoardSize.small + _BoardSize.bgMarginSize,
+          ),
+          medium: (_, child) => SharingSection(
+            width: _BoardSize.medium + _BoardSize.bgMarginSize,
+          ),
+          large: (_, __) => const SharingSection(
+            width: 320,
+          ),
         ),
       ],
     );
@@ -469,9 +478,7 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     final transformationController = TransformationController();
 
     final state = context.select((PuzzleBloc bloc) => bloc.state);
-    final currentPosition = state.activeTile != null
-        ? state.activeTile!.currentPosition
-        : const Position(x: 0, y: 0);
+    final currentPosition = state.activeTile != null ? state.activeTile!.currentPosition : const Position(x: 0, y: 0);
 
     late double boardSize;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -491,9 +498,9 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     final megaTileSizeWithZoom = megaTileSize * zoomLevel;
     final viewport = boardSize + (_BoardSize.bgMarginSize * 2);
     final marginAroundTile = viewport - megaTileSizeWithZoom;
+
     const paddingCompensation = outsidePadding * zoomLevel;
-    final boardCompensation =
-        (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
+    final boardCompensation = (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
     final compensation = boardCompensation + paddingCompensation;
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -772,7 +779,7 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
       small: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.small,
-          size: settings.megaPuzzleSize,
+          size: size,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_small'),
@@ -783,7 +790,7 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
       medium: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.medium,
-          size: settings.megaPuzzleSize,
+          size: size,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_medium'),
@@ -794,7 +801,7 @@ class SimplePuzzleMiniBoard extends StatelessWidget {
       large: (_, __) => SizedBox.square(
         dimension: _miniBoardSize(
           boardSize: _BoardSize.large,
-          size: settings.megaPuzzleSize,
+          size: size,
         ),
         child: SimplePuzzleBoard(
           key: const Key('simple_puzzle_mini_board_large'),
@@ -937,8 +944,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
               ),
             ),
           ),
-        if (!settings.isSuperPuzzle ||
-            (settings.isSuperPuzzle && tile.isCompleted))
+        if (!settings.isSuperPuzzle || (settings.isSuperPuzzle && tile.isCompleted))
           Stack(
             children: [
               Padding(
@@ -948,7 +954,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
                   child: SizedBox.expand(
                     child: FittedBox(
                       fit: BoxFit.fill,
-                      child: tile.displayImage,
+                      child: displayImage(tile.image),
                     ),
                   ),
                 ),
@@ -965,12 +971,14 @@ class SimplePuzzleMegaTile extends StatelessWidget {
         if (state.activeTile != tile)
           Positioned.fill(
             child: GestureDetector(
-              onTap: state.puzzleStatus == PuzzleStatus.incomplete &&
-                      allTilesDeactivated
-                  ? () => context.read<PuzzleBloc>().add(TileTapped(tile))
+              onTap: state.puzzleStatus == PuzzleStatus.incomplete && allTilesDeactivated
+                  ? () => context.read<PuzzleBloc>().add(
+                        TileTapped(tile),
+                      )
                   : null,
-              onDoubleTap: () =>
-                  context.read<PuzzleBloc>().add(TileDoubleTapped(tile)),
+              onDoubleTap: () => context.read<PuzzleBloc>().add(
+                    TileDoubleTapped(tile),
+                  ),
               child: Container(
                 color: Colors.transparent,
               ),
@@ -1020,7 +1028,7 @@ class SimplePuzzleMiniTile extends StatelessWidget {
               child: SizedBox.expand(
                 child: FittedBox(
                   fit: BoxFit.fill,
-                  child: tile.displayImage,
+                  child: displayImage(tile.image),
                 ),
               ),
             ),
@@ -1115,10 +1123,8 @@ class SettingsSectionState extends State<SettingsSection> {
 
   @override
   Widget build(BuildContext context) {
-    final superSizeLabel =
-        '${context.l10n.puzzleSuperBeLike}${_settingsState.megaPuzzleSize}';
-    final minisSizeLabel =
-        '${context.l10n.puzzleMiniBeLike}${_settingsState.miniPuzzleSize}';
+    final superSizeLabel = '${context.l10n.puzzleSuperBeLike}${_settingsState.megaPuzzleSize}';
+    final minisSizeLabel = '${context.l10n.puzzleMiniBeLike}${_settingsState.miniPuzzleSize}';
 
     return Center(
       child: Padding(
@@ -1161,8 +1167,9 @@ class SettingsSectionState extends State<SettingsSection> {
                       value: _settingsState.isSuperPuzzle,
                       onChanged: (value) {
                         setState(() {
-                          _settingsState =
-                              _settingsState.copyWith(isSuperPuzzle: value);
+                          _settingsState = _settingsState.copyWith(
+                            isSuperPuzzle: value,
+                          );
                         });
                       },
                     ),
@@ -1180,8 +1187,9 @@ class SettingsSectionState extends State<SettingsSection> {
                       value: _settingsState.showNumbers,
                       onChanged: (value) {
                         setState(() {
-                          _settingsState =
-                              _settingsState.copyWith(showNumbers: value);
+                          _settingsState = _settingsState.copyWith(
+                            showNumbers: value,
+                          );
                         });
                       },
                     ),
@@ -1269,9 +1277,11 @@ class SettingsSectionState extends State<SettingsSection> {
                     // Tests if an update was made by user,
                     // or if it should just reshuffle
                     if (isUpdate) {
-                      context
-                          .read<SettingsBloc>()
-                          .add(SettingsUpdated(settingsState: currentSettings));
+                      context.read<SettingsBloc>().add(
+                            SettingsUpdated(
+                              settingsState: currentSettings,
+                            ),
+                          );
                     } else {
                       context.read<PuzzleBloc>().add(const PuzzleReset());
                     }
@@ -1293,6 +1303,213 @@ class SettingsSectionState extends State<SettingsSection> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// {@template sharing_section}
+/// Displays the sharing features for the Puzzle.
+/// {@endtemplate}
+@visibleForTesting
+class SharingSection extends StatefulWidget {
+  /// {@macro sharing_section}
+  const SharingSection({
+    Key? key,
+    required this.width,
+  }) : super(key: key);
+
+  /// Width for the sharing pane
+  final double width;
+
+  @override
+  SharingSectionState createState() => SharingSectionState();
+}
+
+/// {@template sharing_section_state}
+/// State for the sharing section.
+/// {@endtemplate}
+class SharingSectionState extends State<SharingSection> {
+  final _textFieldController = TextEditingController();
+
+  @override
+  void initState() {
+    _textFieldController.text = 'Temp';
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _textFieldController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO(JR): fix and finish this section
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Container(
+          width: widget.width,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            border: Border.all(
+              color: Colors.black12.withOpacity(0.1),
+              width: 6,
+            ),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(16),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Text(
+                  'Sharing & Caring',
+                  style: PuzzleTextStyle.headline4.copyWith(
+                    color: PuzzleColors.grey1,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(
+                  height: 24,
+                ),
+                const SimplePuzzleImportButton(),
+                TextField(
+                  controller: _textFieldController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    hintText: context.l10n.puzzleFeedImage,
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => _textFieldController.text = '',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                const SimplePuzzleExportButton(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// {@template puzzle_import_button}
+/// Displays the button to import the puzzle.
+/// {@endtemplate}
+@visibleForTesting
+class SimplePuzzleImportButton extends StatelessWidget {
+  // TODO(JR): refactor
+  /// {@macro puzzle_import_button}
+  const SimplePuzzleImportButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PuzzleButton(
+      textColor: PuzzleColors.primary0,
+      backgroundColor: PuzzleColors.primary6,
+      onPressed: () {
+        final bloc = BlocProvider.of<PuzzleBloc>(context);
+        final controller = TextEditingController();
+        final _formKey = GlobalKey<FormState>();
+
+        showDialog<Object>(
+          context: context,
+          builder: (context) {
+            return Form(
+              key: _formKey,
+              child: AlertDialog(
+                title: const Center(
+                  child: Text('Enter Code'),
+                ),
+                content: TextFormField(
+                  maxLength: codeLength,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp('[a-zA-Z0-9]'),
+                    ),
+                  ],
+                  controller: controller,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please insert a code';
+                    }
+                  },
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        bloc.add(PuzzleImport(controller.text));
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: const Text('Find Puzzle'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Close'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/shuffle_icon.png',
+            width: 17,
+            height: 17,
+          ),
+          const Gap(10),
+          const Text('Import'),
+        ],
+      ),
+    );
+  }
+}
+
+/// {@template puzzle_export_button}
+/// Displays the button to export the puzzle.
+/// {@endtemplate}
+@visibleForTesting
+class SimplePuzzleExportButton extends StatelessWidget {
+  // TODO(JR): refactor
+  /// {@macro puzzle_export_button}
+  const SimplePuzzleExportButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PuzzleButton(
+      textColor: PuzzleColors.primary0,
+      backgroundColor: PuzzleColors.primary6,
+      onPressed: BlocProvider.of<PuzzleBloc>(context).state.multiplayerStatus == MultiplayerStatus.loading
+          ? () {}
+          : () => BlocProvider.of<PuzzleBloc>(context).add(
+                const PuzzleExport(),
+              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (BlocProvider.of<PuzzleBloc>(context).state.multiplayerStatus == MultiplayerStatus.loading)
+            const CircularProgressIndicator()
+          else
+            Image.asset(
+              'assets/images/shuffle_icon.png',
+              width: 17,
+              height: 17,
+            ),
+          const Gap(10),
+          const Text('Export'),
+        ],
       ),
     );
   }

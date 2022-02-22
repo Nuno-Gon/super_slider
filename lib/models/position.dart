@@ -9,11 +9,23 @@ class Position extends Equatable implements Comparable<Position> {
   /// {@macro position}
   const Position({required this.x, required this.y});
 
+  /// Convert Json into Position
+  factory Position.fromJson(Map<String, dynamic> json) => Position(
+        x: json['x'] as int,
+        y: json['y'] as int,
+      );
+
   /// The x position.
   final int x;
 
   /// The y position.
   final int y;
+
+  /// Convert Position into Json
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'x': x,
+        'y': y,
+      };
 
   @override
   List<Object> get props => [x, y];

@@ -1,12 +1,10 @@
 // ignore_for_file: public_member_api_docs
 
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
-import 'package:image/image.dart' as imglib;
+import 'package:image/image.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
@@ -15,8 +13,7 @@ part 'mini_puzzle_event.dart';
 part 'mini_puzzle_state.dart';
 
 class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
-  MiniPuzzleBloc(this._size, {this.megaTile, this.image, this.random})
-      : super(const MiniPuzzleState()) {
+  MiniPuzzleBloc(this._size, {this.megaTile, this.image, this.random}) : super(const MiniPuzzleState()) {
     on<MiniPuzzleInitialized>(_onPuzzleInitialized);
     on<MiniTileTapped>(_onTileTapped);
   }
@@ -24,7 +21,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
   final int _size;
 
   final MegaTile? megaTile;
-  final imglib.Image? image;
+  final Image? image;
   final Random? random;
 
   void _onPuzzleInitialized(
@@ -34,7 +31,10 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     final hasPuzzleGenerated = megaTile!.puzzle.tiles.isNotEmpty;
     final puzzle = hasPuzzleGenerated
         ? megaTile!.puzzle
-        : _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+        : _generatePuzzle(
+            _size,
+            shuffle: event.shufflePuzzle,
+          );
 
     if (!hasPuzzleGenerated) {
       megaTile!.puzzle = puzzle;
@@ -105,12 +105,6 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
       verticalPieceCount: size,
     );
 
-    // Create List with converted images ready to display
-    final displayReadyImages = <Image>[];
-    for (final img in dividedImage) {
-      displayReadyImages.add(convertImage(img));
-    }
-
     // Create all possible board positions.
     for (var y = 1; y <= size; y++) {
       for (var x = 1; x <= size; x++) {
@@ -135,7 +129,6 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
       correctPositions,
       currentPositions,
       dividedImage,
-      displayReadyImages,
     );
 
     var puzzle = Puzzle(tiles: tiles);
@@ -150,7 +143,6 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
           correctPositions,
           currentPositions,
           dividedImage,
-          displayReadyImages,
         );
         puzzle = Puzzle(tiles: tiles);
       }
@@ -165,8 +157,7 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     int size,
     List<Position> correctPositions,
     List<Position> currentPositions,
-    List<imglib.Image> dividedImage,
-    List<Image> displayReadyImages,
+    List<Image> dividedImage,
   ) {
     final whitespacePosition = Position(x: size, y: size);
     return [
@@ -175,7 +166,6 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
           Tile(
             value: i,
             image: dividedImage[i - 1],
-            displayImage: displayReadyImages[i - 1],
             correctPosition: whitespacePosition,
             currentPosition: currentPositions[i - 1],
             isWhitespace: true,
@@ -184,15 +174,14 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
           Tile(
             value: i,
             image: dividedImage[i - 1],
-            displayImage: displayReadyImages[i - 1],
             correctPosition: correctPositions[i - 1],
             currentPosition: currentPositions[i - 1],
           )
     ];
   }
 
-  List<imglib.Image> splitImage({
-    required imglib.Image? image,
+  List<Image> splitImage({
+    required Image? image,
     required int horizontalPieceCount,
     required int verticalPieceCount,
   }) {
@@ -200,21 +189,16 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
 
     final xLength = (image.width / horizontalPieceCount).round();
     final yLength = (image.height / verticalPieceCount).round();
-    final pieceList = <imglib.Image>[];
+    final pieceList = <Image>[];
 
     for (var y = 0; y < verticalPieceCount; y++) {
       for (var x = 0; x < horizontalPieceCount; x++) {
         pieceList.add(
-          imglib.copyCrop(image, x * xLength, y * yLength, xLength, yLength),
+          copyCrop(image, x * xLength, y * yLength, xLength, yLength),
         );
       }
     }
 
     return pieceList;
-  }
-
-  Image convertImage(imglib.Image image) {
-    final convertedPiece = Uint8List.fromList(imglib.encodeJpg(image));
-    return Image.memory(convertedPiece);
   }
 }
