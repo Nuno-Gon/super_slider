@@ -337,7 +337,7 @@ class PuzzleBoard extends StatelessWidget {
       builder: (context, state) {
         return theme.layoutDelegate.boardBuilder(
           size,
-          puzzle.tiles
+          puzzle.sort().tiles
               .map(
                 (tile) => _PuzzleTile(
                   key: Key('puzzle_tile_${tile.value.toString()}'),

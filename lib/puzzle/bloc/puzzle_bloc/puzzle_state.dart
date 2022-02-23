@@ -102,7 +102,7 @@ class PuzzleState extends Equatable {
     Object? data,
   }) {
     return PuzzleState(
-      puzzle: puzzle ?? this.puzzle,
+      puzzle: puzzle ?? this.puzzle.sort(),
       puzzleStatus: puzzleStatus ?? this.puzzleStatus,
       tileMovementStatus: tileMovementStatus ?? this.tileMovementStatus,
       numberOfCorrectTiles: numberOfCorrectTiles ?? this.numberOfCorrectTiles,
@@ -125,7 +125,7 @@ class PuzzleState extends Equatable {
     bool? isSharingSuper,
   }) {
     return PuzzleState(
-      puzzle: puzzle ?? this.puzzle,
+      puzzle: puzzle ?? this.puzzle.sort(),
       puzzleStatus: puzzleStatus ?? this.puzzleStatus,
       tileMovementStatus: tileMovementStatus ?? this.tileMovementStatus,
       numberOfCorrectTiles: numberOfCorrectTiles ?? this.numberOfCorrectTiles,
