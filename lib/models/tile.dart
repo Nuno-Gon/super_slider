@@ -57,9 +57,6 @@ class Tile extends Equatable {
   /// The image data used to create the Image widget for the [Tile].
   final Image? image;
 
-  // / The [Image] displayed in the [Tile].
-  // final Image? displayImage;
-
   /// Denotes if the [Tile] is the whitespace tile or not.
   final bool isWhitespace;
 
@@ -81,7 +78,6 @@ class Tile extends Equatable {
       correctPosition: correctPosition,
       currentPosition: currentPosition,
       image: image,
-      // displayImage: displayImage,
     );
   }
 
