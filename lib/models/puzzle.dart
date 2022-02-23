@@ -36,25 +36,25 @@ class Puzzle extends Equatable {
   const Puzzle({required this.tiles});
 
   /// Convert Json into Puzzle
-  /// TODO(Warrior): Check Dynamic Missing paramenter
   factory Puzzle.fromJson(
     Map<String, dynamic> json, {
     bool isMega = false,
   }) =>
       Puzzle(
-        tiles: (json['tiles'] as List<dynamic>?)?.map<Tile>(
-              (e) {
-                if (isMega) {
-                  return MegaTile.fromJson(
-                    e as Map<String, dynamic>,
-                  );
-                }
-                return Tile.fromJson(
-                  e as Map<String, dynamic>,
-                );
-              },
-            ).toList() ??
-            const [],
+        tiles: List<Map<String, dynamic>>.from(
+          json['tiles'] as List,
+        ).map(
+          (e) {
+            if (isMega) {
+              return MegaTile.fromJson(
+                e,
+              );
+            }
+            return Tile.fromJson(
+              e,
+            );
+          },
+        ).toList(),
       );
 
   /// Convert Puzzle into Json

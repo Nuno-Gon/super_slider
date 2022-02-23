@@ -131,7 +131,6 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       state.copyWith(multiplayerStatus: MultiplayerStatus.loading),
     );
 
-    ///TODO(WARRIOR): CHECK WHY IMPORT NOT WORKING.
     await FirebaseService.instance.getPuzzle(
       id: event.puzzleCode,
       onSuccess: (puzzle) {
