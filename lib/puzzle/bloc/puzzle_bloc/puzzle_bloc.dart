@@ -131,10 +131,14 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     await FirebaseService.instance.getPuzzle(
       id: event.puzzleCode,
       onSuccess: (puzzle) {
+        var isSuperPuzzle = true;
+
         // Recreate display images
         for (final megaTile in puzzle.tiles) {
           megaTile.displayImage = convertImage(megaTile.image!);
-          for (final miniTile in (megaTile as MegaTile).puzzle.tiles) {
+          final miniTiles = (megaTile as MegaTile).puzzle.tiles;
+          isSuperPuzzle = miniTiles.isNotEmpty;
+          for (final miniTile in miniTiles) {
             miniTile.displayImage = convertImage(miniTile.image!);
           }
         }
@@ -143,6 +147,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
           PuzzleState(
             puzzle: puzzle,
             sharingStatus: SharingStatus.successImport,
+            isSharingSuper: isSuperPuzzle,
           ),
         );
       },

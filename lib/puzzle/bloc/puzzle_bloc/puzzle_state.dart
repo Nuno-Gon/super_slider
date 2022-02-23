@@ -34,6 +34,7 @@ class PuzzleState extends Equatable {
     this.lastTappedTile,
     this.activeTile,
     this.sharingStatus,
+    this.isSharingSuper,
     this.data,
   });
 
@@ -79,7 +80,11 @@ class PuzzleState extends Equatable {
   /// added.
   final int numberOfMoves;
 
+  /// Status of the sharing operation
   final SharingStatus? sharingStatus;
+
+  /// Shows if the imported puzzle was Super type
+  final bool? isSharingSuper;
 
   /// Used to pass any data that is needed
   final Object? data;
@@ -93,6 +98,7 @@ class PuzzleState extends Equatable {
     Tile? lastTappedTile,
     Tile? activeTile,
     SharingStatus? sharingStatus,
+    bool? isSharingSuper,
     Object? data,
   }) {
     return PuzzleState(
@@ -104,6 +110,7 @@ class PuzzleState extends Equatable {
       lastTappedTile: lastTappedTile ?? this.lastTappedTile,
       activeTile: activeTile ?? this.activeTile,
       sharingStatus: sharingStatus,
+      isSharingSuper: isSharingSuper ?? this.isSharingSuper,
       data: data,
     );
   }
@@ -115,6 +122,7 @@ class PuzzleState extends Equatable {
     int? numberOfCorrectTiles,
     int? numberOfMoves,
     Tile? lastTappedTile,
+    bool? isSharingSuper,
   }) {
     return PuzzleState(
       puzzle: puzzle ?? this.puzzle,
@@ -123,6 +131,7 @@ class PuzzleState extends Equatable {
       numberOfCorrectTiles: numberOfCorrectTiles ?? this.numberOfCorrectTiles,
       numberOfMoves: numberOfMoves ?? this.numberOfMoves,
       lastTappedTile: lastTappedTile ?? this.lastTappedTile,
+      isSharingSuper: isSharingSuper ?? this.isSharingSuper,
     );
   }
 
@@ -136,5 +145,6 @@ class PuzzleState extends Equatable {
         lastTappedTile,
         activeTile,
         sharingStatus,
+        isSharingSuper,
       ];
 }
