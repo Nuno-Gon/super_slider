@@ -1489,7 +1489,7 @@ void _showDismissibleDialog({
     context: context,
     barrierColor: Colors.black12.withOpacity(0.6),
     transitionDuration: const Duration(milliseconds: 400),
-    pageBuilder: (_, __, ___) {
+    pageBuilder: (builderContext, _, __) {
       return Stack(
         children: [
           Center(
@@ -1514,7 +1514,7 @@ void _showDismissibleDialog({
           ),
           Positioned.fill(
             child: GestureDetector(
-              onTap: () => Navigator.pop(context),
+              onTap: () => Navigator.pop(builderContext),
             ),
           ),
         ],
