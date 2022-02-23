@@ -362,8 +362,12 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       }
     } else {
       final curatedImages = [
-        'assets/images/square_life.jpg',
-        'assets/images/square_flyer.jpeg',
+        'assets/images/square_bmw.jpg',
+        'assets/images/square_burger.jpeg',
+        'assets/images/square_dash.jpeg',
+        'assets/images/square_ducks.jpeg',
+        'assets/images/square_mosaic.jpg',
+        'assets/images/square_pizza.jpeg',
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);

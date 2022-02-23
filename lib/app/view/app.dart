@@ -58,11 +58,27 @@ class _AppState extends State<App> {
         context,
       );
       precacheImage(
-        Image.asset('assets/images/square_flyer.jpeg').image,
+        Image.asset('assets/images/square_bmw.jpg').image,
         context,
       );
       precacheImage(
-        Image.asset('assets/images/square_life.jpg').image,
+        Image.asset('assets/images/square_burger.jpeg').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/square_dash.jpeg').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/square_ducks.jpeg').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/square_mosaic.jpg').image,
+        context,
+      );
+      precacheImage(
+        Image.asset('assets/images/square_pizza.jpeg').image,
         context,
       );
       precacheImage(
