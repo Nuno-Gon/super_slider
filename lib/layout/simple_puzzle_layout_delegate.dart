@@ -420,7 +420,10 @@ class SimpleStartSectionBottom extends StatelessWidget {
                                         settings.isSuperPuzzle)
                                 ? 1
                                 : 0.7,
-                            child: e.displayImage,
+                            child: FittedBox(
+                              fit: BoxFit.fill,
+                              child: e.displayImage,
+                            ),
                           ),
                         )
                         .toList(),
@@ -1420,11 +1423,14 @@ class SharingSectionState extends State<SharingSection> {
                       textColor: PuzzleColors.primary0,
                       backgroundColor: PuzzleColors.primary6,
                       onPressed: () {
-                        context.read<PuzzleBloc>().add(
-                              PuzzleImport(
-                                'QUACK-${_codeController.text.toUpperCase()}',
-                              ),
-                            );
+                        final code = _codeController.text;
+                        if (code.isNotEmpty) {
+                          context.read<PuzzleBloc>().add(
+                                PuzzleImport(
+                                  'QUACK-${code.toUpperCase()}',
+                                ),
+                              );
+                        }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
