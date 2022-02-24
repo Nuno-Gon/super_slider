@@ -165,11 +165,26 @@ class _PuzzleHeader extends StatelessWidget {
           children: [
             SizedBox(
               height: 80,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50,
+              child: ResponsiveLayoutBuilder(
+                small: (_, child) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                  ),
+                  child: child,
                 ),
-                child: Row(
+                medium: (_, child) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                  ),
+                  child: child,
+                ),
+                large: (_, child) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                  ),
+                  child: child,
+                ),
+                child: (_) => Row(
                   children: [
                     Image.asset(
                       'assets/images/our_logo.png',
@@ -207,19 +222,20 @@ class _PuzzleLogo extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset('assets/images/ctw_logo.png', height: 40),
-          const SizedBox(height: 3),
           Row(
             children: [
-              Image.asset('assets/images/heart_image.png', height: 15),
+              Image.asset('assets/images/heart_image.png', height: 20),
+              const SizedBox(width: 4),
               const SizedBox(
                 height: 20,
                 child: FlutterLogo(
                   style: FlutterLogoStyle.horizontal,
-                  size: 86,
+                  size: 74,
                 ),
               ),
             ],
           ),
+          const SizedBox(height: 8),
         ],
       ),
       medium: (_, child) => child!,
@@ -337,7 +353,9 @@ class PuzzleBoard extends StatelessWidget {
       builder: (context, state) {
         return theme.layoutDelegate.boardBuilder(
           size,
-          puzzle.sort().tiles
+          puzzle
+              .sort()
+              .tiles
               .map(
                 (tile) => _PuzzleTile(
                   key: Key('puzzle_tile_${tile.value.toString()}'),
