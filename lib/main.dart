@@ -5,25 +5,37 @@
 // license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-// ignore_for_file: avoid_void_async
-
+import 'dart:async';
+import 'dart:developer';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:very_good_slide_puzzle/app/app.dart';
 import 'package:very_good_slide_puzzle/bootstrap.dart';
 
-void main() async {
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: 'AIzaSyBfhPN7_Twt2ZQid0rMzzQmjoHJy3_WHb0',
-      appId: '1029485859684',
-      messagingSenderId:
-          'AAAA77Ijk2Q:APA91bGSy_lFFyy28wGEmUzL9eiZKhwqYi1f3wf8kUXvg65V'
-          'ctA8eSFJ1cKYfiM7JGpKi-NedeJfSxvZsGMhC1MmwsG39gKbQACgCmrBoWBH2'
-          'dR0l7afAWmjr0oI1cl6o4hvs0YOcXmn',
-      projectId: 'super-slider-quack-edition',
-    ),
-  );
-  await bootstrap(
-    () => const App(),
+void main() {
+  // ensure that the Flutter SkyEngine has fully initialized before the
+  // runZoneGuarded declaration
+  WidgetsFlutterBinding.ensureInitialized();
+
+  runZonedGuarded(
+    () async {
+      await Firebase.initializeApp(
+        options: const FirebaseOptions(
+          apiKey: 'AIzaSyBfhPN7_Twt2ZQid0rMzzQmjoHJy3_WHb0',
+          appId: '1029485859684',
+          messagingSenderId: 'AAAA77Ijk2Q:APA91bGSy_lFFyy28wGE'
+              'mUzL9eiZKhwqYi1f3wf8kUXvg65V'
+              'ctA8eSFJ1cKYfiM7JGpKi-NedeJfSxvZsGMhC1MmwsG39gKbQACgCmrBoWBH2'
+              'dR0l7afAWmjr0oI1cl6o4hvs0YOcXmn',
+          projectId: 'super-slider-quack-edition',
+        ),
+      );
+      await bootstrap(
+        () => const App(),
+      );
+    },
+    (e, s) {
+      log('Could not load app: Error: $e , StackTrace: $s');
+    },
   );
 }
