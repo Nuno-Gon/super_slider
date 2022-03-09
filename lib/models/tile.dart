@@ -90,12 +90,10 @@ class Tile extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
+  List<Object> get props => [
         value,
         correctPosition,
         currentPosition,
         isWhitespace,
-        image,
-        displayImage,
       ];
 }

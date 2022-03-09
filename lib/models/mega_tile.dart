@@ -1,6 +1,5 @@
 // ignore_for_file: must_be_immutable
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:very_good_slide_puzzle/models/json_converter/image_converter.dart';
@@ -10,7 +9,7 @@ import 'package:very_good_slide_puzzle/models/models.dart';
 /// {@template mega_tile}
 /// Model for a puzzle mega tile.
 /// {@endtemplate}
-class MegaTile extends Tile implements Equatable {
+class MegaTile extends Tile {
   /// {@macro mega_tile}
   MegaTile({
     this.puzzle = const Puzzle(tiles: []),
@@ -101,11 +100,9 @@ class MegaTile extends Tile implements Equatable {
   }
 
   @override
-  List<Object?> get props => [
+  List<Object> get props => [
         puzzle,
         value,
-        image,
-        displayImage,
         correctPosition,
         currentPosition,
         isWhitespace,
