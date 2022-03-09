@@ -291,7 +291,9 @@ class SimpleStartSectionBottom extends StatelessWidget {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
 
     final puzzleSize = state.puzzle.getDimension();
-    final total = settings.isSuperPuzzle ? puzzleSize * puzzleSize : 1;
+    final total = (state.isSharingSuper ?? settings.isSuperPuzzle)
+        ? puzzleSize * puzzleSize
+        : 1;
     final completed = state.completedPuzzles;
     final progress = total > 0 ? completed / total : 0.0;
 
@@ -414,10 +416,14 @@ class SimpleStartSectionBottom extends StatelessWidget {
                         .map(
                           (e) => Opacity(
                             opacity: (e as MegaTile).isCompleted ||
-                                    !settings.isSuperPuzzle
+                                    !(state.isSharingSuper ??
+                                        settings.isSuperPuzzle)
                                 ? 1
                                 : 0.7,
-                            child: e.displayImage,
+                            child: FittedBox(
+                              fit: BoxFit.fill,
+                              child: e.displayImage,
+                            ),
                           ),
                         )
                         .toList(),
@@ -935,7 +941,8 @@ class SimplePuzzleMegaTile extends StatelessWidget {
             ),
           ),
         ),
-        if (settings.isSuperPuzzle && !tile.isCompleted)
+        if ((state.isSharingSuper ?? settings.isSuperPuzzle) &&
+            !tile.isCompleted)
           Padding(
             padding: const EdgeInsets.fromLTRB(2.5, 2.5, 1, 1),
             child: BlocProvider(
@@ -954,8 +961,9 @@ class SimplePuzzleMegaTile extends StatelessWidget {
               ),
             ),
           ),
-        if (!settings.isSuperPuzzle ||
-            (settings.isSuperPuzzle && tile.isCompleted))
+        if (!(state.isSharingSuper ?? settings.isSuperPuzzle) ||
+            ((state.isSharingSuper ?? settings.isSuperPuzzle) &&
+                tile.isCompleted))
           Stack(
             children: [
               Padding(
@@ -1415,11 +1423,14 @@ class SharingSectionState extends State<SharingSection> {
                       textColor: PuzzleColors.primary0,
                       backgroundColor: PuzzleColors.primary6,
                       onPressed: () {
-                        context.read<PuzzleBloc>().add(
-                              PuzzleImport(
-                                'QUACK-${_codeController.text.toUpperCase()}',
-                              ),
-                            );
+                        final code = _codeController.text;
+                        if (code.isNotEmpty) {
+                          context.read<PuzzleBloc>().add(
+                                PuzzleImport(
+                                  'QUACK-${code.toUpperCase()}',
+                                ),
+                              );
+                        }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1478,7 +1489,7 @@ void _showDismissibleDialog({
     context: context,
     barrierColor: Colors.black12.withOpacity(0.6),
     transitionDuration: const Duration(milliseconds: 400),
-    pageBuilder: (_, __, ___) {
+    pageBuilder: (builderContext, _, __) {
       return Stack(
         children: [
           Center(
@@ -1503,7 +1514,7 @@ void _showDismissibleDialog({
           ),
           Positioned.fill(
             child: GestureDetector(
-              onTap: () => Navigator.pop(context),
+              onTap: () => Navigator.pop(builderContext),
             ),
           ),
         ],

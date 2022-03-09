@@ -131,18 +131,23 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     await FirebaseService.instance.getPuzzle(
       id: event.puzzleCode,
       onSuccess: (puzzle) {
+        var isSuperPuzzle = true;
+
         // Recreate display images
         for (final megaTile in puzzle.tiles) {
           megaTile.displayImage = convertImage(megaTile.image!);
-          for (final miniTile in (megaTile as MegaTile).puzzle.tiles) {
+          final miniTiles = (megaTile as MegaTile).puzzle.tiles;
+          isSuperPuzzle = miniTiles.isNotEmpty;
+          for (final miniTile in miniTiles) {
             miniTile.displayImage = convertImage(miniTile.image!);
           }
         }
 
         emit(
           PuzzleState(
-            puzzle: puzzle,
+            puzzle: puzzle.sort(),
             sharingStatus: SharingStatus.successImport,
+            isSharingSuper: isSuperPuzzle,
           ),
         );
       },
@@ -362,8 +367,12 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       }
     } else {
       final curatedImages = [
-        'assets/images/square_life.jpg',
-        'assets/images/square_flyer.jpeg',
+        'assets/images/square_bmw.jpg',
+        'assets/images/square_burger.jpeg',
+        'assets/images/square_dash.jpeg',
+        'assets/images/square_ducks.jpeg',
+        'assets/images/square_mosaic.jpg',
+        'assets/images/square_pizza.jpeg',
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);
