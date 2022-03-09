@@ -146,9 +146,9 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         }
         emit(
           PuzzleState(
-            puzzle: puzzle,
+            puzzle: puzzle.sort(),
             sharingStatus: SharingStatus.successImport,
-            // isSharingSuper: isSuperPuzzle,
+            isSharingSuper: isSuperPuzzle,
           ),
         );
       },

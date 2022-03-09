@@ -964,7 +964,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
                   child: SizedBox.expand(
                     child: FittedBox(
                       fit: BoxFit.fill,
-                      child: displayImage(tile.image),
+                      child: tile.displayImage,
                     ),
                   ),
                 ),
@@ -1410,7 +1410,7 @@ class SharingSectionState extends State<SharingSection> {
                         if (code.isNotEmpty) {
                           context.read<PuzzleBloc>().add(
                                 PuzzleImport(
-                                  code,
+                                  code.toUpperCase(),
                                 ),
                               );
                         }
