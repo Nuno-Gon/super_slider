@@ -1,10 +1,7 @@
 import 'dart:math';
 
 import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
-
-part 'puzzle.g.dart';
 
 // A 3x3 puzzle board visualization:
 //
@@ -34,27 +31,46 @@ part 'puzzle.g.dart';
 /// {@template puzzle}
 /// Model for a puzzle.
 /// {@endtemplate}
-
-@JsonSerializable()
 class Puzzle extends Equatable {
   /// {@macro puzzle}
-  const Puzzle({
-    this.id,
-    required this.tiles,
-  });
+  const Puzzle({required this.tiles});
 
   /// Convert Json into Puzzle
-  factory Puzzle.fromJson(Map<String, dynamic> json, {bool isMega = false}) =>
-      _$PuzzleFromJson(json, isMega: isMega);
+  factory Puzzle.fromJson(
+    Map<String, dynamic> json, {
+    bool isMega = false,
+  }) =>
+      Puzzle(
+        tiles: List<Map<String, dynamic>>.from(
+          json['tiles'] as List,
+        ).map(
+          (e) {
+            if (isMega) {
+              return MegaTile.fromJson(
+                e,
+              );
+            }
+            return Tile.fromJson(
+              e,
+            );
+          },
+        ).toList(),
+      );
 
   /// Convert Puzzle into Json
-  Map<String, dynamic> toJson() => _$PuzzleToJson(this);
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'tiles': tiles.map<Map<String, dynamic>>(
+          (e) {
+            if (e is MegaTile) {
+              return e.toJson();
+            }
+            return e.toJson();
+          },
+        ).toList(),
+      };
 
   /// List of [Tile]s representing the puzzle's current arrangement.
   final List<Tile> tiles;
-
-  /// Puzzle Identifier
-  final String? id;
 
   /// Get the dimension of a puzzle given its tile arrangement.
   ///
@@ -174,9 +190,7 @@ class Puzzle extends Equatable {
       final shiftPointX = tile.currentPosition.x + deltaX.sign;
       final shiftPointY = tile.currentPosition.y + deltaY.sign;
       final tileToSwapWith = tiles.singleWhere(
-        (tile) =>
-            tile.currentPosition.x == shiftPointX &&
-            tile.currentPosition.y == shiftPointY,
+        (tile) => tile.currentPosition.x == shiftPointX && tile.currentPosition.y == shiftPointY,
       );
       tilesToSwap.add(tile);
       return moveTiles(tileToSwapWith, tilesToSwap);

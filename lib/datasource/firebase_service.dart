@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 
@@ -10,13 +12,28 @@ class FirebaseService {
   FirebaseService._privateConstructor();
 
   ///Instance of Firebase Service
-  static final FirebaseService _instance =
-      FirebaseService._privateConstructor();
+  static final _instance = FirebaseService._privateConstructor();
 
   ///Getter for instance
   static FirebaseService get instance => _instance;
 
   final FirebaseFirestore _fireStore = FirebaseFirestore.instance;
+  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
+
+  ///Upload to Firebase Storage
+  Future<String?> uploadToStorage({
+    required String puzzleCode,
+    required Uint8List data,
+  }) async =>
+      _firebaseStorage.ref().child(puzzleCode).putData(data).then((p0) async {
+        final url = await _firebaseStorage
+            .ref(
+              p0.ref.fullPath,
+            )
+            .getDownloadURL();
+
+        return url;
+      });
 
   /// Add to firebase collection
   Future<void> addToCollection({
@@ -47,21 +64,32 @@ class FirebaseService {
     required Function(Puzzle) onSuccess,
     required VoidCallback onError,
   }) async =>
-      _fireStore.collection('puzzle').doc(id).get().then(
-        (value) {
+      _fireStore.collection('puzzle').doc('QUACK-$id').get().then(
+        (value) async {
           final data = value.data();
-          final content = utf8.decode(
-            base64Decode(data!['content'] as String),
-          );
+
+          final content = data!['content'] as String;
+
+          final dataBytes = await _firebaseStorage
+              .refFromURL(
+                content,
+              )
+              .getData();
+
+          if (dataBytes == null) throw Error();
+
+          final decoded = utf8.decode(dataBytes);
 
           onSuccess(
             Puzzle.fromJson(
-              jsonDecode(content) as Map<String, dynamic>,
+              jsonDecode(decoded) as Map<String, dynamic>,
               isMega: true,
             ),
           );
         },
-      ).catchError((Object error) {
-        onError();
-      });
+      ).catchError(
+        (Object error) {
+          onError();
+        },
+      );
 }

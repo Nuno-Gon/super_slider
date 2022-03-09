@@ -31,6 +31,7 @@ void main() {
                 'ctA8eSFJ1cKYfiM7JGpKi-NedeJfSxvZsGMhC1MmwsG39gKbQACgCmrBoWBH2'
                 'dR0l7afAWmjr0oI1cl6o4hvs0YOcXmn',
             projectId: 'super-slider-quack-edition',
+            storageBucket: 'gs://super-slider-quack-edition.appspot.com',
           ),
         );
       } catch (e) {
