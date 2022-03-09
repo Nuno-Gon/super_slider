@@ -7,6 +7,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as imglib;
+
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
@@ -16,7 +17,9 @@ part 'mini_puzzle_state.dart';
 
 class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
   MiniPuzzleBloc(this._size, {this.megaTile, this.image, this.random})
-      : super(const MiniPuzzleState()) {
+      : super(
+          const MiniPuzzleState(),
+        ) {
     on<MiniPuzzleInitialized>(_onPuzzleInitialized);
     on<MiniTileTapped>(_onTileTapped);
   }
@@ -34,7 +37,10 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
     final hasPuzzleGenerated = megaTile!.puzzle.tiles.isNotEmpty;
     final puzzle = hasPuzzleGenerated
         ? megaTile!.puzzle
-        : _generatePuzzle(_size, shuffle: event.shufflePuzzle);
+        : _generatePuzzle(
+            _size,
+            shuffle: event.shufflePuzzle,
+          );
 
     if (!hasPuzzleGenerated) {
       megaTile!.puzzle = puzzle;
@@ -55,13 +61,11 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
         final mutablePuzzle = Puzzle(tiles: [...state.puzzle.tiles]);
         final puzzle = mutablePuzzle.moveTiles(tappedTile, []);
         megaTile!.puzzle = puzzle;
-
         if (puzzle.isComplete()) {
           final whitespaceTile = puzzle.getWhitespaceTile();
           final index = puzzle.tiles.indexOf(whitespaceTile);
           puzzle.tiles[index] = whitespaceTile.removeWhitespace();
           megaTile!.isCompleted = true;
-
           emit(
             state.copyWith(
               puzzle: puzzle.sort(),
@@ -106,14 +110,13 @@ class MiniPuzzleBloc extends Bloc<MiniPuzzleEvent, MiniPuzzleState> {
       verticalPieceCount: size,
     );
 
-    // Create List with converted images ready to display
+// Create List with converted images ready to display
     final displayReadyImages = <Image>[];
     for (final img in dividedImage) {
       displayReadyImages.add(
         convertImage(img),
       );
     }
-
     // Create all possible board positions.
     for (var y = 1; y <= size; y++) {
       for (var x = 1; x <= size; x++) {

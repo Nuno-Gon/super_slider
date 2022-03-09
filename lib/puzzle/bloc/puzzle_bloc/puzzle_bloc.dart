@@ -21,7 +21,9 @@ part 'puzzle_state.dart';
 
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   PuzzleBloc(this._size, {this.imageUrl, this.random})
-      : super(const PuzzleState()) {
+      : super(
+          const PuzzleState(),
+        ) {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
     on<TileDoubleTapped>(_onTileDoubleTapped);
@@ -142,12 +144,11 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
             miniTile.displayImage = convertImage(miniTile.image!);
           }
         }
-
         emit(
           PuzzleState(
-            puzzle: puzzle.sort(),
+            puzzle: puzzle,
             sharingStatus: SharingStatus.successImport,
-            isSharingSuper: isSuperPuzzle,
+            // isSharingSuper: isSuperPuzzle,
           ),
         );
       },
@@ -166,16 +167,27 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     );
 
     final id = generateID();
+    final data = getJsonUint8List(
+      jsonEncode(state.puzzle),
+    );
+
+    final downloadUrl = await FirebaseService.instance.uploadToStorage(
+      puzzleCode: id,
+      data: data,
+    );
+
+    if (downloadUrl == null) {
+      emit(
+        state.copyWith(sharingStatus: SharingStatus.errorExport),
+      );
+      return;
+    }
 
     await FirebaseService.instance.addToCollection(
       collection: 'puzzle',
       data: <String, dynamic>{
         'id': 'QUACK-$id',
-        'content': base64Encode(
-          utf8.encode(
-            jsonEncode(state.puzzle),
-          ),
-        ),
+        'content': downloadUrl,
       },
       onSuccess: () => emit(
         state.copyWith(
@@ -228,14 +240,13 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       return const Puzzle(tiles: []);
     }
 
-    // Create List with converted images ready to display
+// Create List with converted images ready to display
     final displayReadyImages = <Image>[];
     for (final img in dividedImage) {
       displayReadyImages.add(
         convertImage(img),
       );
     }
-
     // Create all possible board positions.
     for (var y = 1; y <= size; y++) {
       for (var x = 1; x <= size; x++) {
@@ -376,7 +387,9 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);
-      byteData = (await rootBundle.load(curatedImages[randomPick]))
+      byteData = (await rootBundle.load(
+        curatedImages[randomPick],
+      ))
           .buffer
           .asUint8List();
     }

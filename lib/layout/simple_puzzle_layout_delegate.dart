@@ -291,9 +291,7 @@ class SimpleStartSectionBottom extends StatelessWidget {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
 
     final puzzleSize = state.puzzle.getDimension();
-    final total = (state.isSharingSuper ?? settings.isSuperPuzzle)
-        ? puzzleSize * puzzleSize
-        : 1;
+    final total = (state.isSharingSuper ?? settings.isSuperPuzzle) ? puzzleSize * puzzleSize : 1;
     final completed = state.completedPuzzles;
     final progress = total > 0 ? completed / total : 0.0;
 
@@ -415,9 +413,7 @@ class SimpleStartSectionBottom extends StatelessWidget {
                           ))
                         .map(
                           (e) => Opacity(
-                            opacity: (e as MegaTile).isCompleted ||
-                                    !(state.isSharingSuper ??
-                                        settings.isSuperPuzzle)
+                            opacity: (e as MegaTile).isCompleted || !(state.isSharingSuper ?? settings.isSuperPuzzle)
                                 ? 1
                                 : 0.7,
                             child: FittedBox(
@@ -488,9 +484,7 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     final transformationController = TransformationController();
 
     final state = context.select((PuzzleBloc bloc) => bloc.state);
-    final currentPosition = state.activeTile != null
-        ? state.activeTile!.currentPosition
-        : const Position(x: 0, y: 0);
+    final currentPosition = state.activeTile != null ? state.activeTile!.currentPosition : const Position(x: 0, y: 0);
 
     late double boardSize;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -512,8 +506,7 @@ class SimplePuzzleMegaBoard extends StatelessWidget {
     final marginAroundTile = viewport - megaTileSizeWithZoom;
 
     const paddingCompensation = outsidePadding * zoomLevel;
-    final boardCompensation =
-        (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
+    final boardCompensation = (_BoardSize.bgMarginSize * zoomLevel) - (marginAroundTile / 2);
     final compensation = boardCompensation + paddingCompensation;
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -941,8 +934,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
             ),
           ),
         ),
-        if ((state.isSharingSuper ?? settings.isSuperPuzzle) &&
-            !tile.isCompleted)
+        if ((state.isSharingSuper ?? settings.isSuperPuzzle) && !tile.isCompleted)
           Padding(
             padding: const EdgeInsets.fromLTRB(2.5, 2.5, 1, 1),
             child: BlocProvider(
@@ -962,8 +954,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
             ),
           ),
         if (!(state.isSharingSuper ?? settings.isSuperPuzzle) ||
-            ((state.isSharingSuper ?? settings.isSuperPuzzle) &&
-                tile.isCompleted))
+            ((state.isSharingSuper ?? settings.isSuperPuzzle) && tile.isCompleted))
           Stack(
             children: [
               Padding(
@@ -973,7 +964,7 @@ class SimplePuzzleMegaTile extends StatelessWidget {
                   child: SizedBox.expand(
                     child: FittedBox(
                       fit: BoxFit.fill,
-                      child: tile.displayImage,
+                      child: displayImage(tile.image),
                     ),
                   ),
                 ),
@@ -990,12 +981,10 @@ class SimplePuzzleMegaTile extends StatelessWidget {
         if (state.activeTile != tile)
           Positioned.fill(
             child: GestureDetector(
-              onTap: state.puzzleStatus == PuzzleStatus.incomplete &&
-                      allTilesDeactivated
+              onTap: state.puzzleStatus == PuzzleStatus.incomplete && allTilesDeactivated
                   ? () => context.read<PuzzleBloc>().add(TileTapped(tile))
                   : null,
-              onDoubleTap: () =>
-                  context.read<PuzzleBloc>().add(TileDoubleTapped(tile)),
+              onDoubleTap: () => context.read<PuzzleBloc>().add(TileDoubleTapped(tile)),
               child: Container(
                 color: Colors.transparent,
               ),
@@ -1140,10 +1129,8 @@ class SettingsSectionState extends State<SettingsSection> {
 
   @override
   Widget build(BuildContext context) {
-    final superSizeLabel =
-        '${context.l10n.puzzleSuperBeLike}${_settingsState.megaPuzzleSize}';
-    final minisSizeLabel =
-        '${context.l10n.puzzleMiniBeLike}${_settingsState.miniPuzzleSize}';
+    final superSizeLabel = '${context.l10n.puzzleSuperBeLike}${_settingsState.megaPuzzleSize}';
+    final minisSizeLabel = '${context.l10n.puzzleMiniBeLike}${_settingsState.miniPuzzleSize}';
 
     return Center(
       child: Padding(
@@ -1186,8 +1173,7 @@ class SettingsSectionState extends State<SettingsSection> {
                       value: _settingsState.isSuperPuzzle,
                       onChanged: (value) {
                         setState(() {
-                          _settingsState =
-                              _settingsState.copyWith(isSuperPuzzle: value);
+                          _settingsState = _settingsState.copyWith(isSuperPuzzle: value);
                         });
                       },
                     ),
@@ -1205,8 +1191,7 @@ class SettingsSectionState extends State<SettingsSection> {
                       value: _settingsState.showNumbers,
                       onChanged: (value) {
                         setState(() {
-                          _settingsState =
-                              _settingsState.copyWith(showNumbers: value);
+                          _settingsState = _settingsState.copyWith(showNumbers: value);
                         });
                       },
                     ),
@@ -1294,9 +1279,7 @@ class SettingsSectionState extends State<SettingsSection> {
                     // Tests if an update was made by user,
                     // or if it should just reshuffle
                     if (isUpdate) {
-                      context
-                          .read<SettingsBloc>()
-                          .add(SettingsUpdated(settingsState: currentSettings));
+                      context.read<SettingsBloc>().add(SettingsUpdated(settingsState: currentSettings));
                     } else {
                       context.read<PuzzleBloc>().add(const PuzzleReset());
                     }
@@ -1427,7 +1410,7 @@ class SharingSectionState extends State<SharingSection> {
                         if (code.isNotEmpty) {
                           context.read<PuzzleBloc>().add(
                                 PuzzleImport(
-                                  'QUACK-${code.toUpperCase()}',
+                                  code,
                                 ),
                               );
                         }
@@ -1465,8 +1448,7 @@ class SimplePuzzleExportButton extends StatelessWidget {
     return PuzzleButton.small(
       textColor: PuzzleColors.primary0,
       backgroundColor: PuzzleColors.primary6,
-      onPressed: state.sharingStatus == SharingStatus.loading ||
-              state.puzzleStatus == PuzzleStatus.imageError
+      onPressed: state.sharingStatus == SharingStatus.loading || state.puzzleStatus == PuzzleStatus.imageError
           ? () {}
           : () => context.read<PuzzleBloc>().add(
                 const PuzzleExport(),
