@@ -112,6 +112,7 @@ class _MegaPuzzle extends StatelessWidget {
                           Container(
                             color: Colors.white,
                             child: const SafeArea(
+                              bottom: false,
                               child: _PuzzleHeader(
                                 key: Key('puzzle_header'),
                               ),

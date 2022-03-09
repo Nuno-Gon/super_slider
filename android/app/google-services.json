@@ -7,7 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1029485859684:android:2e688c333aa120a47a2071",
+        "mobilesdk_app_id": "1:1029485859684:android:cb87c96d1d1e6a187a2071",
         "android_client_info": {
           "package_name": "com.veryquack.supersliderquackedition"
         }
@@ -29,6 +29,13 @@
             {
               "client_id": "1029485859684-s3oddk19esh3f0e1fckhq03ija34vlir.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1029485859684-3lou8s9au1gd15ret0qnc67qmrtlpn2d.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.veryquack.supersliderquackedition"
+              }
             }
           ]
         }
