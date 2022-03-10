@@ -9,7 +9,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as imglib;
 import 'package:very_good_slide_puzzle/datasource/firebase_service.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
@@ -363,15 +362,10 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
 
     if (imageUrl != null && imageUrl.isNotEmpty) {
       try {
-        final response = await http.get(
-          Uri.parse(imageUrl),
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': 'true',
-          },
-        );
-
-        byteData = response.bodyBytes;
+        final imageData = await NetworkAssetBundle(
+          Uri.parse('imageUrl'),
+        ).load('');
+        byteData = imageData.buffer.asUint8List();
       } on Exception catch (_) {
         byteData = Uint8List(6);
       }
