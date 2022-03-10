@@ -190,7 +190,9 @@ class Puzzle extends Equatable {
       final shiftPointX = tile.currentPosition.x + deltaX.sign;
       final shiftPointY = tile.currentPosition.y + deltaY.sign;
       final tileToSwapWith = tiles.singleWhere(
-        (tile) => tile.currentPosition.x == shiftPointX && tile.currentPosition.y == shiftPointY,
+        (tile) =>
+            tile.currentPosition.x == shiftPointX &&
+            tile.currentPosition.y == shiftPointY,
       );
       tilesToSwap.add(tile);
       return moveTiles(tileToSwapWith, tilesToSwap);
