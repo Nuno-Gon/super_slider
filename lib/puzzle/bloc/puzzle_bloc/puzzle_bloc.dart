@@ -7,19 +7,21 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:image/image.dart' as imglib;
 import 'package:very_good_slide_puzzle/datasource/firebase_service.dart';
 import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/utils/utils.dart';
 
 part 'puzzle_event.dart';
-
 part 'puzzle_state.dart';
 
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
-  PuzzleBloc(this._size, {this.imageUrl, this.random}) : super(const PuzzleState()) {
+  PuzzleBloc(this._size, {this.imageUrl, this.random})
+      : super(const PuzzleState()) {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
     on<TileDoubleTapped>(_onTileDoubleTapped);
@@ -361,10 +363,21 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
 
     if (imageUrl != null && imageUrl.isNotEmpty) {
       try {
-        final imageData = await NetworkAssetBundle(
-          Uri.parse(imageUrl),
-        ).load('');
-        byteData = imageData.buffer.asUint8List();
+        if (kIsWeb) {
+          final response = await http.get(
+            Uri.parse(imageUrl),
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': 'true',
+            },
+          );
+          byteData = response.bodyBytes;
+        } else {
+          final imageData = await NetworkAssetBundle(
+            Uri.parse(imageUrl),
+          ).load('');
+          byteData = imageData.buffer.asUint8List();
+        }
       } on Exception catch (_) {
         byteData = Uint8List(6);
       }
@@ -379,7 +392,9 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);
-      byteData = (await rootBundle.load(curatedImages[randomPick])).buffer.asUint8List();
+      byteData = (await rootBundle.load(curatedImages[randomPick]))
+          .buffer
+          .asUint8List();
     }
 
     return byteData;
