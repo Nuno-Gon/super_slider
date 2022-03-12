@@ -19,8 +19,7 @@ part 'puzzle_event.dart';
 part 'puzzle_state.dart';
 
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
-  PuzzleBloc(this._size, {this.imageUrl, this.random})
-      : super(const PuzzleState()) {
+  PuzzleBloc(this._size, {this.imageUrl, this.random}) : super(const PuzzleState()) {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
     on<TileDoubleTapped>(_onTileDoubleTapped);
@@ -363,7 +362,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
     if (imageUrl != null && imageUrl.isNotEmpty) {
       try {
         final imageData = await NetworkAssetBundle(
-          Uri.parse('imageUrl'),
+          Uri.parse(imageUrl),
         ).load('');
         byteData = imageData.buffer.asUint8List();
       } on Exception catch (_) {
@@ -380,9 +379,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);
-      byteData = (await rootBundle.load(curatedImages[randomPick]))
-          .buffer
-          .asUint8List();
+      byteData = (await rootBundle.load(curatedImages[randomPick])).buffer.asUint8List();
     }
 
     return byteData;
