@@ -366,10 +366,6 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         if (kIsWeb) {
           final response = await http.get(
             Uri.parse(imageUrl),
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Credentials': 'true',
-            },
           );
           byteData = response.bodyBytes;
         } else {
