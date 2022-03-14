@@ -1490,34 +1490,36 @@ void _showDismissibleDialog({
     barrierColor: Colors.black12.withOpacity(0.6),
     transitionDuration: const Duration(milliseconds: 400),
     pageBuilder: (builderContext, _, __) {
-      return Stack(
-        children: [
-          Center(
-            child: Container(
-              color: Colors.black,
-              child: ResponsiveLayoutBuilder(
-                small: (_, _child) => SizedBox.square(
-                  dimension: _BoardSize.small + 40,
-                  child: _child,
+      return SafeArea(
+        child: Stack(
+          children: [
+            Center(
+              child: Container(
+                color: Colors.black,
+                child: ResponsiveLayoutBuilder(
+                  small: (_, _child) => SizedBox.square(
+                    dimension: _BoardSize.small + 40,
+                    child: _child,
+                  ),
+                  medium: (_, _child) => SizedBox.square(
+                    dimension: _BoardSize.medium + 40,
+                    child: _child,
+                  ),
+                  large: (_, _child) => SizedBox.square(
+                    dimension: _BoardSize.large + 40,
+                    child: _child,
+                  ),
+                  child: (_) => child,
                 ),
-                medium: (_, _child) => SizedBox.square(
-                  dimension: _BoardSize.medium + 40,
-                  child: _child,
-                ),
-                large: (_, _child) => SizedBox.square(
-                  dimension: _BoardSize.large + 40,
-                  child: _child,
-                ),
-                child: (_) => child,
               ),
             ),
-          ),
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () => Navigator.pop(builderContext),
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => Navigator.pop(builderContext),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     },
   );
