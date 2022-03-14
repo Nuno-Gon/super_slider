@@ -3,7 +3,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as img_lib;
 import 'package:very_good_slide_puzzle/l10n/l10n.dart';
 import 'package:very_good_slide_puzzle/puzzle/puzzle.dart';
 
@@ -53,7 +52,7 @@ void sharingListener(PuzzleState state, BuildContext context) {
   }
 }
 
-///Converts Json String to Uint8List
+/// Converts Json String to Uint8List
 Uint8List getJsonUint8List(String json) => Uint8List.fromList(
       utf8.encode(json),
     );

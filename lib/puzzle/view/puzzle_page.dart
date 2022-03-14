@@ -78,13 +78,46 @@ class PuzzleView extends StatelessWidget {
   }
 }
 
-class _MegaPuzzle extends StatelessWidget {
+class _MegaPuzzle extends StatefulWidget {
   const _MegaPuzzle({Key? key}) : super(key: key);
+
+  @override
+  State<_MegaPuzzle> createState() => _MegaPuzzleState();
+}
+
+class _MegaPuzzleState extends State<_MegaPuzzle> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    _scrollController = ScrollController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeIn,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.select((ThemeBloc bloc) => bloc.state.theme);
     final state = context.select((PuzzleBloc bloc) => bloc.state);
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      if (state.numberOfMoves == 0) {
+        _scrollToTop();
+      }
+    });
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -94,6 +127,7 @@ class _MegaPuzzle extends StatelessWidget {
             children: [
               theme.layoutDelegate.backgroundBuilder(state),
               SingleChildScrollView(
+                controller: _scrollController,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minHeight: constraints.maxHeight,

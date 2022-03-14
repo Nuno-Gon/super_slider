@@ -7,6 +7,7 @@ import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -16,14 +17,11 @@ import 'package:very_good_slide_puzzle/models/models.dart';
 import 'package:very_good_slide_puzzle/utils/utils.dart';
 
 part 'puzzle_event.dart';
-
 part 'puzzle_state.dart';
 
 class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
   PuzzleBloc(this._size, {this.imageUrl, this.random})
-      : super(
-          const PuzzleState(),
-        ) {
+      : super(const PuzzleState()) {
     on<PuzzleInitialized>(_onPuzzleInitialized);
     on<TileTapped>(_onTileTapped);
     on<TileDoubleTapped>(_onTileDoubleTapped);
@@ -240,13 +238,14 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
       return const Puzzle(tiles: []);
     }
 
-// Create List with converted images ready to display
+    // Create List with converted images ready to display
     final displayReadyImages = <Image>[];
     for (final img in dividedImage) {
       displayReadyImages.add(
         convertImage(img),
       );
     }
+
     // Create all possible board positions.
     for (var y = 1; y <= size; y++) {
       for (var x = 1; x <= size; x++) {
@@ -364,15 +363,21 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
 
     if (imageUrl != null && imageUrl.isNotEmpty) {
       try {
-        final response = await http.get(
-          Uri.parse(imageUrl),
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': 'true',
-          },
-        );
-
-        byteData = response.bodyBytes;
+        if (kIsWeb) {
+          final response = await http.get(
+            Uri.parse(imageUrl),
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Credentials': 'true',
+            },
+          );
+          byteData = response.bodyBytes;
+        } else {
+          final imageData = await NetworkAssetBundle(
+            Uri.parse(imageUrl),
+          ).load('');
+          byteData = imageData.buffer.asUint8List();
+        }
       } on Exception catch (_) {
         byteData = Uint8List(6);
       }
@@ -387,9 +392,7 @@ class PuzzleBloc extends Bloc<PuzzleEvent, PuzzleState> {
         'assets/images/square_png.png',
       ];
       final randomPick = Random().nextInt(curatedImages.length);
-      byteData = (await rootBundle.load(
-        curatedImages[randomPick],
-      ))
+      byteData = (await rootBundle.load(curatedImages[randomPick]))
           .buffer
           .asUint8List();
     }
